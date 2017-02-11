@@ -13,9 +13,9 @@ type Default struct {
 }
 
 type Check struct {
-	Desc string
-	If   *govaluate.EvaluableExpression
-	Then string // should be something else :/ (with arguments ?)
+	Desc    string
+	If      *govaluate.EvaluableExpression
+	Classes []string
 }
 
 type Probe struct {

@@ -27,9 +27,9 @@ type tomlDefault struct {
 }
 
 type tomlCheck struct {
-	Desc string
-	If   string
-	Then string
+	Desc    string
+	If      string
+	Classes []string
 }
 
 type tomlProbe struct {
@@ -61,7 +61,7 @@ func tomlProbeToProbe(tProbe *tomlProbe, configPath string) (*Probe, error) {
 		return nil, errors.New("invalid or missing 'script'")
 	}
 
-	scriptPath := path.Clean(configPath + "/probes/" + tProbe.Script)
+	scriptPath := path.Clean(configPath + "/scripts/probes/" + tProbe.Script)
 	stat, err := os.Stat(scriptPath)
 
 	if err != nil {
@@ -166,22 +166,19 @@ func tomlProbeToProbe(tProbe *tomlProbe, configPath string) (*Probe, error) {
 		}
 		check.If = expr
 
-		if tCheck.Then == "" {
-			return nil, errors.New("[[check]] with invalid or missing 'Then'")
+		if tCheck.Classes == nil {
+			return nil, errors.New("no valid 'classes' parameter found")
 		}
 
-		valid := false
-		switch tCheck.Then {
-		case "WARNING":
-			valid = true
-		case "ERROR":
-			valid = true
+		if len(tCheck.Classes) == 0 {
+			return nil, errors.New("empty classes")
 		}
-
-		if valid == false {
-			return nil, fmt.Errorf("[[check]] invalid 'then' value: '%s'", tCheck.Then)
+		for _, class := range tCheck.Classes {
+			if !IsValidTokenName(class) {
+				return nil, fmt.Errorf("invalid class name '%s'", class)
+			}
 		}
-		check.Then = tCheck.Then
+		check.Classes = tCheck.Classes
 
 		probe.Checks = append(probe.Checks, &check)
 	}
