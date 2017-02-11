@@ -50,7 +50,8 @@ func (host *Host) Schedule() {
 		// start := time
 		// run tasks (if any needed)
 		for _, task := range host.Tasks {
-			if time.Now().After(task.NextRun) {
+			now := time.Now()
+			if now.After(task.NextRun) || now.Equal(task.NextRun) {
 				task.NextRun = time.Now().Add(task.Probe.Delay)
 				fmt.Printf("%s: run task '%s' on host '%s'\n", time.Now().Format("15:04:05"), task.Probe.Name, host.Name)
 			}
