@@ -147,51 +147,7 @@ func mainDefault(ctx *cli.Context) error {
 	}
 
 	hostGroup.Wait()
-	fmt.Println("QUIT: empty wait group, everyone died :(")
-
-	//////////////////////////
-
-	if true {
-		os.Exit(0)
-	}
-
-	ppath := path.Clean(ctx.String("config-path") + "/probes/")
-
-	if _, err := os.Stat(ppath); os.IsNotExist(err) {
-		return fmt.Errorf("Can't find '%s' script directory", ppath)
-	}
-
-	commands := []Command{
-		Command{ScriptFile: ppath + "cpu_temp.sh", Arguments: "0"},
-		Command{ScriptFile: ppath + "load.sh"},
-		Command{ScriptFile: ppath + "load_win.sh"},
-		Command{ScriptFile: ppath + "mem.sh"},
-	}
-
-	results := make(chan error)
-	timeout := time.After(15 * time.Second)
-
-	for _, h := range hosts {
-		go func(host *Host) {
-			results <- host.Connection.RunCommands(commands)
-		}(h)
-	}
-
-	fmt.Printf("-- Waiting\n")
-
-	for i := 0; i < len(hosts); i++ {
-		select {
-		case err := <-results:
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "command run error: %s\n", err)
-			}
-		case <-timeout:
-			return fmt.Errorf("Timeout (global)")
-		}
-	}
-
-	fmt.Printf("-- Finished\n")
-	return nil
+	return fmt.Errorf("QUIT: empty wait group, everyone died :(")
 }
 
 func main() {

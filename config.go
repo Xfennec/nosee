@@ -44,10 +44,7 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	if tConfig.StartTimeSpread.Duration > (1 * time.Minute) {
 		return nil, errors.New("'start_time_spread' can't be more than a minute")
 	}
-	fmt.Println(tConfig)
 	config.StartTimeSpreadSeconds = int(tConfig.StartTimeSpread.Duration.Seconds())
-	fmt.Println(tConfig.StartTimeSpread.Duration.Seconds())
-	fmt.Println(config.StartTimeSpreadSeconds)
 
 	return &config, nil
 }

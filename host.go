@@ -47,18 +47,36 @@ func (host *Host) MatchProbeTargets(probe *Probe) bool {
 
 func (host *Host) Schedule() {
 	for {
-		// start := time
-		// run tasks (if any needed)
+		start := time.Now()
+
+		var run Run
+		run.Host = host
+		run.StartTime = start
+
 		for _, task := range host.Tasks {
-			now := time.Now()
-			if now.After(task.NextRun) || now.Equal(task.NextRun) {
-				task.NextRun = time.Now().Add(task.Probe.Delay)
-				fmt.Printf("%s: run task '%s' on host '%s'\n", time.Now().Format("15:04:05"), task.Probe.Name, host.Name)
+			if start.After(task.NextRun) || start.Equal(task.NextRun) {
+				task.NextRun = start.Add(task.Probe.Delay)
+				fmt.Printf("%s: task '%s' on host '%s'\n", start.Format("15:04:05"), task.Probe.Name, host.Name)
+				run.Tasks = append(run.Tasks, task)
 			}
 		}
-		// end := time
-		// wait (if any time left)
-		time.Sleep(time.Second * 5)
+		run.Go()
+		run.Dump()
+		//fmt.Println(run)
+
+		// what about timeouts?
+
+		end := time.Now()
+		dur := end.Sub(start)
+
+		if dur < time.Minute {
+			remains := time.Minute - dur
+			time.Sleep(remains)
+		} else {
+			run.addError(fmt.Errorf("run duration was too long (%s)", run.Duration))
+		}
+		fmt.Printf("(loop %s)\n", host.Name)
+
 	}
 	fmt.Printf("end of %s\n", host.Name)
 }

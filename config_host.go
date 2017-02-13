@@ -35,7 +35,6 @@ func tomlHostToHost(tHost *tomlHost) (*Host, error) {
 	)
 
 	host.Connection = &connection
-	connection.ParentHost = &host
 
 	if tHost.Disabled == true {
 		return nil, nil
