@@ -29,7 +29,6 @@ type Probe struct {
 	Checks    []*Check
 }
 
-
 func (probe *Probe) MissingDefaults() []string {
 	missing := make(map[string]bool)
 	defaults := make(map[string]bool)

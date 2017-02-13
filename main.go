@@ -46,6 +46,11 @@ func mainDefault(ctx *cli.Context) error {
 
 	configPath := ctx.String("config-path")
 
+	config, err := GlobalConfigRead(configPath, "nosee.toml")
+	if err != nil {
+		return fmt.Errorf("Config error (nosee.toml): %s", err)
+	}
+
 	hostsdFiles, err := configurationDirList("hosts.d", configPath)
 	if err != nil {
 		return fmt.Errorf("Error: %s", err)
@@ -126,17 +131,17 @@ func mainDefault(ctx *cli.Context) error {
 
 	fmt.Printf("task count = %d\n", taskCount)
 
-	startTimeSpreadSeconds := 1
-
 	var hostGroup sync.WaitGroup
 	for i, host := range hosts {
 		hostGroup.Add(1)
 		go func(i int, host *Host) {
 			defer hostGroup.Done()
-			// we add a (small) Sleep here, to ease global load
-			fact := float32(i) / float32(len(hosts)) * 1000 * float32(startTimeSpreadSeconds)
-			wait := time.Duration(fact) * time.Millisecond
-			time.Sleep(wait)
+			if config.StartTimeSpreadSeconds > 0 {
+				// Sleep here, to ease global load
+				fact := float32(i) / float32(len(hosts)) * 1000 * float32(config.StartTimeSpreadSeconds)
+				wait := time.Duration(fact) * time.Millisecond
+				time.Sleep(wait)
+			}
 			host.Schedule()
 		}(i, host)
 	}
