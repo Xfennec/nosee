@@ -8,8 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"golang.org/x/crypto/ssh"
 )
 
 type TaskResult struct {
@@ -248,8 +246,9 @@ func (run *Run) stdinFilter(out io.WriteCloser, exitStatus chan int) {
 	}
 }
 
-func (run *Run) preparePipes(session *ssh.Session) error {
+func (run *Run) preparePipes() error {
 	exitStatus := make(chan int)
+	session := run.Host.Connection.Session
 
 	stdin, err := session.StdinPipe()
 	if err != nil {
@@ -276,24 +275,20 @@ func (run *Run) preparePipes(session *ssh.Session) error {
 func (run *Run) Go() {
 	const bootstrap = "bash -s --"
 
-	var (
-		session *ssh.Session
-		err     error
-	)
-
 	run.StartTime = time.Now()
 	defer func() {
 		run.Duration = time.Now().Sub(run.StartTime)
 	}()
 
-	if session, err = run.Host.Connection.newSession(); err != nil {
+	if err := run.Host.Connection.Connect(); err != nil {
 		run.addError(err)
 		return
 	}
-	defer session.Close()
+	defer run.Host.Connection.Close()
+
 	run.DialDuration = time.Now().Sub(run.StartTime)
 
-	if err = run.preparePipes(session); err != nil {
+	if err := run.preparePipes(); err != nil {
 		run.addError(err)
 		return
 	}
@@ -302,7 +297,7 @@ func (run *Run) Go() {
 	ended := make(chan int, 1)
 
 	go func() {
-		if err = session.Run(bootstrap); err != nil {
+		if err := run.Host.Connection.Session.Run(bootstrap); err != nil {
 			run.addError(err)
 		}
 		ended <- 1
@@ -316,7 +311,6 @@ func (run *Run) Go() {
 	case <-time.After(timeout):
 		run.addError(fmt.Errorf("timeout for this run, after %s", timeout))
 		fmt.Println("timeout")
-		session.Close()
 	}
 
 }

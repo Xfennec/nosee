@@ -13,14 +13,35 @@ import (
 )
 
 type Connection struct {
-	User  string
-	Auths []ssh.AuthMethod
-	Host  string
-	Port  int
+	User    string
+	Auths   []ssh.AuthMethod
+	Host    string
+	Port    int
+	Session *ssh.Session
+	Client  *ssh.Client
 }
 
-func (connection *Connection) newSession() (*ssh.Session, error) {
+func (connection *Connection) Close() error {
+    var (
+	sessionError error
+	clientError error
+    )
 
+    if connection.Session != nil {
+	sessionError = connection.Session.Close()
+    }
+    if connection.Client != nil {
+	clientError = connection.Client.Close()
+    }
+
+    if clientError != nil {
+	return clientError
+    }
+
+    return sessionError
+}
+
+func (connection *Connection) Connect() error {
 	sshConfig := &ssh.ClientConfig{
 		User: connection.User,
 		Auth: connection.Auths,
@@ -28,15 +49,17 @@ func (connection *Connection) newSession() (*ssh.Session, error) {
 
 	dial, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", connection.Host, connection.Port), sshConfig)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to dial: %s", err)
+		return fmt.Errorf("Failed to dial: %s", err)
 	}
+	connection.Client = dial
 
 	session, err := dial.NewSession()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create session: %s", err)
+		return fmt.Errorf("Failed to create session: %s", err)
 	}
+	connection.Session = session
 
-	return session, nil
+	return nil
 }
 
 func PublicKeyFile(file string) ssh.AuthMethod {
