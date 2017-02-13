@@ -60,11 +60,9 @@ func (host *Host) Schedule() {
 				run.Tasks = append(run.Tasks, task)
 			}
 		}
+
 		run.Go()
 		run.Dump()
-		//fmt.Println(run)
-
-		// what about timeouts?
 
 		end := time.Now()
 		dur := end.Sub(start)

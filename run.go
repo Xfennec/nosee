@@ -48,7 +48,7 @@ func (run *Run) Dump() {
     fmt.Printf("- duration: %s\n", run.Duration)
     fmt.Printf("- ssh dial duration: %s\n", run.DialDuration)
     for _, err := range run.Errors {
-        fmt.Printf("- %s\n", err)
+        fmt.Printf("-e %s\n", err)
     }
     for _, res := range run.Results {
         fmt.Printf("-- task probe: %s\n", res.Task.Probe.Name)
@@ -239,6 +239,10 @@ func (run *Run) stdinFilter(out io.WriteCloser, exitStatus chan int) {
 		status := <-exitStatus
         result.ExitStatus = status
         result.Duration = time.Now().Sub(result.StartTime)
+        if result.Duration > result.Task.Probe.Timeout {
+            result.addError(fmt.Errorf("task duration was too long (%s, timeout is %s)", result.Duration, result.Task.Probe.Timeout))
+        }
+
 		/*if status != 0 {
 			result.addError(fmt.Errorf("detected exit status %d\n", status))
 		}*/
@@ -271,6 +275,7 @@ func (run *Run) preparePipes(session *ssh.Session) error {
 }
 
 
+// BUG: connection stays open! Must close client AND session
 func (run *Run) Go() {
 	const bootstrap = "bash -s --"
 
@@ -291,15 +296,30 @@ func (run *Run) Go() {
 	defer session.Close()
     run.DialDuration = time.Now().Sub(run.StartTime)
 
-    // timeout ?
-
 	if err = run.preparePipes(session); err != nil {
 		run.addError(err)
 		return
 	}
 
-    if err = session.Run(bootstrap); err != nil {
-        run.addError(err)
+    // timeout ? (go subroutine the following? with session.Close on timeout?)
+    ended := make(chan int, 1)
+
+    go func() {
+        if err = session.Run(bootstrap); err != nil {
+            run.addError(err)
+        }
+        ended <- 1
+    }()
+
+    timeout := time.Second * 5
+    select {
+        case <- ended:
+        // should probably substract dial duration!
+        // or declare time.After(timeout) before connection perhaps?
+        case <- time.After(timeout):
+            run.addError(fmt.Errorf("timeout for this run, after %s", timeout))
+            fmt.Println("timeout")
+            session.Close()
     }
 
 }

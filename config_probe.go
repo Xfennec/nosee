@@ -111,8 +111,8 @@ func tomlProbeToProbe(tProbe *tomlProbe, configPath string) (*Probe, error) {
 		tProbe.Timeout.Duration = 20 * time.Second
 	}
 
-	if tProbe.Timeout.Duration < (5 * time.Second) {
-		return nil, errors.New("'timeout' can't be less than 5 seconds")
+	if tProbe.Timeout.Duration < (1 * time.Second) {
+		return nil, errors.New("'timeout' can't be less than 1 second")
 	}
 	probe.Timeout = tProbe.Timeout.Duration
 
