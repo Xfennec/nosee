@@ -12,14 +12,12 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 )
 
-
 type Connection struct {
-	User       string
-	Auths      []ssh.AuthMethod
-	Host       string
-	Port       int
+	User  string
+	Auths []ssh.AuthMethod
+	Host  string
+	Port  int
 }
-
 
 func (connection *Connection) newSession() (*ssh.Session, error) {
 
@@ -40,7 +38,6 @@ func (connection *Connection) newSession() (*ssh.Session, error) {
 
 	return session, nil
 }
-
 
 func PublicKeyFile(file string) ssh.AuthMethod {
 	buffer, err := ioutil.ReadFile(file)

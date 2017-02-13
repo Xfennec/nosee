@@ -1,13 +1,13 @@
 package main
 
 import (
-    "time"
-    "io"
-    "bufio"
+	"bufio"
+	"fmt"
+	"io"
+	"os"
 	"strconv"
-    "strings"
-    "os"
-    "fmt"
+	"strings"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -16,69 +16,68 @@ type TaskResult struct {
 	Task       *Task
 	Values     map[string]string
 	ExitStatus int
-	StartTime time.Time
+	StartTime  time.Time
 	Duration   time.Duration
-    Logs       []string
+	Logs       []string
 	Errors     []error
 }
 
 type Run struct {
-	Host	     *Host
+	Host         *Host
 	Tasks        []*Task
 	StartTime    time.Time
 	Duration     time.Duration
-    DialDuration time.Duration
-	Results	     []*TaskResult
+	DialDuration time.Duration
+	Results      []*TaskResult
 	Errors       []error
 }
 
 func (result *TaskResult) addError(err error) {
-    result.Errors = append(result.Errors, err)
+	result.Errors = append(result.Errors, err)
 }
 
 func (result *TaskResult) addLog(line string) {
-    result.Logs = append(result.Logs, line)
+	result.Logs = append(result.Logs, line)
 }
 
 func (run *Run) Dump() {
-    fmt.Printf("-\n")
-    fmt.Printf("- host: %s\n", run.Host.Name)
-    fmt.Printf("- %d task(s)\n", len(run.Tasks))
-    fmt.Printf("- start: %s\n", run.StartTime)
-    fmt.Printf("- duration: %s\n", run.Duration)
-    fmt.Printf("- ssh dial duration: %s\n", run.DialDuration)
-    for _, err := range run.Errors {
-        fmt.Printf("-e %s\n", err)
-    }
-    for _, res := range run.Results {
-        fmt.Printf("-- task probe: %s\n", res.Task.Probe.Name)
-        fmt.Printf("-- next task run: %s\n", res.Task.NextRun)
-        fmt.Printf("-- start time: %s\n", res.StartTime)
-        fmt.Printf("-- duration: %s\n", res.Duration)
-        fmt.Printf("-- exit status: %d\n", res.ExitStatus)
-        for _, err := range res.Errors {
-            fmt.Printf("-e- %s\n", err)
-        }
-        for _, log := range res.Logs {
-            fmt.Printf("-l- %s\n", log)
-        }
-        for key, val := range res.Values {
-            fmt.Printf("-v- '%s' = '%s'\n", key, val)
-        }
-    }
+	fmt.Printf("-\n")
+	fmt.Printf("- host: %s\n", run.Host.Name)
+	fmt.Printf("- %d task(s)\n", len(run.Tasks))
+	fmt.Printf("- start: %s\n", run.StartTime)
+	fmt.Printf("- duration: %s\n", run.Duration)
+	fmt.Printf("- ssh dial duration: %s\n", run.DialDuration)
+	for _, err := range run.Errors {
+		fmt.Printf("-e %s\n", err)
+	}
+	for _, res := range run.Results {
+		fmt.Printf("-- task probe: %s\n", res.Task.Probe.Name)
+		fmt.Printf("-- next task run: %s\n", res.Task.NextRun)
+		fmt.Printf("-- start time: %s\n", res.StartTime)
+		fmt.Printf("-- duration: %s\n", res.Duration)
+		fmt.Printf("-- exit status: %d\n", res.ExitStatus)
+		for _, err := range res.Errors {
+			fmt.Printf("-e- %s\n", err)
+		}
+		for _, log := range res.Logs {
+			fmt.Printf("-l- %s\n", log)
+		}
+		for key, val := range res.Values {
+			fmt.Printf("-v- '%s' = '%s'\n", key, val)
+		}
+	}
 }
 
-
 func (run *Run) addError(err error) {
-    run.Errors = append(run.Errors, err)
+	run.Errors = append(run.Errors, err)
 }
 
 func (run *Run) currentTaskResult() *TaskResult {
-    if (len(run.Results) == 0) {
-        return nil
-    }
+	if len(run.Results) == 0 {
+		return nil
+	}
 
-    return run.Results[len(run.Results) - 1]
+	return run.Results[len(run.Results)-1]
 }
 
 func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
@@ -86,7 +85,7 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 
 	for scanner.Scan() {
 		text := scanner.Text()
-        result := run.currentTaskResult()
+		result := run.currentTaskResult()
 
 		//~ fmt.Printf("stdout=%s (%s)\n", text, run.Host.Name)
 
@@ -95,7 +94,7 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 			switch parts[0] {
 			case "__EXIT":
 				if len(parts) != 2 {
-                    run.addError(fmt.Errorf("Invalid __EXIT: %s\n", text))
+					run.addError(fmt.Errorf("Invalid __EXIT: %s\n", text))
 					continue
 				}
 				status, err := strconv.Atoi(parts[1])
@@ -111,40 +110,40 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 			continue
 		}
 
-        if len(text) > 1 && text[0:1] == "#" {
-            result.addLog(text)
-            continue
-        }
+		if len(text) > 1 && text[0:1] == "#" {
+			result.addLog(text)
+			continue
+		}
 
-        sep := strings.Index(text, ":")
+		sep := strings.Index(text, ":")
 
-        if sep == -1 || sep == 0 {
-            result.addError(fmt.Errorf("invalid script output: '%s'", text))
-            continue
-        }
+		if sep == -1 || sep == 0 {
+			result.addError(fmt.Errorf("invalid script output: '%s'", text))
+			continue
+		}
 
-        paramName := strings.TrimSpace(text[0:sep])
-        if ! IsValidTokenName(paramName) {
-           result.addError(fmt.Errorf("invalid parameter name: '%s' (not a valid token name): '%s'", paramName, text))
-           continue
-        }
-        if ! IsAllUpper(paramName) {
-            result.addError(fmt.Errorf("invalid parameter name: '%s' (upper case needed): '%s'", paramName, text))
-            continue
-        }
+		paramName := strings.TrimSpace(text[0:sep])
+		if !IsValidTokenName(paramName) {
+			result.addError(fmt.Errorf("invalid parameter name: '%s' (not a valid token name): '%s'", paramName, text))
+			continue
+		}
+		if !IsAllUpper(paramName) {
+			result.addError(fmt.Errorf("invalid parameter name: '%s' (upper case needed): '%s'", paramName, text))
+			continue
+		}
 
-        if _, exists := result.Values[paramName]; exists == true {
-            result.addError(fmt.Errorf("parameter '%s' defined multiple times", paramName))
-            continue
-        }
+		if _, exists := result.Values[paramName]; exists == true {
+			result.addError(fmt.Errorf("parameter '%s' defined multiple times", paramName))
+			continue
+		}
 
-        value := strings.TrimSpace(text[sep + 1:])
-        if len(value) == 0 {
-            result.addError(fmt.Errorf("empty value for parameter '%s'", paramName))
-            continue
-        }
+		value := strings.TrimSpace(text[sep+1:])
+		if len(value) == 0 {
+			result.addError(fmt.Errorf("empty value for parameter '%s'", paramName))
+			continue
+		}
 
-        result.Values[paramName] = value
+		result.Values[paramName] = value
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -153,40 +152,40 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 }
 
 func (run *Run) readStderr(std io.Reader) {
-    scanner := bufio.NewScanner(std)
+	scanner := bufio.NewScanner(std)
 
 	for scanner.Scan() {
 		text := scanner.Text()
-        //~ fmt.Printf("stderr=%s\n", text)
-        run.currentTaskResult().addError(fmt.Errorf("stderr=%s", text))
-    }
+		//~ fmt.Printf("stderr=%s\n", text)
+		run.currentTaskResult().addError(fmt.Errorf("stderr=%s", text))
+	}
 
 	if err := scanner.Err(); err != nil {
 		run.addError(fmt.Errorf("Error reading stderr: %s\n", err))
-        return // !!!
+		return // !!!
 	}
 }
 
 // scripts -> ssh
 func (run *Run) stdinFilter(out io.WriteCloser, exitStatus chan int) {
 
-    defer out.Close()
+	defer out.Close()
 
 	// "pkill" dependency or Linux "ps"? (ie: not Cygwin)
 	_, err := out.Write([]byte("export __MAIN_PID=$$\nfunction __kill_subshells() { pkill -TERM -P $__MAIN_PID cat; }\nexport -f __kill_subshells\n"))
 	if err != nil {
 		run.addError(fmt.Errorf("Error writing (setup parent bash): %s\n", err))
-        return
+		return
 	}
 
 	for num, task := range run.Tasks {
 
-        var result TaskResult
-        run.Results = append(run.Results, &result)
-        result.StartTime = time.Now()
-        result.Task = task
-        result.ExitStatus = -1
-        result.Values = make(map[string]string)
+		var result TaskResult
+		run.Results = append(run.Results, &result)
+		result.StartTime = time.Now()
+		result.Task = task
+		result.ExitStatus = -1
+		result.Values = make(map[string]string)
 
 		file, err := os.Open(task.Probe.Script)
 		if err != nil {
@@ -205,14 +204,14 @@ func (run *Run) stdinFilter(out io.WriteCloser, exitStatus chan int) {
 		_, err = out.Write([]byte(str))
 		if err != nil {
 			run.addError(fmt.Errorf("Error writing (starting child bash): %s\n", err))
-            return
+			return
 		}
 
 		// no newline so we dont change line numbers
 		_, err = out.Write([]byte("trap __kill_subshells EXIT ; "))
 		if err != nil {
 			run.addError(fmt.Errorf("Error writing (init child bash): %s\n", err))
-            return
+			return
 		}
 
 		for scanner.Scan() {
@@ -221,14 +220,14 @@ func (run *Run) stdinFilter(out io.WriteCloser, exitStatus chan int) {
 			_, err := out.Write([]byte(text + "\n"))
 			if err != nil {
 				run.addError(fmt.Errorf("Error writing: %s\n", err))
-                return
+				return
 			}
 		}
 
 		_, err = out.Write([]byte("__kill_subshells\n"))
 		if err != nil {
 			run.addError(fmt.Errorf("Error writing (bash instance): %s\n", err))
-            return
+			return
 		}
 
 		if err := scanner.Err(); err != nil {
@@ -237,18 +236,17 @@ func (run *Run) stdinFilter(out io.WriteCloser, exitStatus chan int) {
 		}
 
 		status := <-exitStatus
-        result.ExitStatus = status
-        result.Duration = time.Now().Sub(result.StartTime)
-        if result.Duration > result.Task.Probe.Timeout {
-            result.addError(fmt.Errorf("task duration was too long (%s, timeout is %s)", result.Duration, result.Task.Probe.Timeout))
-        }
+		result.ExitStatus = status
+		result.Duration = time.Now().Sub(result.StartTime)
+		if result.Duration > result.Task.Probe.Timeout {
+			result.addError(fmt.Errorf("task duration was too long (%s, timeout is %s)", result.Duration, result.Task.Probe.Timeout))
+		}
 
 		/*if status != 0 {
 			result.addError(fmt.Errorf("detected exit status %d\n", status))
 		}*/
 	}
 }
-
 
 func (run *Run) preparePipes(session *ssh.Session) error {
 	exitStatus := make(chan int)
@@ -274,52 +272,51 @@ func (run *Run) preparePipes(session *ssh.Session) error {
 	return nil
 }
 
-
 // BUG: connection stays open! Must close client AND session
 func (run *Run) Go() {
 	const bootstrap = "bash -s --"
 
-    var (
-        session *ssh.Session
-        err error
-    )
+	var (
+		session *ssh.Session
+		err     error
+	)
 
-    run.StartTime = time.Now()
-    defer func() {
-        run.Duration = time.Now().Sub(run.StartTime)
-    }()
+	run.StartTime = time.Now()
+	defer func() {
+		run.Duration = time.Now().Sub(run.StartTime)
+	}()
 
 	if session, err = run.Host.Connection.newSession(); err != nil {
 		run.addError(err)
-        return
+		return
 	}
 	defer session.Close()
-    run.DialDuration = time.Now().Sub(run.StartTime)
+	run.DialDuration = time.Now().Sub(run.StartTime)
 
 	if err = run.preparePipes(session); err != nil {
 		run.addError(err)
 		return
 	}
 
-    // timeout ? (go subroutine the following? with session.Close on timeout?)
-    ended := make(chan int, 1)
+	// timeout ? (go subroutine the following? with session.Close on timeout?)
+	ended := make(chan int, 1)
 
-    go func() {
-        if err = session.Run(bootstrap); err != nil {
-            run.addError(err)
-        }
-        ended <- 1
-    }()
+	go func() {
+		if err = session.Run(bootstrap); err != nil {
+			run.addError(err)
+		}
+		ended <- 1
+	}()
 
-    timeout := time.Second * 5
-    select {
-        case <- ended:
-        // should probably substract dial duration!
-        // or declare time.After(timeout) before connection perhaps?
-        case <- time.After(timeout):
-            run.addError(fmt.Errorf("timeout for this run, after %s", timeout))
-            fmt.Println("timeout")
-            session.Close()
-    }
+	timeout := time.Second * 5
+	select {
+	case <-ended:
+	// should probably substract dial duration!
+	// or declare time.After(timeout) before connection perhaps?
+	case <-time.After(timeout):
+		run.addError(fmt.Errorf("timeout for this run, after %s", timeout))
+		fmt.Println("timeout")
+		session.Close()
+	}
 
 }

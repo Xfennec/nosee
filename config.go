@@ -23,11 +23,10 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	var tConfig tomlConfig
 
 	// defaults:
-    // config.xxx -> default if config file not exists
-    // tConfig.xxx -> default if parameter's not provided in config file
+	// config.xxx -> default if config file not exists
+	// tConfig.xxx -> default if parameter's not provided in config file
 	config.StartTimeSpreadSeconds = 15
-    tConfig.StartTimeSpread.Duration = 15 * time.Second
-
+	tConfig.StartTimeSpread.Duration = 15 * time.Second
 
 	configPath := path.Clean(dir + "/" + file)
 	stat, err := os.Stat(configPath)
