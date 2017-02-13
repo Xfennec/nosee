@@ -139,6 +139,11 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
         }
 
         value := strings.TrimSpace(text[sep + 1:])
+        if len(value) == 0 {
+            result.addError(fmt.Errorf("empty value for parameter '%s'", paramName))
+            continue
+        }
+
         result.Values[paramName] = value
 	}
 
