@@ -125,6 +125,10 @@ func tomlProbeToProbe(tProbe *tomlProbe, configPath string) (*Probe, error) {
 		if tDefault.Name == "" {
 			return nil, errors.New("[[default]] with invalid or missing 'name'")
 		}
+
+		if IsAllUpper(tDefault.Name) {
+			return nil, fmt.Errorf("[[default]] name is invalid (all uppercase): %s", tDefault.Name)
+		}
 		def.Name = tDefault.Name
 
 		valid := false
@@ -181,6 +185,10 @@ func tomlProbeToProbe(tProbe *tomlProbe, configPath string) (*Probe, error) {
 		check.Classes = tCheck.Classes
 
 		probe.Checks = append(probe.Checks, &check)
+	}
+
+	if miss := probe.MissingDefaults(); len(miss) > 0 {
+		return nil, fmt.Errorf("missing defaults (used in 'if' expressions): %s", strings.Join(miss, ", "))
 	}
 
 	return &probe, nil
