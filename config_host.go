@@ -3,13 +3,15 @@ package main
 import (
 	"errors"
 	"fmt"
+	//~ "time"
 
 	"golang.org/x/crypto/ssh"
 )
 
 type tomlNetwork struct {
-	Host string
-	Port int
+	Host            string
+	Port            int
+    SshConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
 }
 
 type tomlAuth struct {
@@ -68,6 +70,11 @@ func tomlHostToHost(tHost *tomlHost) (*Host, error) {
 		return nil, errors.New("[network] section, invalid or missing 'port'")
 	}
 	connection.Port = tHost.Network.Port
+
+	/*if tHost.Network.SshConnTimeWarn.Duration < (1 * time.Second) {
+		return nil, errors.New("'ssh_connection_time_warn' can't be less than a second")
+	}*/
+	connection.SshConnTimeWarn = tHost.Network.SshConnTimeWarn.Duration
 
 	if tHost.Auth.User == "" {
 		return nil, errors.New("[auth] section, invalid or missing 'user'")

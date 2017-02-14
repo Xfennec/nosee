@@ -62,6 +62,9 @@ func mainDefault(ctx *cli.Context) error {
 	for _, file := range hostsdFiles {
 		var tHost tomlHost
 
+		// defaults
+		tHost.Network.SshConnTimeWarn.Duration = config.SshConnTimeWarn
+
 		if _, err := toml.DecodeFile(file, &tHost); err != nil {
 			return fmt.Errorf("Error decoding %s: %s", file, err)
 		}

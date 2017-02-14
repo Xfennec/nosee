@@ -287,13 +287,16 @@ func (run *Run) Go() {
 	defer run.Host.Connection.Close()
 
 	run.DialDuration = time.Now().Sub(run.StartTime)
+    if run.DialDuration > run.Host.Connection.SshConnTimeWarn {
+        run.addError(fmt.Errorf("SSH connection time was too long: %s (ssh_connection_time_warn = %s)", run.DialDuration, run.Host.Connection.SshConnTimeWarn))
+        return
+    }
 
 	if err := run.preparePipes(); err != nil {
 		run.addError(err)
 		return
 	}
 
-	// timeout ? (go subroutine the following? with session.Close on timeout?)
 	ended := make(chan int, 1)
 
 	go func() {

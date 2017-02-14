@@ -7,18 +7,20 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 )
 
 type Connection struct {
-	User    string
-	Auths   []ssh.AuthMethod
-	Host    string
-	Port    int
-	Session *ssh.Session
-	Client  *ssh.Client
+	User            string
+	Auths           []ssh.AuthMethod
+	Host            string
+	Port            int
+	SshConnTimeWarn time.Duration
+	Session         *ssh.Session
+	Client          *ssh.Client
 }
 
 func (connection *Connection) Close() error {
