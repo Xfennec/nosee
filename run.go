@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+    "path/filepath"
 )
 
 type Run struct {
@@ -62,6 +63,16 @@ func (run *Run) currentTaskResult() *TaskResult {
 
 	return run.Results[len(run.Results)-1]
 }
+
+func (run *Run) totalErrorCount() int {
+    total := len(run.Errors)
+    for _, taskResult := range run.Results {
+        total += len(taskResult.Errors)
+    }
+    return total
+}
+
+
 
 func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 	scanner := bufio.NewScanner(std)
@@ -139,8 +150,9 @@ func (run *Run) readStderr(std io.Reader) {
 
 	for scanner.Scan() {
 		text := scanner.Text()
+        file := filepath.Base(run.currentTaskResult().Task.Probe.Script)
 		//~ fmt.Printf("stderr=%s\n", text)
-		run.currentTaskResult().addError(fmt.Errorf("stderr=%s", text))
+		run.currentTaskResult().addError(fmt.Errorf("%s, stderr: %s", file, text))
 	}
 
 	if err := scanner.Err(); err != nil {
