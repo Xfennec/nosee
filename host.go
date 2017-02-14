@@ -61,8 +61,10 @@ func (host *Host) Schedule() {
 			}
 		}
 
-		run.Go()
-		run.Dump()
+		if len(run.Tasks) > 0 {
+			run.Go()
+			run.Dump()
+		} // else empty run
 
 		end := time.Now()
 		dur := end.Sub(start)
