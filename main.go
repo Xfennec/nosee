@@ -50,6 +50,7 @@ func mainDefault(ctx *cli.Context) error {
 	if err != nil {
 		return fmt.Errorf("Config error (nosee.toml): %s", err)
 	}
+	config.configPath = configPath
 
 	hostsdFiles, err := configurationDirList("hosts.d", configPath)
 	if err != nil {
@@ -69,7 +70,7 @@ func mainDefault(ctx *cli.Context) error {
 			return fmt.Errorf("Error decoding %s: %s", file, err)
 		}
 
-		host, err := tomlHostToHost(&tHost)
+		host, err := tomlHostToHost(&tHost, config)
 		if err != nil {
 			return fmt.Errorf("Error using %s: %s", file, err)
 		}
@@ -100,7 +101,7 @@ func mainDefault(ctx *cli.Context) error {
 			return fmt.Errorf("Error decoding %s: %s", file, err)
 		}
 
-		probe, err := tomlProbeToProbe(&tProbe, configPath)
+		probe, err := tomlProbeToProbe(&tProbe, config)
 		if err != nil {
 			return fmt.Errorf("Error using %s: %s", file, err)
 		}

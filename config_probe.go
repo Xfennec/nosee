@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -45,7 +46,7 @@ type tomlProbe struct {
 }
 
 // default.name should be uniq!
-func tomlProbeToProbe(tProbe *tomlProbe, configPath string) (*Probe, error) {
+func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 	var probe Probe
 
 	if tProbe.Disabled == true {
@@ -61,7 +62,7 @@ func tomlProbeToProbe(tProbe *tomlProbe, configPath string) (*Probe, error) {
 		return nil, errors.New("invalid or missing 'script'")
 	}
 
-	scriptPath := path.Clean(configPath + "/scripts/probes/" + tProbe.Script)
+	scriptPath := path.Clean(config.configPath + "/scripts/probes/" + tProbe.Script)
 	stat, err := os.Stat(scriptPath)
 
 	if err != nil {
@@ -72,6 +73,14 @@ func tomlProbeToProbe(tProbe *tomlProbe, configPath string) (*Probe, error) {
 		return nil, fmt.Errorf("is not a regular 'script' file '%s'", scriptPath)
 	}
 	probe.Script = scriptPath
+
+	str, err := ioutil.ReadFile(scriptPath)
+	if err != nil {
+		return nil, fmt.Errorf("error reading script file '%s': %s", scriptPath, err)
+	}
+	if config.CacheScripts {
+		probe.ScriptCache = strings.NewReader(string(str))
+	}
 
 	if tProbe.Targets == nil {
 		return nil, errors.New("no valid 'targets' parameter found")

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"time"
 
 	"github.com/Knetic/govaluate"
@@ -19,14 +20,15 @@ type Check struct {
 }
 
 type Probe struct {
-	Name      string
-	Script    string
-	Targets   []string
-	Delay     time.Duration
-	Timeout   time.Duration
-	Arguments string
-	Defaults  []*Default
-	Checks    []*Check
+	Name        string
+	Script      string
+	ScriptCache *strings.Reader
+	Targets     []string
+	Delay       time.Duration
+	Timeout     time.Duration
+	Arguments   string
+	Defaults    []*Default
+	Checks      []*Check
 }
 
 func (probe *Probe) MissingDefaults() []string {

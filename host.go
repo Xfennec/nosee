@@ -11,7 +11,6 @@ type Host struct {
 	Classes    []string
 	Connection *Connection
 	Tasks      []*Task
-	// probably needs a channel too, right ?
 }
 
 func (host *Host) HasClass(class string) bool {

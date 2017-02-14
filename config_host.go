@@ -30,7 +30,7 @@ type tomlHost struct {
 	Classes  []string
 }
 
-func tomlHostToHost(tHost *tomlHost) (*Host, error) {
+func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 	var (
 		connection Connection
 		host       Host

@@ -180,14 +180,20 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 		result.ExitStatus = -1
 		result.Values = make(map[string]string)
 
-		file, err := os.Open(task.Probe.Script)
-		if err != nil {
-			result.addError(fmt.Errorf("Failed to open script: %s\n", err))
-			continue
-		}
-		defer file.Close()
+		var scanner *bufio.Scanner
 
-		scanner := bufio.NewScanner(file)
+		if task.Probe.ScriptCache == nil {
+			file, err := os.Open(task.Probe.Script)
+			if err != nil {
+				result.addError(fmt.Errorf("Failed to open script: %s\n", err))
+				continue
+			}
+			defer file.Close()
+
+			scanner = bufio.NewScanner(file)
+		} else {
+			scanner = bufio.NewScanner(task.Probe.ScriptCache)
+		}
 
 		args := task.Probe.Arguments
 
