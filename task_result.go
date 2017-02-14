@@ -61,9 +61,13 @@ func (result *TaskResult) DoChecks() {
         //~ fmt.Printf("%s: %s (err: %s)\n", check.Desc, res, err)
         if err != nil {
             result.addError(fmt.Errorf("%s (expression '%s' in '%s' check)", err, check.If, check.Desc))
-            continue // or return?
+            continue
         }
-        // test if res is a boolean
+        if _, ok := res.(bool) ; ok == false {
+            result.addError(fmt.Errorf("[[check]] 'if' must return a boolean value (expression '%s' in '%s' check)", check.If, check.Desc))
+            continue
+        }
+
         if res == true {
             result.FailedChecks = append(result.FailedChecks, check)
         }
