@@ -12,12 +12,12 @@ import (
 
 type tomlConfig struct {
 	StartTimeSpread Duration `toml:"start_time_spread"`
-    SshConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
+	SshConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
 }
 
 type Config struct {
 	StartTimeSpreadSeconds int
-    SshConnTimeWarn        time.Duration
+	SshConnTimeWarn        time.Duration
 }
 
 func GlobalConfigRead(dir, file string) (*Config, error) {
@@ -30,9 +30,8 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	config.StartTimeSpreadSeconds = 15
 	tConfig.StartTimeSpread.Duration = 15 * time.Second
 
-    config.SshConnTimeWarn = 6 * time.Second
-    tConfig.SshConnTimeWarn.Duration = config.SshConnTimeWarn
-
+	config.SshConnTimeWarn = 6 * time.Second
+	tConfig.SshConnTimeWarn.Duration = config.SshConnTimeWarn
 
 	configPath := path.Clean(dir + "/" + file)
 	stat, err := os.Stat(configPath)
@@ -55,8 +54,6 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 		return nil, errors.New("'ssh_connection_time_warn' can't be less than a second")
 	}*/
 	config.SshConnTimeWarn = tConfig.SshConnTimeWarn.Duration
-
-
 
 	return &config, nil
 }

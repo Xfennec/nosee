@@ -24,23 +24,23 @@ type Connection struct {
 }
 
 func (connection *Connection) Close() error {
-    var (
-	sessionError error
-	clientError error
-    )
+	var (
+		sessionError error
+		clientError  error
+	)
 
-    if connection.Session != nil {
-	sessionError = connection.Session.Close()
-    }
-    if connection.Client != nil {
-	clientError = connection.Client.Close()
-    }
+	if connection.Session != nil {
+		sessionError = connection.Session.Close()
+	}
+	if connection.Client != nil {
+		clientError = connection.Client.Close()
+	}
 
-    if clientError != nil {
-	return clientError
-    }
+	if clientError != nil {
+		return clientError
+	}
 
-    return sessionError
+	return sessionError
 }
 
 func (connection *Connection) Connect() error {

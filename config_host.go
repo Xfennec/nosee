@@ -11,7 +11,7 @@ import (
 type tomlNetwork struct {
 	Host            string
 	Port            int
-    SshConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
+	SshConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
 }
 
 type tomlAuth struct {

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
-    "path/filepath"
 )
 
 type Run struct {
@@ -65,14 +65,12 @@ func (run *Run) currentTaskResult() *TaskResult {
 }
 
 func (run *Run) totalErrorCount() int {
-    total := len(run.Errors)
-    for _, taskResult := range run.Results {
-        total += len(taskResult.Errors)
-    }
-    return total
+	total := len(run.Errors)
+	for _, taskResult := range run.Results {
+		total += len(taskResult.Errors)
+	}
+	return total
 }
-
-
 
 func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 	scanner := bufio.NewScanner(std)
@@ -150,7 +148,7 @@ func (run *Run) readStderr(std io.Reader) {
 
 	for scanner.Scan() {
 		text := scanner.Text()
-        file := filepath.Base(run.currentTaskResult().Task.Probe.Script)
+		file := filepath.Base(run.currentTaskResult().Task.Probe.Script)
 		//~ fmt.Printf("stderr=%s\n", text)
 		run.currentTaskResult().addError(fmt.Errorf("%s, stderr: %s", file, text))
 	}
@@ -268,18 +266,17 @@ func (run *Run) preparePipes() error {
 	return nil
 }
 
-
 func (run *Run) DoChecks() {
-    for _, taskResult := range run.Results {
-        taskResult.DoChecks()
-    }
+	for _, taskResult := range run.Results {
+		taskResult.DoChecks()
+	}
 }
 
 func (run *Run) Go() {
 	const bootstrap = "bash -s --"
 
 	timeout := time.Second * 59
-    timeoutChan := time.After(timeout)
+	timeoutChan := time.After(timeout)
 
 	run.StartTime = time.Now()
 	defer func() {
@@ -293,10 +290,10 @@ func (run *Run) Go() {
 	defer run.Host.Connection.Close()
 
 	run.DialDuration = time.Now().Sub(run.StartTime)
-    if run.DialDuration > run.Host.Connection.SshConnTimeWarn {
-        run.addError(fmt.Errorf("SSH connection time was too long: %s (ssh_connection_time_warn = %s)", run.DialDuration, run.Host.Connection.SshConnTimeWarn))
-        return
-    }
+	if run.DialDuration > run.Host.Connection.SshConnTimeWarn {
+		run.addError(fmt.Errorf("SSH connection time was too long: %s (ssh_connection_time_warn = %s)", run.DialDuration, run.Host.Connection.SshConnTimeWarn))
+		return
+	}
 
 	if err := run.preparePipes(); err != nil {
 		run.addError(err)
@@ -314,7 +311,7 @@ func (run *Run) Go() {
 
 	select {
 	case <-ended:
-        // nice
+		// nice
 	case <-timeoutChan:
 		run.addError(fmt.Errorf("timeout for this run, after %s", timeout))
 		fmt.Println("timeout")
