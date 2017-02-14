@@ -57,9 +57,9 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	}
 	config.StartTimeSpreadSeconds = int(tConfig.StartTimeSpread.Duration.Seconds())
 
-	/*if tConfig.SshConnTimeWarn.Duration < (1 * time.Second) {
+	if tConfig.SshConnTimeWarn.Duration < (1 * time.Second) {
 		return nil, errors.New("'ssh_connection_time_warn' can't be less than a second")
-	}*/
+	}
 	config.SshConnTimeWarn = tConfig.SshConnTimeWarn.Duration
 
 	config.CacheScripts = tConfig.CacheScripts

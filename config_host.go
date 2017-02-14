@@ -71,9 +71,9 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 	}
 	connection.Port = tHost.Network.Port
 
-	/*if tHost.Network.SshConnTimeWarn.Duration < (1 * time.Second) {
+	if tHost.Network.SshConnTimeWarn.Duration < (1 * time.Second) {
 		return nil, errors.New("'ssh_connection_time_warn' can't be less than a second")
-	}*/
+	}
 	connection.SshConnTimeWarn = tHost.Network.SshConnTimeWarn.Duration
 
 	if tHost.Auth.User == "" {
