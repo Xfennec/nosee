@@ -10,16 +10,6 @@ import (
 	"time"
 )
 
-type TaskResult struct {
-	Task       *Task
-	Values     map[string]string
-	ExitStatus int
-	StartTime  time.Time
-	Duration   time.Duration
-	Logs       []string
-	Errors     []error
-}
-
 type Run struct {
 	Host         *Host
 	Tasks        []*Task
@@ -28,14 +18,6 @@ type Run struct {
 	DialDuration time.Duration
 	Results      []*TaskResult
 	Errors       []error
-}
-
-func (result *TaskResult) addError(err error) {
-	result.Errors = append(result.Errors, err)
-}
-
-func (result *TaskResult) addLog(line string) {
-	result.Logs = append(result.Logs, line)
 }
 
 func (run *Run) Dump() {
@@ -62,6 +44,9 @@ func (run *Run) Dump() {
 		}
 		for key, val := range res.Values {
 			fmt.Printf("-v- '%s' = '%s'\n", key, val)
+		}
+		for _, check := range res.FailedChecks {
+			fmt.Printf("-F- %s\n", check.Desc)
 		}
 	}
 }
@@ -165,7 +150,7 @@ func (run *Run) readStderr(std io.Reader) {
 }
 
 // scripts -> ssh
-func (run *Run) stdinFilter(out io.WriteCloser, exitStatus chan int) {
+func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 
 	defer out.Close()
 
@@ -254,7 +239,7 @@ func (run *Run) preparePipes() error {
 	if err != nil {
 		return fmt.Errorf("Unable to setup stdin for session: %v", err)
 	}
-	go run.stdinFilter(stdin, exitStatus)
+	go run.stdinInject(stdin, exitStatus)
 
 	stdout, err := session.StdoutPipe()
 	if err != nil {
@@ -271,9 +256,18 @@ func (run *Run) preparePipes() error {
 	return nil
 }
 
-// BUG: connection stays open! Must close client AND session
+
+func (run *Run) DoChecks() {
+    for _, taskResult := range run.Results {
+        taskResult.DoChecks()
+    }
+}
+
 func (run *Run) Go() {
 	const bootstrap = "bash -s --"
+
+	timeout := time.Second * 59
+    timeoutChan := time.After(timeout)
 
 	run.StartTime = time.Now()
 	defer func() {
@@ -306,12 +300,10 @@ func (run *Run) Go() {
 		ended <- 1
 	}()
 
-	timeout := time.Second * 5
 	select {
 	case <-ended:
-	// should probably substract dial duration!
-	// or declare time.After(timeout) before connection perhaps?
-	case <-time.After(timeout):
+        // nice
+	case <-timeoutChan:
 		run.addError(fmt.Errorf("timeout for this run, after %s", timeout))
 		fmt.Println("timeout")
 	}

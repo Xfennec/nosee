@@ -63,7 +63,10 @@ func (host *Host) Schedule() {
 
 		if len(run.Tasks) > 0 {
 			run.Go()
+			run.DoChecks()
 			run.Dump()
+			// if no errors -> do checks
+			// if errors -> ??? (jump to a special class alerts?)
 		} // else empty run
 
 		end := time.Now()
