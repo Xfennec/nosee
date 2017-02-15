@@ -45,7 +45,6 @@ type tomlProbe struct {
 	Check     []tomlCheck
 }
 
-// default.name should be uniq!
 func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 	var probe Probe
 
@@ -127,6 +126,7 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 
 	// should warn about dangerous characters? (;& …)
 	probe.Arguments = tProbe.Arguments
+	dNames := make(map[string]bool)
 
 	for _, tDefault := range tProbe.Default {
 		var def Default
@@ -159,6 +159,11 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 		}
 		def.Value = tDefault.Value
 
+		if _, exists := dNames[def.Name]; exists == true {
+			return nil, fmt.Errorf("Config error: duplicate default name '%s'", def.Name)
+		}
+
+		dNames[def.Name] = true
 		probe.Defaults = append(probe.Defaults, &def)
 	}
 
