@@ -15,12 +15,6 @@ import (
 
 var myRand *rand.Rand
 
-func schedule(hosts []*Host) {
-	for {
-		time.Sleep(time.Minute * 1)
-	}
-}
-
 func configurationDirList(inpath string, dirPath string) ([]string, error) {
 	configPath := path.Clean(dirPath + "/" + inpath)
 
@@ -150,7 +144,6 @@ func scheduleHosts(hosts []*Host, config *Config) error {
 }
 
 func mainDefault(ctx *cli.Context) error {
-	fmt.Println(ctx)
 	config, err := GlobalConfigRead(ctx.String("config-path"), "nosee.toml")
 	if err != nil {
 		return cli.NewExitError(fmt.Errorf("Config error (nosee.toml): %s", err), 1)
