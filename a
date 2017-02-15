@@ -42,6 +42,7 @@ func configurationDirList(inpath string, dirPath string) ([]string, error) {
 	return list, nil
 }
 
+
 func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 
 	hostsdFiles, err := configurationDirList("hosts.d", config.configPath)
@@ -163,8 +164,9 @@ func mainDefault(ctx *cli.Context) error {
 	return scheduleHosts(hosts, config)
 }
 
+
 func mainCheck(ctx *cli.Context) error {
-	fmt.Printf("Checking all configuration files…\n")
+	fmt.Printf("Checking all configuration files…\n");
 
 	config, err := GlobalConfigRead(ctx.Parent().String("config-path"), "nosee.toml")
 	if err != nil {

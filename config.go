@@ -40,6 +40,7 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	config.CacheScripts = true
 	tConfig.CacheScripts = config.CacheScripts
 
+	config.configPath = dir
 	configPath := path.Clean(dir + "/" + file)
 	stat, err := os.Stat(configPath)
 
