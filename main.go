@@ -100,11 +100,42 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			probes = append(probes, probe)
 			pNames[probe.Name] = file
 		}
-
 	}
-
 	fmt.Printf("probe count = %d\n", len(probes))
 
+
+
+	alertdFiles, err := configurationDirList("alerts.d", config.configPath)
+	if err != nil {
+		return nil, fmt.Errorf("Error: %s", err)
+	}
+
+	var alerts []*Alert
+	aNames := make(map[string]string)
+	for _, file := range alertdFiles {
+		var tAlert tomlAlert
+
+		if _, err := toml.DecodeFile(file, &tAlert); err != nil {
+			return nil, fmt.Errorf("Error decoding %s: %s", file, err)
+		}
+
+		alert, err := tomlAlertToAlter(&tAlert, config)
+		if err != nil {
+			return nil, fmt.Errorf("Error using %s: %s", file, err)
+		}
+
+		if alert != nil {
+			if f, exists := aNames[alert.Name]; exists == true {
+				return nil, fmt.Errorf("Config error: duplicate name '%s' (%s, %s)", alert.Name, f, file)
+			}
+
+			alerts = append(alerts, alert)
+			aNames[alert.Name] = file
+		}
+	}
+	fmt.Printf("alert count = %d\n", len(alerts))
+
+	// update hosts with tasks
 	var taskCount int
 	for _, host := range hosts {
 		for _, probe := range probes {
