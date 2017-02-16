@@ -13,7 +13,7 @@ type TaskResult struct {
 	ExitStatus   int
 	StartTime    time.Time
 	Duration     time.Duration
-	Logs         []string
+	Logs         []string // currently, only output # lines
 	Errors       []error
 	FailedChecks []*Check
 }

@@ -40,15 +40,12 @@ func (probe *Probe) MissingDefaults() []string {
 	}
 
 	for _, check := range probe.Checks {
-		for _, token := range check.If.Tokens() {
-			if token.Kind == govaluate.VARIABLE {
-				name := token.Value.(string)
-				if IsAllUpper(name) {
-					continue
-				}
-				if defaults[name] != true {
-					missing[name] = true
-				}
+		for _, name := range check.If.Vars() {
+			if IsAllUpper(name) {
+				continue
+			}
+			if defaults[name] != true {
+				missing[name] = true
 			}
 		}
 	}

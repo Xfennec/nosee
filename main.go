@@ -14,6 +14,7 @@ import (
 )
 
 var myRand *rand.Rand
+var globalAlerts []*Alert
 
 func configurationDirList(inpath string, dirPath string) ([]string, error) {
 	configPath := path.Clean(dirPath + "/" + inpath)
@@ -103,8 +104,6 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 	}
 	fmt.Printf("probe count = %d\n", len(probes))
 
-
-
 	alertdFiles, err := configurationDirList("alerts.d", config.configPath)
 	if err != nil {
 		return nil, fmt.Errorf("Error: %s", err)
@@ -133,6 +132,7 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			aNames[alert.Name] = file
 		}
 	}
+	globalAlerts = alerts
 	fmt.Printf("alert count = %d\n", len(alerts))
 
 	// update hosts with tasks
@@ -149,8 +149,8 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			}
 		}
 	}
-
 	fmt.Printf("task count = %d\n", taskCount)
+
 	return hosts, nil
 }
 

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"strings"
-	"strconv"
 	"errors"
-	"os"
 	"fmt"
-	"path"
 	"io/ioutil"
+	"os"
+	"path"
+	"strconv"
+	"strings"
 )
 
 type tomlAlert struct {
@@ -70,15 +70,15 @@ func alertCheckHours(hours []string) ([]HourRange, error) {
 		rng[0] = strings.TrimSpace(rng[0])
 		rng[1] = strings.TrimSpace(rng[1])
 
-		if  hourRange.Start, err = alertCheckHour(rng[0]); err != nil {
+		if hourRange.Start, err = alertCheckHour(rng[0]); err != nil {
 			return nil, fmt.Errorf("invalid start hour: %s", err)
 		}
-		if  hourRange.End, err = alertCheckHour(rng[1]); err != nil {
+		if hourRange.End, err = alertCheckHour(rng[1]); err != nil {
 			return nil, fmt.Errorf("invalid end hour: %s", err)
 		}
 
-		start := hourRange.Start[0] * 60 + hourRange.Start[1]
-		end := hourRange.End[0] *60 + hourRange.End[1]
+		start := hourRange.Start[0]*60 + hourRange.Start[1]
+		end := hourRange.End[0]*60 + hourRange.End[1]
 		if start >= end {
 			return nil, fmt.Errorf("end of the hour range (%s) is before its start", hour)
 		}

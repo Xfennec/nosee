@@ -55,27 +55,14 @@ func (host *Host) Schedule() {
 		for _, task := range host.Tasks {
 			if start.After(task.NextRun) || start.Equal(task.NextRun) {
 				task.NextRun = start.Add(task.Probe.Delay)
-				fmt.Printf("%s: task '%s' on host '%s'\n", start.Format("15:04:05"), task.Probe.Name, host.Name)
+				//~ fmt.Printf("%s: task '%s' on host '%s'\n", start.Format("15:04:05"), task.Probe.Name, host.Name)
 				run.Tasks = append(run.Tasks, task)
 			}
 		}
 
 		if len(run.Tasks) > 0 {
 			run.Go()
-			if run.totalErrorCount() == 0 { // run & tasks errors
-				run.DoChecks()
-				if run.totalErrorCount() == 0 { // checks errors
-					if false { // debug
-						// OK, no error
-						run.Dump()
-					}
-				} else {
-					// errors -> ??? (jump to a special class alerts?)
-					run.Dump()				}
-			} else {
-				// errors -> ??? (jump to a special class alerts?)
-				run.Dump()
-			}
+			run.Alerts()
 		}
 
 		end := time.Now()
@@ -87,7 +74,7 @@ func (host *Host) Schedule() {
 		} else {
 			run.addError(fmt.Errorf("run duration was too long (%s)", run.Duration))
 		}
-		fmt.Printf("(loop %s)\n", host.Name)
+		//~ fmt.Printf("(loop %s)\n", host.Name)
 
 	}
 	fmt.Printf("end of %s\n", host.Name)
