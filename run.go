@@ -33,21 +33,21 @@ func (run *Run) Dump() {
 	}
 	for _, res := range run.Results {
 		fmt.Printf("-- task probe: %s\n", res.Task.Probe.Name)
-		fmt.Printf("-- next task run: %s\n", res.Task.NextRun)
 		fmt.Printf("-- start time: %s\n", res.StartTime)
 		fmt.Printf("-- duration: %s\n", res.Duration)
 		fmt.Printf("-- exit status: %d\n", res.ExitStatus)
-		for _, err := range res.Errors {
-			fmt.Printf("-e- %s\n", err)
-		}
-		for _, log := range res.Logs {
-			fmt.Printf("-l- %s\n", log)
-		}
+		fmt.Printf("-- next task run: %s\n", res.Task.NextRun)
 		for key, val := range res.Values {
 			fmt.Printf("-v- '%s' = '%s'\n", key, val)
 		}
+		for _, err := range res.Errors {
+			fmt.Printf("-e- %s\n", err)
+		}
 		for _, check := range res.FailedChecks {
 			fmt.Printf("-F- %s\n", check.Desc)
+		}
+		for _, log := range res.Logs {
+			fmt.Printf("-l- %s\n", log)
 		}
 	}
 }
@@ -68,6 +68,7 @@ func (run *Run) totalErrorCount() int {
 	total := len(run.Errors)
 	for _, taskResult := range run.Results {
 		total += len(taskResult.Errors)
+		total += len(taskResult.FailedChecks)
 	}
 	return total
 }
@@ -192,6 +193,7 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 
 			scanner = bufio.NewScanner(file)
 		} else {
+			task.Probe.ScriptCache.Seek(0, io.SeekStart)
 			scanner = bufio.NewScanner(task.Probe.ScriptCache)
 		}
 
