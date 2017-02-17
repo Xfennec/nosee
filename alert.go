@@ -65,7 +65,7 @@ func (alert *Alert) Ringable() bool {
 	now := time.Now()
 	nowMins := now.Hour()*60 + now.Minute()
 	nowDay := int(now.Weekday())
-	hourOk := false
+	hourOk := len(alert.Hours) == 0
 	for _, hourRange := range alert.Hours {
 		start := hourRange.Start[0]*60 + hourRange.Start[1]
 		end := hourRange.End[0]*60 + hourRange.End[1]
@@ -74,7 +74,7 @@ func (alert *Alert) Ringable() bool {
 			break
 		}
 	}
-	dayOk := false
+	dayOk := len(alert.Days) == 0
 	for _, day := range alert.Days {
 		if nowDay == day {
 			dayOk = true
