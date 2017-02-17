@@ -58,6 +58,7 @@ func (run *Run) Alerts() {
 			// OK, no errors
 		} else {
 			// errors (checks)
+			run.ReScheduleFailedTasks()
 			run.AlertsForChecks()
 		}
 	} else {

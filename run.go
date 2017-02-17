@@ -67,6 +67,15 @@ func (run *Run) totalErrorCount() int {
 	return total
 }
 
+
+func (run *Run) ReScheduleFailedTasks() {
+	for _, taskResult := range run.TaskResults {
+		if len(taskResult.FailedChecks) > 0 {
+			taskResult.Task.NextRun = time.Now()
+		}
+	}
+}
+
 func (run *Run) DoChecks() {
 	for _, taskResult := range run.TaskResults {
 		taskResult.DoChecks()
