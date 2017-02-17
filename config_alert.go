@@ -3,21 +3,21 @@ package main
 import (
 	"errors"
 	"fmt"
-	"os/exec"
-	"strconv"
-	"path"
 	"os"
+	"os/exec"
+	"path"
+	"strconv"
 	"strings"
 )
 
 type tomlAlert struct {
-	Name        string
-	Disabled    bool
-	Targets     []string
-	Command     string
-	Arguments   []string
-	Hours       []string
-	Days        []int
+	Name      string
+	Disabled  bool
+	Targets   []string
+	Command   string
+	Arguments []string
+	Hours     []string
+	Days      []int
 }
 
 func alertCheckHour(hour string) ([2]int, error) {

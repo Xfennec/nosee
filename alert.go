@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strings"
-	"time"
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
+	"time"
 )
 
 type HourRange struct {
@@ -15,13 +15,13 @@ type HourRange struct {
 }
 
 type Alert struct {
-	Name        string
-	Disabled    bool
-	Targets     []string
-	Command     string
-	Arguments   []string
-	Hours       []HourRange
-	Days        []int
+	Name      string
+	Disabled  bool
+	Targets   []string
+	Command   string
+	Arguments []string
+	Hours     []HourRange
+	Days      []int
 }
 
 type AlertMessage struct {
