@@ -3,10 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path"
+	"os/exec"
 	"strconv"
+	"path"
+	"os"
 	"strings"
 )
 
@@ -14,9 +14,8 @@ type tomlAlert struct {
 	Name        string
 	Disabled    bool
 	Targets     []string
-	Script      string
-	ScriptCache *strings.Reader
-	Arguments   string
+	Command     string
+	Arguments   []string
 	Hours       []string
 	Days        []int
 }
@@ -116,29 +115,35 @@ func tomlAlertToAlter(tAlert *tomlAlert, config *Config) (*Alert, error) {
 	}
 	alert.Name = tAlert.Name
 
-	if tAlert.Script == "" {
-		return nil, errors.New("invalid or missing 'script'")
+	if tAlert.Command == "" {
+		return nil, errors.New("invalid or missing 'command'")
 	}
 
-	scriptPath := path.Clean(config.configPath + "/scripts/alerts/" + tAlert.Script)
+	scriptPath := path.Clean(config.configPath + "/scripts/alerts/" + tAlert.Command)
 	stat, err := os.Stat(scriptPath)
 
-	if err != nil {
-		return nil, fmt.Errorf("invalid 'script' file '%s': %s", scriptPath, err)
+	if err == nil {
+		if !stat.Mode().IsRegular() {
+			return nil, fmt.Errorf("is not a regular 'script' file '%s'", scriptPath)
+		}
+		tAlert.Command = scriptPath
+	} else {
+		if path, err := exec.LookPath(tAlert.Command); err != nil {
+			return nil, fmt.Errorf("'%s' command not found in PATH: %s", tAlert.Command, err)
+		} else {
+			tAlert.Command = path
+		}
 	}
 
-	if !stat.Mode().IsRegular() {
-		return nil, fmt.Errorf("is not a regular 'script' file '%s'", scriptPath)
-	}
-	alert.Script = scriptPath
+	alert.Command = tAlert.Command
 
-	str, err := ioutil.ReadFile(scriptPath)
+	/*str, err := ioutil.ReadFile(scriptPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading script file '%s': %s", scriptPath, err)
 	}
 	if config.CacheScripts {
 		alert.ScriptCache = strings.NewReader(string(str))
-	}
+	}*/
 
 	if tAlert.Targets == nil {
 		return nil, errors.New("no valid 'targets' parameter found")

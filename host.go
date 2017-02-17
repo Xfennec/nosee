@@ -77,5 +77,6 @@ func (host *Host) Schedule() {
 		//~ fmt.Printf("(loop %s)\n", host.Name)
 
 	}
-	fmt.Printf("end of %s\n", host.Name)
+	// unreachable code
+	// fmt.Printf("end of %s\n", host.Name)
 }

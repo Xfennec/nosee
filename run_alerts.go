@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 func (run *Run) AlertsForRun() {
@@ -25,6 +26,7 @@ func (run *Run) AlertsForChecks() {
 
 			var details bytes.Buffer
 			details.WriteString("Task time: " + taskRes.StartTime.Format("2006-01-02 15:04:05") + "\n")
+			details.WriteString("Class(es): " + strings.Join(check.Classes, ", ") + "\n")
 			details.WriteString("Failed condition was: " + check.If.String() + "\n")
 			details.WriteString("\n")
 			details.WriteString("Values:\n")
