@@ -28,9 +28,10 @@ type tomlDefault struct {
 }
 
 type tomlCheck struct {
-	Desc    string
-	If      string
-	Classes []string
+	Desc           string
+	If             string
+	Classes        []string
+	NeededFailures int `toml:"needed_failures"`
 }
 
 type tomlProbe struct {
@@ -167,8 +168,10 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 		probe.Defaults = append(probe.Defaults, &def)
 	}
 
-	for _, tCheck := range tProbe.Check {
+	for index, tCheck := range tProbe.Check {
 		var check Check
+
+		check.Index = index
 
 		if tCheck.Desc == "" {
 			return nil, errors.New("[[check]] with invalid or missing 'desc'")
@@ -197,6 +200,11 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 			}
 		}
 		check.Classes = tCheck.Classes
+
+		if tCheck.NeededFailures == 0 {
+			tCheck.NeededFailures = 1
+		}
+		check.NeededFailures = tCheck.NeededFailures
 
 		probe.Checks = append(probe.Checks, &check)
 	}

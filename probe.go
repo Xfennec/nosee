@@ -14,9 +14,11 @@ type Default struct {
 }
 
 type Check struct {
-	Desc    string
-	If      *govaluate.EvaluableExpression
-	Classes []string
+	Index          int
+	Desc           string
+	If             *govaluate.EvaluableExpression
+	Classes        []string
+	NeededFailures int
 }
 
 type Probe struct {

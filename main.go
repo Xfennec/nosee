@@ -184,6 +184,9 @@ func mainDefault(ctx *cli.Context) error {
 	if err != nil {
 		return cli.NewExitError(err, 10)
 	}
+
+	CurrentFailsCreate()
+
 	return scheduleHosts(hosts, config)
 }
 

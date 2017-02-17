@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -19,13 +20,21 @@ func (run *Run) AlertsForChecks() {
 
 	for _, taskRes := range run.TaskResults {
 		for _, check := range taskRes.FailedChecks {
+
+			hash := MD5Hash(run.Host.Name + taskRes.Task.Probe.Name + strconv.Itoa(check.Index))
+			currentFail := CurrentFailGet(hash)
+			if currentFail.FailCount != check.NeededFailures {
+				continue // not yet / already done
+			}
+
 			var message AlertMessage
 
 			// Host: Check (Task)
 			message.Subject = fmt.Sprintf("%s: %s (%s)", run.Host.Name, check.Desc, taskRes.Task.Probe.Name)
 
 			var details bytes.Buffer
-			details.WriteString("Task time: " + taskRes.StartTime.Format("2006-01-02 15:04:05") + "\n")
+			details.WriteString("Failure time: " + currentFail.FailStart.Format("2006-01-02 15:04:05") + "\n")
+			details.WriteString("Last task time: " + taskRes.StartTime.Format("2006-01-02 15:04:05") + "\n")
 			details.WriteString("Class(es): " + strings.Join(check.Classes, ", ") + "\n")
 			details.WriteString("Failed condition was: " + check.If.String() + "\n")
 			details.WriteString("\n")
