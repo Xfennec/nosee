@@ -45,7 +45,7 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	stat, err := os.Stat(configPath)
 
 	if err != nil || !stat.Mode().IsRegular() {
-		fmt.Printf("Warning: no %s file, using defaults\n", configPath)
+		Warning.Printf("no %s file, using defaults\n", configPath)
 		return &config, nil
 	}
 

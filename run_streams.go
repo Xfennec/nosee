@@ -18,7 +18,7 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 		text := scanner.Text()
 		result := run.currentTaskResult()
 
-		//~ fmt.Printf("stdout=%s (%s)\n", text, run.Host.Name)
+		Trace.Printf("stdout=%s (%s)\n", text, run.Host.Name)
 
 		if len(text) > 2 && text[0:2] == "__" {
 			parts := strings.Split(text, "=")
@@ -33,7 +33,7 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 					run.addError(fmt.Errorf("Invalid __EXIT value: %s\n", text))
 					continue
 				}
-				//~ fmt.Printf("EXIT detected: %s (status %d)\n", text, status)
+				Trace.Printf("EXIT detected: %s (status %d)\n", text, status)
 				exitStatus <- status
 			default:
 				run.addError(fmt.Errorf("Unknown keyword: %s\n", text))
@@ -88,7 +88,7 @@ func (run *Run) readStderr(std io.Reader) {
 	for scanner.Scan() {
 		text := scanner.Text()
 		file := filepath.Base(run.currentTaskResult().Task.Probe.Script)
-		//~ fmt.Printf("stderr=%s\n", text)
+		Trace.Printf("stderr=%s\n", text)
 		run.currentTaskResult().addError(fmt.Errorf("%s, stderr: %s", file, text))
 	}
 
@@ -155,7 +155,7 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 
 		for scanner.Scan() {
 			text := scanner.Text()
-			//fmt.Printf("stdin=%s\n", text)
+			Trace.Printf("stdin=%s\n", text)
 			_, err := out.Write([]byte(text + "\n"))
 			if err != nil {
 				run.addError(fmt.Errorf("Error writing: %s\n", err))

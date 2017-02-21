@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	//~ "io/ioutil"
 	"math/rand"
 	"os"
 	"path"
@@ -71,7 +72,7 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			hNames[host.Name] = file
 		}
 	}
-	fmt.Printf("host count = %d\n", len(hosts))
+	Info.Printf("host count = %d\n", len(hosts))
 
 	probesdFiles, err := configurationDirList("probes.d", config.configPath)
 	if err != nil {
@@ -102,7 +103,7 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			pNames[probe.Name] = file
 		}
 	}
-	fmt.Printf("probe count = %d\n", len(probes))
+	Info.Printf("probe count = %d\n", len(probes))
 
 	alertdFiles, err := configurationDirList("alerts.d", config.configPath)
 	if err != nil {
@@ -133,14 +134,13 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 		}
 	}
 	globalAlerts = alerts
-	fmt.Printf("alert count = %d\n", len(alerts))
+	Info.Printf("alert count = %d\n", len(alerts))
 
 	// update hosts with tasks
 	var taskCount int
 	for _, host := range hosts {
 		for _, probe := range probes {
 			if host.MatchProbeTargets(probe) {
-				//~ fmt.Printf("Match: %s | %s\n", host.Name, probe.Script)
 				var task Task
 				task.Probe = probe
 				task.NextRun = time.Now()
@@ -149,7 +149,7 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			}
 		}
 	}
-	fmt.Printf("task count = %d\n", taskCount)
+	Info.Printf("task count = %d\n", taskCount)
 
 	return hosts, nil
 }
@@ -175,6 +175,8 @@ func scheduleHosts(hosts []*Host, config *Config) error {
 }
 
 func mainDefault(ctx *cli.Context) error {
+	LogInit(ctx.String("log-level"))
+
 	config, err := GlobalConfigRead(ctx.String("config-path"), "nosee.toml")
 	if err != nil {
 		return cli.NewExitError(fmt.Errorf("Config error (nosee.toml): %s", err), 1)
@@ -191,6 +193,8 @@ func mainDefault(ctx *cli.Context) error {
 }
 
 func mainCheck(ctx *cli.Context) error {
+	LogInit(ctx.Parent().String("log-level"))
+
 	fmt.Printf("Checking all configuration files…\n")
 
 	config, err := GlobalConfigRead(ctx.Parent().String("config-path"), "nosee.toml")
@@ -221,6 +225,11 @@ func main() {
 			Value:  "/etc/nosee/",
 			Usage:  "configuration directory `PATH`",
 			EnvVar: "NOSEE_CONFIG",
+		},
+		cli.StringFlag{
+			Name:  "log-level, l",
+			Value: "warning",
+			Usage: "log level verbosity (trace, info, warning)",
 		},
 	}
 

@@ -57,7 +57,7 @@ func (result *TaskResult) DoChecks() {
 
 	for _, check := range result.Task.Probe.Checks {
 		res, err := check.If.Evaluate(params)
-		//~ fmt.Printf("%s: %s (err: %s)\n", check.Desc, res, err)
+		Trace.Printf("%s: %t (err: %s)\n", check.Desc, res, err)
 		if err != nil {
 			result.addError(fmt.Errorf("%s (expression '%s' in '%s' check)", err, check.If, check.Desc))
 			continue

@@ -25,7 +25,7 @@ type Alert struct {
 }
 
 func (alert *Alert) Ring(msg *AlertMessage) {
-	fmt.Println(alert.Name + " " + alert.Command /* + " " + strings.Join(alert.Arguments, " ") */)
+	Info.Println(alert.Name + " " + alert.Command /* + " " + strings.Join(alert.Arguments, " ") */)
 
 	// replace $SUBJECT with the real value in the arguments
 	// we should perhaps provide some other infos?
@@ -52,8 +52,8 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 
 		if cmdOut, err := cmd.CombinedOutput(); err != nil {
 			// how to deal with  errors? :( Launch another message to a fallback? what about loop?
-			fmt.Fprintf(os.Stderr, "There was an error running '%s': %s\n", alert.Command, err)
-			fmt.Fprintf(os.Stderr, "%s\n", string(cmdOut))
+			Error.Printf("There was an error running '%s': %s\n", alert.Command, err)
+			Error.Printf("%s\n", string(cmdOut))
 		}
 	}()
 }

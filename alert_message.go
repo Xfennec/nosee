@@ -93,7 +93,7 @@ func (msg *AlertMessage) RingAlerts() {
 		// !!!
 		// what to do with this case? :(
 		// !!!
-		fmt.Printf("Error, no matching alert for this failure : '%s' with class(es): %s\n", msg.Subject, strings.Join(msg.Classes, ", "))
+		Error.Printf("Error, no matching alert for this failure : '%s' with class(es): %s\n", msg.Subject, strings.Join(msg.Classes, ", "))
 	}
 }
 

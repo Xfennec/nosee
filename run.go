@@ -72,7 +72,7 @@ func (run *Run) ReScheduleFailedTasks() {
 		for _, cf := range currentFails {
 			if cf.RelatedTask == task {
 				task.NextRun = time.Now()
-				fmt.Printf("re-scheduling %s\n", task.Probe.Name)
+				Info.Printf("re-scheduling task '%s'\n", task.Probe.Name)
 			}
 		}
 	}
@@ -126,7 +126,7 @@ func (run *Run) Go() {
 		// nice
 	case <-timeoutChan:
 		run.addError(fmt.Errorf("timeout for this run, after %s", timeout))
-		fmt.Println("timeout")
+		Trace.Println("run timeout")
 	}
 
 }

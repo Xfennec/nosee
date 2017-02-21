@@ -55,7 +55,7 @@ func (host *Host) Schedule() {
 		for _, task := range host.Tasks {
 			if start.After(task.NextRun) || start.Equal(task.NextRun) {
 				task.NextRun = start.Add(task.Probe.Delay)
-				fmt.Printf("%s: task '%s' on host '%s'\n", start.Format("15:04:05"), task.Probe.Name, host.Name)
+				Info.Printf("task '%s' on host '%s'\n", task.Probe.Name, host.Name)
 				run.Tasks = append(run.Tasks, task)
 			}
 		}
@@ -74,9 +74,6 @@ func (host *Host) Schedule() {
 		} else {
 			run.addError(fmt.Errorf("run duration was too long (%s)", run.Duration))
 		}
-		//~ fmt.Printf("(loop %s)\n", host.Name)
-
+		Trace.Printf("(loop %s)\n", host.Name)
 	}
-	// unreachable code
-	// fmt.Printf("end of %s\n", host.Name)
 }
