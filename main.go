@@ -239,7 +239,7 @@ func main() {
 		{
 			Name:    "check",
 			Aliases: []string{"c"},
-			Usage:   "check all configuration files",
+			Usage:   "Checks all configuration files",
 			Action:  mainCheck,
 		},
 	}
