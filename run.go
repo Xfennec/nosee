@@ -54,7 +54,6 @@ func (run *Run) currentTaskResult() *TaskResult {
 	if len(run.TaskResults) == 0 {
 		return nil
 	}
-
 	return run.TaskResults[len(run.TaskResults)-1]
 }
 

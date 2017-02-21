@@ -29,6 +29,8 @@ func (connection *Connection) Close() error {
 		clientError  error
 	)
 
+	Trace.Printf("SSH closing connection (%s)\n", connection.Host)
+
 	if connection.Session != nil {
 		sessionError = connection.Session.Close()
 	}
@@ -50,6 +52,7 @@ func (connection *Connection) Connect() error {
 	}
 
 	dial, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", connection.Host, connection.Port), sshConfig)
+	Trace.Printf("SSH connection to %s@%s:%d\n", connection.User, connection.Host, connection.Port)
 	if err != nil {
 		return fmt.Errorf("Failed to dial: %s", err)
 	}

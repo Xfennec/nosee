@@ -7,6 +7,7 @@ import (
 
 func (run *Run) AlertsForRun() {
 	fmt.Println(">E alerts for run")
+	fmt.Println(run.Errors)
 }
 
 func (run *Run) AlertsForTasks() {
