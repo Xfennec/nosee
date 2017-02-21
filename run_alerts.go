@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
-	"bytes"
 )
 
 func (run *Run) AlertsForRun() {

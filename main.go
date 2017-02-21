@@ -149,7 +149,6 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 		return nil, fmt.Errorf("Config error: at least one alert must match the 'general' class")
 	}
 
-
 	// update hosts with tasks
 	var taskCount int
 	for _, host := range hosts {
