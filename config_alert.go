@@ -154,10 +154,13 @@ func tomlAlertToAlert(tAlert *tomlAlert, config *Config) (*Alert, error) {
 	}
 	// explode targets on & and check IsValidTokenName
 	for _, targets := range tAlert.Targets {
+		if targets == "*" {
+			continue
+		}
 		tokens := strings.Split(targets, "&")
 		for _, token := range tokens {
 			token := strings.TrimSpace(token)
-			if !IsValidTokenName(token) && token != "*" {
+			if !IsValidTokenName(token) {
 				return nil, fmt.Errorf("invalid 'target' class name '%s'", token)
 			}
 		}

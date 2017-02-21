@@ -92,10 +92,13 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 	}
 	// explode targets on & and check IsValidTokenName
 	for _, targets := range tProbe.Targets {
+		if targets == "*" {
+			continue
+		}
 		tokens := strings.Split(targets, "&")
 		for _, token := range tokens {
 			token := strings.TrimSpace(token)
-			if !IsValidTokenName(token) && token != "*" {
+			if !IsValidTokenName(token) {
 				return nil, fmt.Errorf("invalid 'target' class name '%s'", token)
 			}
 		}

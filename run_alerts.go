@@ -3,11 +3,43 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"bytes"
 )
 
 func (run *Run) AlertsForRun() {
-	fmt.Println(">E alerts for run")
-	fmt.Println(run.Errors)
+	var bbuf bytes.Buffer
+	bbuf.WriteString(run.Host.Name)
+	for _, err := range run.Errors {
+		bbuf.WriteString(err.Error())
+	}
+	hash := MD5Hash(bbuf.String())
+
+	currentFail := CurrentFailGetAndInc(hash)
+	currentFail.RelatedHost = run.Host
+
+	if currentFail.FailCount > 1 {
+		return
+	}
+
+	message := AlertMessageCreateForRun(ALERT_BAD, run)
+	//~ message.Dump()
+	message.RingAlerts()
+}
+
+func (run *Run) ClearAnyCurrentFails() {
+	found := 0
+	for hash, cf := range currentFails {
+		if cf.RelatedHost == run.Host {
+			found++
+			CurrentFailDelete(hash)
+		}
+	}
+
+	if found > 0 {
+		message := AlertMessageCreateForRun(ALERT_GOOD, run)
+		//~ message.Dump()
+		message.RingAlerts()
+	}
 }
 
 func (run *Run) AlertsForTasks() {
@@ -26,7 +58,7 @@ func (run *Run) AlertsForChecks() {
 				continue // not yet / already done
 			}
 
-			message := AlertMessageCreate(ALERT_BAD, run, taskRes, check, currentFail)
+			message := AlertMessageCreateForCheck(ALERT_BAD, run, taskRes, check, currentFail)
 			//~ message.Dump()
 			message.RingAlerts()
 		}
@@ -40,7 +72,7 @@ func (run *Run) AlertsForChecks() {
 			if currentFail := CurrentFailGetAndDec(hash); currentFail != nil {
 				if currentFail.OkCount == check.NeededSuccesses {
 					// send the good news and delete this currentFail
-					message := AlertMessageCreate(ALERT_GOOD, run, taskRes, check, currentFail)
+					message := AlertMessageCreateForCheck(ALERT_GOOD, run, taskRes, check, currentFail)
 					//~ message.Dump()
 					message.RingAlerts()
 					CurrentFailDelete(hash)
@@ -52,6 +84,7 @@ func (run *Run) AlertsForChecks() {
 
 func (run *Run) Alerts() {
 	if run.totalErrorCount() == 0 { // run & tasks errors
+		run.ClearAnyCurrentFails()
 		run.DoChecks()
 		run.AlertsForChecks()
 		run.ReScheduleFailedTasks()

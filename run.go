@@ -127,5 +127,4 @@ func (run *Run) Go() {
 		run.addError(fmt.Errorf("timeout for this run, after %s", timeout))
 		Trace.Println("run timeout")
 	}
-
 }

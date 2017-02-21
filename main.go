@@ -136,6 +136,20 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 	globalAlerts = alerts
 	Info.Printf("alert count = %d\n", len(alerts))
 
+	// check if we have at least one "general" alert receiver
+	generalReceivers := 0
+	for _, alert := range alerts {
+		for _, target := range alert.Targets {
+			if target == "general" || target == "*" {
+				generalReceivers++
+			}
+		}
+	}
+	if generalReceivers == 0 {
+		return nil, fmt.Errorf("Config error: at least one alert must match the 'general' class")
+	}
+
+
 	// update hosts with tasks
 	var taskCount int
 	for _, host := range hosts {

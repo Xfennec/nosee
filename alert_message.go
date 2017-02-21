@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 )
 
 type AlertMessageType uint8
@@ -32,7 +33,7 @@ func (amt AlertMessageType) String() string {
 	return AlertMessageTypeStr[amt-1]
 }
 
-func AlertMessageCreate(aType AlertMessageType, run *Run, taskRes *TaskResult, check *Check, currentFail *CurrentFail) *AlertMessage {
+func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskResult, check *Check, currentFail *CurrentFail) *AlertMessage {
 	var message AlertMessage
 
 	// Host: Check (Task)
@@ -45,7 +46,7 @@ func AlertMessageCreate(aType AlertMessageType, run *Run, taskRes *TaskResult, c
 	case ALERT_BAD:
 		details.WriteString("An alert **is** ringing.\n\n")
 	case ALERT_GOOD:
-		details.WriteString("This alert is **no more** ringing\n\n")
+		details.WriteString("This alert is **no more** ringing.\n\n")
 	}
 
 	details.WriteString("Failure time: " + currentFail.FailStart.Format("2006-01-02 15:04:05") + "\n")
@@ -68,6 +69,33 @@ func AlertMessageCreate(aType AlertMessageType, run *Run, taskRes *TaskResult, c
 	message.Details = details.String()
 
 	message.Classes = check.Classes
+
+	return &message
+}
+
+func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
+	var message AlertMessage
+
+	message.Subject = fmt.Sprintf("[%s] %s: run error(s)", aType, run.Host.Name)
+	message.Type = aType
+
+	var details bytes.Buffer
+
+	switch aType {
+	case ALERT_BAD:
+		details.WriteString("A least one error occured during a run for this host. (" + time.Now().Format("2006-01-02 15:04:05") + ")\n")
+		details.WriteString("\n")
+		details.WriteString("Error(s):\n")
+		for _, err := range run.Errors {
+			details.WriteString(err.Error() + "\n")
+		}
+	case ALERT_GOOD:
+		details.WriteString("No more errors for this host.\n")
+	}
+
+	message.Details = details.String()
+
+	message.Classes = []string{"general"}
 
 	return &message
 }
