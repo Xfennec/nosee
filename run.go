@@ -68,6 +68,7 @@ func (run *Run) totalErrorCount() int {
 }
 
 func (run *Run) ReScheduleFailedTasks() {
+	// NOPE, fail-and-then-ok tasks should be rescheduled too
 	for _, taskResult := range run.TaskResults {
 		if len(taskResult.FailedChecks) > 0 {
 			taskResult.Task.NextRun = time.Now()

@@ -10,15 +10,15 @@ import (
 type Default struct {
 	Name  string
 	Value interface{}
-	//~ Type  string
 }
 
 type Check struct {
-	Index          int
-	Desc           string
-	If             *govaluate.EvaluableExpression
-	Classes        []string
-	NeededFailures int
+	Index           int
+	Desc            string
+	If              *govaluate.EvaluableExpression
+	Classes         []string
+	NeededFailures  int
+	NeededSuccesses int
 }
 
 type Probe struct {

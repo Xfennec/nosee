@@ -39,7 +39,13 @@ func CurrentFailInc(hash string) {
 	currentFails[hash].OkCount = 0
 }
 
-func CurrentFailGet(hash string) *CurrentFail {
+func CurrentFailDec(hash string) {
+	currentFailsMutex.Lock()
+	defer currentFailsMutex.Unlock()
+	currentFails[hash].OkCount++
+}
+
+func CurrentFailGetAndInc(hash string) *CurrentFail {
 	cf, ok := currentFails[hash]
 	if !ok {
 		var cf CurrentFail
@@ -51,5 +57,14 @@ func CurrentFailGet(hash string) *CurrentFail {
 	}
 
 	CurrentFailInc(hash)
+	return cf
+}
+
+func CurrentFailGetAndDec(hash string) *CurrentFail {
+	cf, ok := currentFails[hash]
+	if !ok {
+		return nil
+	}
+	CurrentFailDec(hash)
 	return cf
 }

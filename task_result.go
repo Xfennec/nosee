@@ -8,14 +8,15 @@ import (
 )
 
 type TaskResult struct {
-	Task         *Task
-	Values       map[string]string
-	ExitStatus   int
-	StartTime    time.Time
-	Duration     time.Duration
-	Logs         []string // currently, only output # lines
-	Errors       []error
-	FailedChecks []*Check
+	Task             *Task
+	Values           map[string]string
+	ExitStatus       int
+	StartTime        time.Time
+	Duration         time.Duration
+	Logs             []string // currently, only output # lines
+	Errors           []error
+	FailedChecks     []*Check
+	SuccessfulChecks []*Check
 }
 
 func (result *TaskResult) addError(err error) {
@@ -68,6 +69,8 @@ func (result *TaskResult) DoChecks() {
 
 		if res == true {
 			result.FailedChecks = append(result.FailedChecks, check)
+		} else {
+			result.SuccessfulChecks = append(result.SuccessfulChecks, check)
 		}
 	}
 }

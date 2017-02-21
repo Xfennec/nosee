@@ -28,10 +28,11 @@ type tomlDefault struct {
 }
 
 type tomlCheck struct {
-	Desc           string
-	If             string
-	Classes        []string
-	NeededFailures int `toml:"needed_failures"`
+	Desc            string
+	If              string
+	Classes         []string
+	NeededFailures  int `toml:"needed_failures"`
+	NeededSuccesses int `toml:"needed_successes"`
 }
 
 type tomlProbe struct {
@@ -205,6 +206,11 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 			tCheck.NeededFailures = 1
 		}
 		check.NeededFailures = tCheck.NeededFailures
+
+		if tCheck.NeededSuccesses == 0 {
+			tCheck.NeededSuccesses = check.NeededFailures
+		}
+		check.NeededSuccesses = tCheck.NeededSuccesses
 
 		probe.Checks = append(probe.Checks, &check)
 	}
