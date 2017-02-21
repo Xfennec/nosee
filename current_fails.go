@@ -9,6 +9,10 @@ type CurrentFail struct {
 	FailStart time.Time
 	FailCount int
 	OkCount   int
+	// probably need some sort of uniq ID for the fail (rand?)
+
+	// optional "payload"
+	RelatedTask *Task
 }
 
 var (

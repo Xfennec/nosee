@@ -68,10 +68,12 @@ func (run *Run) totalErrorCount() int {
 }
 
 func (run *Run) ReScheduleFailedTasks() {
-	// NOPE, fail-and-then-ok tasks should be rescheduled too
-	for _, taskResult := range run.TaskResults {
-		if len(taskResult.FailedChecks) > 0 {
-			taskResult.Task.NextRun = time.Now()
+	for _, task := range run.Tasks {
+		for _, cf := range currentFails {
+			if cf.RelatedTask == task {
+				task.NextRun = time.Now()
+				fmt.Printf("re-scheduling %s\n", task.Probe.Name)
+			}
 		}
 	}
 }

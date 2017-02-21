@@ -20,6 +20,7 @@ func (run *Run) AlertsForChecks() {
 
 			hash := MD5Hash(run.Host.Name + taskRes.Task.Probe.Name + strconv.Itoa(check.Index))
 			currentFail := CurrentFailGetAndInc(hash)
+			currentFail.RelatedTask = taskRes.Task
 			if currentFail.FailCount != check.NeededFailures {
 				continue // not yet / already done
 			}
@@ -51,8 +52,8 @@ func (run *Run) AlertsForChecks() {
 func (run *Run) Alerts() {
 	if run.totalErrorCount() == 0 { // run & tasks errors
 		run.DoChecks()
-		run.ReScheduleFailedTasks()
 		run.AlertsForChecks()
+		run.ReScheduleFailedTasks()
 	} else {
 		// errors (general)
 		if len(run.Errors) > 0 {
