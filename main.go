@@ -119,7 +119,7 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			return nil, fmt.Errorf("Error decoding %s: %s", file, err)
 		}
 
-		alert, err := tomlAlertToAlter(&tAlert, config)
+		alert, err := tomlAlertToAlert(&tAlert, config)
 		if err != nil {
 			return nil, fmt.Errorf("Error using %s: %s", file, err)
 		}
