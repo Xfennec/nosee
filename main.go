@@ -230,7 +230,7 @@ func main() {
 	myRand = rand.New(source)
 
 	app := cli.NewApp()
-	app.Usage = "A nosey, agentless, easy monitoring tool over SSH"
+	app.Usage = "Nosee: a nosey, agentless, easy monitoring tool over SSH"
 	app.Version = "0.1"
 
 	app.Flags = []cli.Flag{
