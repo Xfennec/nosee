@@ -10,4 +10,10 @@ type Task struct {
 	//~ RunCount       int
 	//~ RemainingTicks int
 	NextRun time.Time
+	PrevRun time.Time
+}
+
+func (task *Task) ReSchedule(val time.Time) {
+	task.PrevRun = task.NextRun
+	task.NextRun = val
 }

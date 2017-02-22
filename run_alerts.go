@@ -87,14 +87,16 @@ func (run *Run) Alerts() {
 		run.ClearAnyCurrentRunFails()
 		run.DoChecks()
 		run.AlertsForChecks()
-		run.ReScheduleFailedTasks()
 	} else { // run & tasks errors
 		if len(run.Errors) > 0 {
 			run.AlertsForRun()
+			run.ReSchedule()
 		} else {
 			run.AlertsForTasks()
 		}
 	}
+
+	run.ReScheduleFailedTasks()
 }
 
 func (run *Run) ClearAnyCurrentRunFails() {

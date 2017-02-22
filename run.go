@@ -66,11 +66,18 @@ func (run *Run) totalErrorCount() int {
 	return total
 }
 
+func (run *Run) ReSchedule() {
+	for _, task := range run.Tasks {
+		task.NextRun = task.PrevRun
+	}
+	Info.Printf("re-scheduling all tasks for '%s'\n", run.Host.Name)
+}
+
 func (run *Run) ReScheduleFailedTasks() {
 	for _, task := range run.Tasks {
 		for _, cf := range currentFails {
-			if cf.RelatedTask == task {
-				task.NextRun = time.Now()
+			if cf.RelatedTask == task || cf.RelatedTTask == task {
+				task.ReSchedule(time.Now())
 				Info.Printf("re-scheduling task '%s'\n", task.Probe.Name)
 			}
 		}

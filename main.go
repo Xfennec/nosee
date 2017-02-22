@@ -156,6 +156,7 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			if host.MatchProbeTargets(probe) {
 				var task Task
 				task.Probe = probe
+				task.PrevRun = time.Now()
 				task.NextRun = time.Now()
 				host.Tasks = append(host.Tasks, &task)
 				taskCount++

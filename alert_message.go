@@ -50,7 +50,7 @@ func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
 			details.WriteString(err.Error() + "\n")
 		}
 	case ALERT_GOOD:
-		details.WriteString("No more errors for this host.\n")
+		details.WriteString("No more run errors for this host.\n")
 	}
 
 	message.Details = details.String()
