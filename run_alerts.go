@@ -24,7 +24,6 @@ func (run *Run) AlertsForRun() {
 	message.RingAlerts()
 }
 
-
 func (run *Run) AlertsForTasks() {
 	for _, taskRes := range run.TaskResults {
 		if len(taskRes.Errors) > 0 {

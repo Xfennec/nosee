@@ -52,7 +52,7 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 
 		if cmdOut, err := cmd.CombinedOutput(); err != nil {
 			if len(msg.Classes) == 1 && msg.Classes[0] == "general" {
-				Error.Printf("unable to ring an alert to general class! error: %s (%s)\n", err,alert.Command)
+				Error.Printf("unable to ring an alert to general class! error: %s (%s)\n", err, alert.Command)
 				return
 			}
 
