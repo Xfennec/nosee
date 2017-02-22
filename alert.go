@@ -25,7 +25,7 @@ type Alert struct {
 }
 
 func (alert *Alert) Ring(msg *AlertMessage) {
-	Info.Println(alert.Name + " " + alert.Command /* + " " + strings.Join(alert.Arguments, " ") */)
+	Info.Println("ring: " + alert.Name + ", " + alert.Command /* + " " + strings.Join(alert.Arguments, " ") */)
 
 	// replace $SUBJECT with the real value in the arguments
 	// we should perhaps provide some other infos?
@@ -51,9 +51,18 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 		cmd.Stdin = strings.NewReader(msg.Details)
 
 		if cmdOut, err := cmd.CombinedOutput(); err != nil {
-			// how to deal with  errors? :( Launch another message to a fallback? what about loop?
-			Error.Printf("There was an error running '%s': %s\n", alert.Command, err)
-			Error.Printf("%s\n", string(cmdOut))
+			if len(msg.Classes) == 1 && msg.Classes[0] == "general" {
+				Error.Printf("unable to ring an alert to general class! error: %s (%s)\n", err,alert.Command)
+				return
+			}
+
+			Warning.Printf("There was an error running '%s': %s", alert.Command, err)
+
+			msg.Subject = msg.Subject + " (Fwd)"
+			prepend := fmt.Sprintf("WARNING: This alert is re-routed to the 'general' class, because\noriginal alert failed with the following error: %s (%s)\nOutput:%s\n\n", err.Error(), alert.Command, string(cmdOut))
+			msg.Details = prepend + msg.Details
+			msg.Classes = []string{"general"}
+			msg.RingAlerts()
 		}
 	}()
 }

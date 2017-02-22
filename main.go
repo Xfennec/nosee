@@ -230,7 +230,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Usage = "A nosey, agentless, easy monitoring tool over SSH"
-	app.Version = "0.0.1"
+	app.Version = "0.1"
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{

@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"strconv"
 )
 
@@ -22,28 +21,30 @@ func (run *Run) AlertsForRun() {
 	}
 
 	message := AlertMessageCreateForRun(ALERT_BAD, run)
-	//~ message.Dump()
 	message.RingAlerts()
 }
 
-func (run *Run) ClearAnyCurrentFails() {
-	found := 0
-	for hash, cf := range currentFails {
-		if cf.RelatedHost == run.Host {
-			found++
-			CurrentFailDelete(hash)
-		}
-	}
-
-	if found > 0 {
-		message := AlertMessageCreateForRun(ALERT_GOOD, run)
-		//~ message.Dump()
-		message.RingAlerts()
-	}
-}
 
 func (run *Run) AlertsForTasks() {
-	fmt.Println(">E alerts for tasks")
+	for _, taskRes := range run.TaskResults {
+		if len(taskRes.Errors) > 0 {
+			var bbuf bytes.Buffer
+			bbuf.WriteString(run.Host.Name + taskRes.Task.Probe.Name)
+			for _, err := range taskRes.Errors {
+				bbuf.WriteString(err.Error())
+			}
+			hash := MD5Hash(bbuf.String())
+
+			currentFail := CurrentFailGetAndInc(hash)
+			currentFail.RelatedTTask = taskRes.Task
+			if currentFail.FailCount > 1 {
+				return
+			}
+
+			message := AlertMessageCreateForTaskResult(ALERT_BAD, run, taskRes)
+			message.RingAlerts()
+		}
+	}
 }
 
 func (run *Run) AlertsForChecks() {
@@ -59,7 +60,6 @@ func (run *Run) AlertsForChecks() {
 			}
 
 			message := AlertMessageCreateForCheck(ALERT_BAD, run, taskRes, check, currentFail)
-			//~ message.Dump()
 			message.RingAlerts()
 		}
 	}
@@ -73,7 +73,6 @@ func (run *Run) AlertsForChecks() {
 				if currentFail.OkCount == check.NeededSuccesses {
 					// send the good news and delete this currentFail
 					message := AlertMessageCreateForCheck(ALERT_GOOD, run, taskRes, check, currentFail)
-					//~ message.Dump()
 					message.RingAlerts()
 					CurrentFailDelete(hash)
 				}
@@ -83,17 +82,51 @@ func (run *Run) AlertsForChecks() {
 }
 
 func (run *Run) Alerts() {
-	if run.totalErrorCount() == 0 { // run & tasks errors
-		run.ClearAnyCurrentFails()
+	run.ClearAnyCurrentTasksFails()
+
+	if run.totalErrorCount() == 0 {
+		run.ClearAnyCurrentRunFails()
 		run.DoChecks()
 		run.AlertsForChecks()
 		run.ReScheduleFailedTasks()
-	} else {
-		// errors (general)
+	} else { // run & tasks errors
 		if len(run.Errors) > 0 {
 			run.AlertsForRun()
 		} else {
 			run.AlertsForTasks()
+		}
+	}
+}
+
+func (run *Run) ClearAnyCurrentRunFails() {
+	found := 0
+	for hash, cf := range currentFails {
+		if cf.RelatedHost == run.Host {
+			found++
+			CurrentFailDelete(hash)
+		}
+	}
+
+	if found > 0 {
+		message := AlertMessageCreateForRun(ALERT_GOOD, run)
+		message.RingAlerts()
+	}
+}
+
+func (run *Run) ClearAnyCurrentTasksFails() {
+	for _, taskRes := range run.TaskResults {
+		if len(taskRes.Errors) == 0 {
+			found := 0
+			for hash, cf := range currentFails {
+				if taskRes.Task == cf.RelatedTTask {
+					found++
+					CurrentFailDelete(hash)
+				}
+			}
+			if found > 0 {
+				message := AlertMessageCreateForTaskResult(ALERT_GOOD, run, taskRes)
+				message.RingAlerts()
+			}
 		}
 	}
 }

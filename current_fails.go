@@ -12,8 +12,9 @@ type CurrentFail struct {
 	// probably need some sort of uniq ID for the fail (rand?)
 
 	// optional "payload"
-	RelatedTask *Task // for Checks (!!)
-	RelatedHost *Host // for Runs
+	RelatedTask  *Task // for Checks (!!)
+	RelatedHost  *Host // for Runs
+	RelatedTTask *Task // for Tasks
 }
 
 var (

@@ -63,6 +63,7 @@ func (host *Host) Schedule() {
 		if len(run.Tasks) > 0 {
 			run.Go()
 			run.Alerts()
+			Trace.Printf("currentFails count = %d\n", len(currentFails))
 		}
 
 		end := time.Now()

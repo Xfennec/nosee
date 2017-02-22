@@ -33,6 +33,60 @@ func (amt AlertMessageType) String() string {
 	return AlertMessageTypeStr[amt-1]
 }
 
+func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
+	var message AlertMessage
+
+	message.Subject = fmt.Sprintf("[%s] %s: run error(s)", aType, run.Host.Name)
+	message.Type = aType
+
+	var details bytes.Buffer
+
+	switch aType {
+	case ALERT_BAD:
+		details.WriteString("A least one error occured during a run for this host. (" + time.Now().Format("2006-01-02 15:04:05") + ")\n")
+		details.WriteString("\n")
+		details.WriteString("Error(s):\n")
+		for _, err := range run.Errors {
+			details.WriteString(err.Error() + "\n")
+		}
+	case ALERT_GOOD:
+		details.WriteString("No more errors for this host.\n")
+	}
+
+	message.Details = details.String()
+
+	message.Classes = []string{"general"}
+
+	return &message
+}
+
+func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResult *TaskResult) *AlertMessage {
+	var message AlertMessage
+
+	message.Subject = fmt.Sprintf("[%s] %s: %s: task error(s)", aType, run.Host.Name, taskResult.Task.Probe.Name)
+	message.Type = aType
+
+	var details bytes.Buffer
+
+	switch aType {
+	case ALERT_BAD:
+		details.WriteString("A least one error occured during a task for this host. (" + time.Now().Format("2006-01-02 15:04:05") + ")\n")
+		details.WriteString("\n")
+		details.WriteString("Error(s):\n")
+		for _, err := range taskResult.Errors {
+			details.WriteString(err.Error() + "\n")
+		}
+	case ALERT_GOOD:
+		details.WriteString("No more errors for this task on this host.\n")
+	}
+
+	message.Details = details.String()
+
+	message.Classes = []string{"general"}
+
+	return &message
+}
+
 func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskResult, check *Check, currentFail *CurrentFail) *AlertMessage {
 	var message AlertMessage
 
@@ -73,33 +127,6 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 	return &message
 }
 
-func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
-	var message AlertMessage
-
-	message.Subject = fmt.Sprintf("[%s] %s: run error(s)", aType, run.Host.Name)
-	message.Type = aType
-
-	var details bytes.Buffer
-
-	switch aType {
-	case ALERT_BAD:
-		details.WriteString("A least one error occured during a run for this host. (" + time.Now().Format("2006-01-02 15:04:05") + ")\n")
-		details.WriteString("\n")
-		details.WriteString("Error(s):\n")
-		for _, err := range run.Errors {
-			details.WriteString(err.Error() + "\n")
-		}
-	case ALERT_GOOD:
-		details.WriteString("No more errors for this host.\n")
-	}
-
-	message.Details = details.String()
-
-	message.Classes = []string{"general"}
-
-	return &message
-}
-
 func (msg *AlertMessage) Dump() {
 	fmt.Printf("---\n")
 	fmt.Printf("Subject: %s\n", msg.Subject)
@@ -118,10 +145,20 @@ func (msg *AlertMessage) RingAlerts() {
 	}
 
 	if ringCount == 0 {
-		// !!!
-		// what to do with this case? :(
-		// !!!
-		Error.Printf("Error, no matching alert for this failure : '%s' with class(es): %s\n", msg.Subject, strings.Join(msg.Classes, ", "))
+		// if class is already "general", we're f*cked :(
+		if len(msg.Classes) == 1 && msg.Classes[0] == "general" {
+			Error.Printf("unable to ring an alert : can't match the 'general' class!\n")
+			return
+		}
+
+		Warning.Printf("no matching alert for this failure : '%s' with class(es): %s\n", msg.Subject, strings.Join(msg.Classes, ", "))
+
+		// forward the alert to 'general' class:
+		msg.Subject = msg.Subject + " (Fwd)"
+		prepend := "WARNING: This alert is re-routed to the 'general' class, because no alert matches its orginial classes (" + strings.Join(msg.Classes, ", ") + ")\n\n"
+		msg.Details = prepend + msg.Details
+		msg.Classes = []string{"general"}
+		msg.RingAlerts()
 	}
 }
 
