@@ -153,8 +153,10 @@ func tomlAlertToAlert(tAlert *tomlAlert, config *Config) (*Alert, error) {
 		return nil, errors.New("empty 'targets'")
 	}
 	// explode targets on & and check IsValidTokenName
+	hasGeneralClass := false
 	for _, targets := range tAlert.Targets {
-		if targets == "*" {
+		if targets == "*" || targets == "general" {
+			hasGeneralClass = true
 			continue
 		}
 		tokens := strings.Split(targets, "&")
@@ -179,6 +181,10 @@ func tomlAlertToAlert(tAlert *tomlAlert, config *Config) (*Alert, error) {
 		return nil, fmt.Errorf("'days' parameter: %s", err)
 	}
 	alert.Days = tAlert.Days
+
+	if hasGeneralClass == true && len(alert.Hours) > 0 && len(alert.Days) > 0 {
+		return nil, fmt.Errorf("a 'general' (or '*') alert can't have hours/days restrictions, since you may miss alerts")
+	}
 
 	return &alert, nil
 }
