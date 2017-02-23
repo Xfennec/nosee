@@ -110,7 +110,15 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 	details.WriteString("\n")
 	details.WriteString("Values:\n")
 	for _, token := range check.If.Vars() {
-		details.WriteString("- " + token + ": " + taskRes.Values[token] + "\n")
+		if IsAllUpper(token) {
+			details.WriteString("- " + token + ": " + taskRes.Values[token] + "\n")
+		} else {
+			for _, def := range taskRes.Task.Probe.Defaults {
+				if def.Name == token {
+					details.WriteString("- " + token + ": " + InterfaceValueToString(def.Value) + "\n")
+				}
+			}
+		}
 	}
 	details.WriteString("\n")
 	details.WriteString("All values for this run:\n")
@@ -151,7 +159,7 @@ func (msg *AlertMessage) RingAlerts() {
 			return
 		}
 
-		Warning.Printf("no matching alert for this failure : '%s' with class(es): %s\n", msg.Subject, strings.Join(msg.Classes, ", "))
+		Warning.Printf("no matching alert for this failure: '%s' with class(es): %s\n", msg.Subject, strings.Join(msg.Classes, ", "))
 
 		// forward the alert to 'general' class:
 		msg.Subject = msg.Subject + " (Fwd)"
