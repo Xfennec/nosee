@@ -71,9 +71,12 @@ func (run *Run) AlertsForChecks() {
 			// we had a failure for that?
 			if currentFail := CurrentFailGetAndDec(hash); currentFail != nil {
 				if currentFail.OkCount == check.NeededSuccesses {
-					// send the good news and delete this currentFail
-					message := AlertMessageCreateForCheck(ALERT_GOOD, run, taskRes, check, currentFail)
-					message.RingAlerts()
+					Info.Printf("task '%s', check '%s' is now OK\n", taskRes.Task.Probe.Name, check.Desc)
+					// send the good news (if the bad one was sent) and delete this currentFail
+					if currentFail.FailCount >= check.NeededFailures {
+						message := AlertMessageCreateForCheck(ALERT_GOOD, run, taskRes, check, currentFail)
+						message.RingAlerts()
+					}
 					CurrentFailDelete(hash)
 				}
 			}
