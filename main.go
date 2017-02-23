@@ -189,7 +189,7 @@ func scheduleHosts(hosts []*Host, config *Config) error {
 }
 
 func mainDefault(ctx *cli.Context) error {
-	LogInit(ctx.String("log-level"))
+	LogInit(ctx)
 
 	config, err := GlobalConfigRead(ctx.String("config-path"), "nosee.toml")
 	if err != nil {
@@ -207,7 +207,7 @@ func mainDefault(ctx *cli.Context) error {
 }
 
 func mainCheck(ctx *cli.Context) error {
-	LogInit(ctx.Parent().String("log-level"))
+	LogInit(ctx.Parent())
 
 	fmt.Printf("Checking all configuration files…\n")
 
@@ -243,7 +243,15 @@ func main() {
 		cli.StringFlag{
 			Name:  "log-level, l",
 			Value: "warning",
-			Usage: "log level verbosity (trace, info, warning)",
+			Usage: "log `level` verbosity (trace, info, warning)",
+		},
+		cli.StringFlag{
+			Name:  "log-file, f",
+			Usage: "log file to `FILE` (append)",
+		},
+		cli.BoolFlag{
+			Name:  "quiet, q",
+			Usage: "no stdout/err output (except launch errors)",
 		},
 	}
 

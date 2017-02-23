@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/urfave/cli"
 )
 
 var (
@@ -15,7 +17,28 @@ var (
 	Error   *log.Logger
 )
 
-func LogInit(level string) {
+func writerCreate(std io.Writer, fd *os.File, quiet bool) io.Writer {
+	if quiet {
+		if fd != nil {
+			if std != ioutil.Discard {
+				return fd
+			}
+		}
+		return ioutil.Discard
+	}
+
+	// no log at all for this stream (no std, no file)
+	if std == ioutil.Discard {
+		return ioutil.Discard
+	}
+	// both
+	if fd != nil {
+		return io.MultiWriter(fd, std)
+	}
+	return std
+}
+
+func LogInit(ctx *cli.Context) {
 	var (
 		traceHandle   io.Writer
 		infoHandle    io.Writer
@@ -23,22 +46,40 @@ func LogInit(level string) {
 		errorHandle   io.Writer
 	)
 
+	level := ctx.String("log-level")
+	file := ctx.String("log-file")
+	quiet := ctx.Bool("quiet")
+
+	var (
+		err error
+		fd  *os.File
+	)
+	if file != "" {
+		fd, err = os.OpenFile(file, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0640)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to create log file '%s' (%s)\n", file, err)
+			os.Exit(1)
+		}
+	} else {
+		fd = nil
+	}
+
 	switch level {
 	case "trace":
-		traceHandle = os.Stdout
-		infoHandle = os.Stdout
-		warningHandle = os.Stdout
-		errorHandle = os.Stderr
+		traceHandle = writerCreate(os.Stdout, fd, quiet)
+		infoHandle = writerCreate(os.Stdout, fd, quiet)
+		warningHandle = writerCreate(os.Stdout, fd, quiet)
+		errorHandle = writerCreate(os.Stderr, fd, quiet)
 	case "info":
-		traceHandle = ioutil.Discard
-		infoHandle = os.Stdout
-		warningHandle = os.Stdout
-		errorHandle = os.Stderr
+		traceHandle = writerCreate(ioutil.Discard, fd, quiet)
+		infoHandle = writerCreate(os.Stdout, fd, quiet)
+		warningHandle = writerCreate(os.Stdout, fd, quiet)
+		errorHandle = writerCreate(os.Stderr, fd, quiet)
 	case "warning":
-		traceHandle = ioutil.Discard
-		infoHandle = ioutil.Discard
-		warningHandle = os.Stdout
-		errorHandle = os.Stderr
+		traceHandle = writerCreate(ioutil.Discard, fd, quiet)
+		infoHandle = writerCreate(ioutil.Discard, fd, quiet)
+		warningHandle = writerCreate(os.Stdout, fd, quiet)
+		errorHandle = writerCreate(os.Stderr, fd, quiet)
 	default:
 		fmt.Fprintf(os.Stderr, "ERROR: invalid log level '%s'\n", level)
 		os.Exit(1)
