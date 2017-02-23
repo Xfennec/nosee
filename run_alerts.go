@@ -50,6 +50,7 @@ func (run *Run) AlertsForChecks() {
 	// Failures
 	for _, taskRes := range run.TaskResults {
 		for _, check := range taskRes.FailedChecks {
+			Info.Printf("task '%s', check '%s' failed\n", taskRes.Task.Probe.Name, check.Desc)
 
 			hash := MD5Hash(run.Host.Name + taskRes.Task.Probe.Name + strconv.Itoa(check.Index))
 			currentFail := CurrentFailGetAndInc(hash)
@@ -89,9 +90,11 @@ func (run *Run) Alerts() {
 		run.AlertsForChecks()
 	} else { // run & tasks errors
 		if len(run.Errors) > 0 {
+			Info.Printf("found some 'run' error(s)\n")
 			run.AlertsForRun()
 			run.ReSchedule()
 		} else {
+			Info.Printf("found some 'tasks' error(s)\n")
 			run.AlertsForTasks()
 		}
 	}

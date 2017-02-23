@@ -55,7 +55,7 @@ func (host *Host) Schedule() {
 		for _, task := range host.Tasks {
 			if start.After(task.NextRun) || start.Equal(task.NextRun) {
 				task.ReSchedule(start.Add(task.Probe.Delay))
-				Info.Printf("task '%s' on host '%s'\n", task.Probe.Name, host.Name)
+				Info.Printf("host '%s', running task '%s'\n", host.Name, task.Probe.Name)
 				run.Tasks = append(run.Tasks, task)
 			}
 		}
