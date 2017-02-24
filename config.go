@@ -41,10 +41,14 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	tConfig.CacheScripts = config.CacheScripts
 
 	config.configPath = dir
-	configPath := path.Clean(dir + "/" + file)
-	stat, err := os.Stat(configPath)
 
-	if err != nil || !stat.Mode().IsRegular() {
+	if stat, err := os.Stat(config.configPath); err != nil || !stat.Mode().IsDir() {
+		return nil, fmt.Errorf("configuration directory not found: %s (%s)\n", err, config.configPath)
+	}
+
+	configPath := path.Clean(dir + "/" + file)
+
+	if stat, err := os.Stat(configPath); err != nil || !stat.Mode().IsRegular() {
 		Warning.Printf("no %s file, using defaults\n", configPath)
 		return &config, nil
 	}
