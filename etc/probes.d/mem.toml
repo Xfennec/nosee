@@ -1,0 +1,33 @@
+name="memory (RAM and swap)"
+
+script = "mem.sh"
+disabled = false
+
+targets = ["linux", "windows"]
+
+delay = "5m"
+# WMI can be veeeery slow :(
+timeout = "30s"
+
+### Default values
+# types: int, float, string
+# not "all uppercase" (reserved for probe values)
+[[default]]
+name = "error_buffcache_ratio"
+value = 0.90
+
+[[default]]
+name = "warn_swap_ratio"
+value = 0.30
+
+### Checks
+
+[[check]]
+desc = "critical memory buffer+cache usage ratio"
+if = "MEM_BUFFCACHE_RATIO > error_buffcache_ratio"
+classes = ["critical"]
+
+[[check]]
+desc = "high swap usage ratio"
+if = "SWAP_USED_RATIO > warn_swap_ratio"
+classes = ["warning"]

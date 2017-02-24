@@ -1,0 +1,15 @@
+name="port 80 testing"
+targets = ["linux & web"]
+#disabled = true
+
+script = "port.sh"
+arguments = "80"
+
+delay = "1m"
+
+### Checks
+
+[[check]]
+desc = "port 80 is not open"
+if = "PORT80_OPEN != 1"
+classes = ["critical"]

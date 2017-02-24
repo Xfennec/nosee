@@ -1,0 +1,12 @@
+name = "Mail general"
+disabled = false
+
+targets = ["general"]
+
+command = "mail"
+
+arguments = [
+    "-s",
+    "Nosee GENERAL: $SUBJECT",
+    "user@domain.tld"
+]

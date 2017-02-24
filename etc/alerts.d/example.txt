@@ -1,0 +1,27 @@
+## Rename this file with ".toml" extension
+
+name = "My alert"
+disabled = false
+
+targets = ["preprod", "linux & production"]
+# to capture all check failures:
+targets = ["*"]
+
+# command in the path or full path of a command
+# alert details are sent to stdin, as various env vars (see test.sh)
+command = "cmd"
+# any script in "scripts/alerts/" directory is available without any path:
+#command = "test.sh"
+
+arguments = [
+    "arg1",
+    "arg2: $SUBJECT ($TYPE)",
+]
+
+# This alert is only available during...
+hours = ["8:30 - 12:30", "14:00 - 18:00"]
+# sunday is 0 or 7
+days = [1, 2, 3, 4, 5]
+
+# Note: alerts listening for special class "general" can't have 
+# such hour/day limitations

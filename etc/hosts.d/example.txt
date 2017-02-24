@@ -1,0 +1,22 @@
+## Rename this file with ".toml" extension
+
+# "name" is a key for the database. Change it and it'll become another host!
+name = "My Host"
+classes = ["linux", "web", "testing"]
+disabled = false
+
+[network]
+host = "192.168.0.1"
+port = 22
+
+[auth]
+user = "user"
+
+# (password) OR (key) OR (key + passphrase) OR (ssh_agent)
+
+password = "mypassword"
+
+key = "/home/xxx/.ssh/id_rsa_sample"
+key_passphrase = "mypassphrase"
+
+ssh_agent = true

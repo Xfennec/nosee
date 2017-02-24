@@ -1,0 +1,35 @@
+## Sample probe
+
+name="CPU temperature"
+targets = ["linux"]
+disabled = false
+
+script = "cpu_temp.sh"
+arguments = "0"
+
+delay = "2m"
+timeout = "5s"
+
+### Default values
+# types: int, float, string
+
+[[default]]
+name = "warn_cpu_temp"
+value = 75
+
+[[default]]
+name = "error_cpu_temp"
+value = 85
+
+### Checks
+
+[[check]]
+desc = "high CPU0 temperature"
+if = "CPU0_TEMP > warn_cpu_temp"
+classes = ["warning"]
+needed_failures = 2
+
+[[check]]
+desc = "critical CPU0 temperature"
+if = "CPU0_TEMP > error_cpu_temp"
+classes = ["critical"]

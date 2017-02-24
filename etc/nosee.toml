@@ -1,0 +1,14 @@
+# global configuration for Nosee
+
+# This option helps to ease the global load induced by all SSH connections.
+# default: 15s
+start_time_spread = "1s"
+
+# Maximum connection time for a SSH connection. (will trigger a "general" class alert)
+# default: 6s
+ssh_connection_time_warn = "5s"
+
+# Cache probe scripts into memory so you won't break current monitoring while
+# modifying the scripts.
+# default: true
+cache_scripts = true

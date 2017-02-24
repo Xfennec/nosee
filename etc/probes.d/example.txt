@@ -1,0 +1,46 @@
+## Rename this file with ".toml" extension
+
+name="My Probe"
+
+script = "script.sh"
+disabled = false
+
+targets = ["linux & test", "windows & test"]
+# If you want to match all hosts (all classes):
+# targets = ["*"]
+
+# probe repetition delay (must be minutes "dead" [not 2m30, for instance])
+# minimum value: 1m
+delay = "5m"
+
+# if the probes takes more than this time, it will trigger an error
+# default: 20s
+timeout = "30s"
+
+### Default values (used by checks)
+# types: int, float, string
+# not "all uppercase" (reserved for probe values)
+
+[[default]]
+name = "value_foo"
+value = 0.90
+
+[[default]]
+name = "value_bar"
+value = "200 OK"
+
+### Checks
+
+[[check]]
+desc = "check description"
+if = "VALUE1_FROM_SCRIPT > value_foo"
+classes = ["critical"]
+# will trigger alert if append two times (default: 1)
+needed_failures = 2
+# will delete the "suspicion" if check is OK three times (default: needed_failures)
+needed_successes = 3
+
+[[check]]
+desc = "check description"
+if = "VALUE1_FROM_SCRIPT+VALUE2_FROM_SCRIPT < value_foo"
+classes = ["warning"]

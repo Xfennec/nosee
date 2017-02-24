@@ -1,0 +1,33 @@
+name="ping to router"
+targets = ["linux"]
+#disabled = true
+
+script = "ping.sh"
+arguments = "192.168.0.250"
+
+delay = "1m"
+timeout = "8s"
+
+### Default values
+
+[[default]]
+name = "err_ping_loss"
+value = 1
+
+[[default]]
+name = "warn_ping_latency"
+value = 10
+
+### Checks
+
+[[check]]
+desc = "critical ping loss"
+if = "PING_LOSS_PERC >= err_ping_loss"
+classes = ["critical"]
+needed_failures = 2
+
+[[check]]
+desc = "ping latency"
+if = "PING_AVG_MS > warn_ping_latency"
+classes = ["warning"]
+needed_failures = 2
