@@ -179,6 +179,9 @@ more verbose.
 Anything else ? (WIP)
 ---------------------
 
+Oh yes. I want to explain:
+
+ - "threaded" (Goroutines)
  - global `nosee.toml` configuration
  - SSH runs (group of probes)
  - "*" targets
