@@ -9,12 +9,12 @@ What is it?
 It's an answer when you found usual monitoring systems too heavy and complex.
 
 Nosee uses SSH protocol to execute scripts on monitored systems, checking
-for whatever you want. The result is checked and Nosee will ring an alert
+for whatever you want. The result is evaluated and Nosee will ring an alert
 of your choice if anything is wrong.
 
 In short : SSH, no agent, simple configuration, usual scripting.
 
-Currently, Nosee requires bash on monitored hosts. It was tested successfully
+Currently, Nosee requires bash on monitored hosts. It was successfully
 tested with Linux (of course) but using Cygwin sshd on Windows hosts too.
 
 The Nosee daemon itself can virtually run with any Go supported platform.
