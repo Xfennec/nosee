@@ -195,6 +195,7 @@ Oh yes. I want to explain:
  - GOOD and BAD alerts
  - extensive configuration validation
  - alert examples (pushover, SMS, …)
+ - probe examples !
  - script caching
 
 What is the future of Nosee? (WIP)
