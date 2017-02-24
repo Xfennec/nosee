@@ -23,6 +23,15 @@ Here's a general figure of how Nosee works:
 
 ![Nosee general configuration structure](https://raw.github.com/Xfennec/nosee/master/doc/images/img_general.png)
 
+Show me!
+--------
+
+Here is an alert triggered by a "port connection testing" probe. This alert
+is then configured to be sent using `mail` and a HTTP request to Pushover
+for realtime mobile device notification.
+
+![Nosee mobile and mail failure notifications](https://raw.github.com/Xfennec/nosee/master/doc/images/img_illu.jpeg)
+
 How do you build it?
 --------------------
 
