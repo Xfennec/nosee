@@ -44,7 +44,8 @@ the [TOML](https://github.com/toml-lang/toml) syntax.
 **Let's monitor CPU temperature of one of our Web servers.**
 
 You may want to have a look at the "template" configuration directory
-provided in `$GOPATH/src/githum.com/Xfennec/nosee/etc` as a more complete example.
+provided in `$GOPATH/src/githum.com/Xfennec/nosee/etc` as a more complete
+example or as a base for this tutorial.
 
 ### Step1. Create a *Host* (SSH connection)
 
@@ -156,14 +157,15 @@ least one alert must listen permanently at this class.
 
 ### Step5. Run Nosee!
 
-	./nosee -c path/to/config/dir
+	./nosee -l info -c ../src/github.com/Xfennec/nosee/etc/
 
-You are now ready to burn your Web server CPU to get your alert mail.
-You can use `-l info` to get more information about what Nosee is doing.
+You are now ready to burn your Web server CPU to get your alert mail. The `-c`
+parameter gives the configuration path, and the `-l` will make Nosee way
+more verbose.
 
 	./nosee help
 
-… will tell you more.
+… will tell you more about command line arguments.
 
 Anything else ? (WIP)
 ---------------------

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -119,6 +120,14 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 			agent,
 		}
 		return &host, nil
+	}
+
+	if tHost.Auth.Key != "" {
+		if fd, err := os.Open(tHost.Auth.Key); err != nil {
+			return nil, fmt.Errorf("can't access to key '%s': %s", tHost.Auth.Key, err)
+		} else {
+			fd.Close()
+		}
 	}
 
 	if tHost.Auth.Key != "" && tHost.Auth.KeyPassphrase == "" {
