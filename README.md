@@ -20,7 +20,8 @@ tested with Linux (of course) but using Cygwin on Windows hosts too.
 The Nosee daemon itself can virtually run under any Go supported platform.
 
 
-Here, a general figure of how Nosee works:
+Here's a general figure of how Nosee works:
+
 ![Nosee general configuration structure](https://raw.github.com/Xfennec/nosee/master/doc/images/img_general.png)
 
 How do you build it?
@@ -39,6 +40,8 @@ How do you use it?
 
 Configuration is mainly done by simple text file using
 the [TOML](https://github.com/toml-lang/toml) syntax.
+
+Let's monitor CPU temperature of one of our Web servers.
 
 ### Step1. Create a *Host* (SSH connection)
 
@@ -94,7 +97,9 @@ the lowest delay available.
 
 Then we have a check. You can have multiple checks in a probe. This check
 will look at the `CPU_TEMP` value returned by the `cpu_temp.sh`
-script (see below) and evaluate the `if` expression.
+script (see below) and evaluate the `if` expression. You can have a look
+at [govaluate](https://github.com/Knetic/govaluate) for details about
+expression's syntax.
 
 If this expression becomes true, the probe will ring a `warning` alert. Here
 again, you are free to use any class of your choice to create your own
@@ -102,6 +107,8 @@ error typology. (ex: `["critical", "hardware_guys"]` to ring a specific group
 of users in charge of critical failures of the hardware)
 
 ### Step3. Create a *script* (or use a provided one)
+
+Scripts are hosted in the `scripts/probes/` directory.
 
 ```bash
 #!/bin/bash
@@ -139,16 +146,42 @@ one (or more) of the given targets. It works exactly the same as classes/targets
 for Hosts/Probes to let you create your own vocabulary.
 (ex: `"web & production & critical"` is a valid target)
 
-Anything else to appeal me? (WIP)
----------------------------
+As you may have seen, some variables are available for arguments, like `$SUBJECT`.
 
+There's a special class `general` for very important general messages. At
+least one alert must listen permanently at this class.
+
+### Step5. Run Nosee!
+
+	./nosee -c path/to/config/dir
+
+You are now ready to burn your Web server CPU to get your alert mail.
+You can use `-l info` to get more information about what Nosee is doing.
+
+	./nosee help
+
+… will tell you more.
+
+Anything else ? (WIP)
+---------------------
+
+ - global `nosee.toml` configuration
+ - SSH runs (group of probes)
+ - "*" targets
+ - needed_failures / needed_successes
+ - alert scripts
+ - alert limits
+ - alert env and stdin
+ - timeouts
  - rescheduling
  - GOOD and BAD alerts
  - extensive configuration validation
  - alert examples (pushover, SMS, …)
+ - script caching
 
 What is the future of Nosee? (WIP)
 ----------------------------
 
+ - configuration "summary" command
  - graphs (RRD - Round-Robin database)
  - remote Nosee interconnections
