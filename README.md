@@ -15,10 +15,9 @@ of your choice if anything is wrong.
 In short : SSH, no agent, simple configuration, usual scripting.
 
 Currently, Nosee requires bash on monitored hosts. It was tested successfully
-tested with Linux (of course) but using Cygwin on Windows hosts too.
+tested with Linux (of course) but using Cygwin sshd on Windows hosts too.
 
-The Nosee daemon itself can virtually run under any Go supported platform.
-
+The Nosee daemon itself can virtually run with any Go supported platform.
 
 Here's a general figure of how Nosee works:
 
@@ -34,6 +33,7 @@ If you have Go installed:
 You will then be able to launch the binary located in you Go "bin" directory.
 (since Go 1.8, `~/go/bin` if you haven't defined any `$GOPATH`)
 
+The project is still too young to provide binaries. Later. (and `go get` is so powerful…)
 
 How do you use it?
 ------------------
