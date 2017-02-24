@@ -43,14 +43,18 @@ you don't want to use `git` for that.
 How do you use it?
 ------------------
 
+You may have a look at the "template" configuration directory
+provided in `$GOPATH/src/githum.com/Xfennec/nosee/etc` as a more complete
+example or as a base for the following tutorial. (edit `hosts.d/test.toml`
+for connection settings and `alerts.d/mail_general.toml` for email address,
+at least)
+
+### Small tutorial
+
 Configuration is mainly done by simple text file using
 the [TOML](https://github.com/toml-lang/toml) syntax.
 
 **Let's monitor CPU temperature of one of our Web servers.**
-
-You may want to have a look at the "template" configuration directory
-provided in `$GOPATH/src/githum.com/Xfennec/nosee/etc` as a more complete
-example or as a base for this tutorial.
 
 ### Step1. Create a *Host* (SSH connection)
 
