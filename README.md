@@ -159,7 +159,8 @@ one (or more) of the given targets. It works exactly the same as classes/targets
 for Hosts/Probes to let you create your own vocabulary.
 (ex: `"web & production & critical"` is a valid target)
 
-As you may have seen, some variables are available for arguments, like `$SUBJECT`.
+As you may have seen, some variables are available for arguments, like 
+the `$SUBJECT` of the alert message.
 
 There's a special class `general` for very important general messages. At
 least one alert must listen permanently at this class.
