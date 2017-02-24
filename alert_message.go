@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
-	"time"
 )
 
 type AlertMessageType uint8
@@ -43,14 +42,14 @@ func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
 
 	switch aType {
 	case ALERT_BAD:
-		details.WriteString("A least one error occured during a run for this host. (" + time.Now().Format("2006-01-02 15:04:05") + ")\n")
+		details.WriteString("A least one error occured during a run for this host. (" + run.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 		details.WriteString("\n")
 		details.WriteString("Error(s):\n")
 		for _, err := range run.Errors {
 			details.WriteString(err.Error() + "\n")
 		}
 	case ALERT_GOOD:
-		details.WriteString("No more run errors for this host.\n")
+		details.WriteString("No more run errors for this host. (" + run.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 	}
 
 	message.Details = details.String()
@@ -60,6 +59,7 @@ func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
 	return &message
 }
 
+// taskResult may be nil for GOOD messages
 func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResult *TaskResult) *AlertMessage {
 	var message AlertMessage
 
@@ -70,14 +70,14 @@ func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResul
 
 	switch aType {
 	case ALERT_BAD:
-		details.WriteString("A least one error occured during a task for this host. (" + time.Now().Format("2006-01-02 15:04:05") + ")\n")
+		details.WriteString("A least one error occured during a task for this host. (" + taskResult.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 		details.WriteString("\n")
 		details.WriteString("Error(s):\n")
 		for _, err := range taskResult.Errors {
 			details.WriteString(err.Error() + "\n")
 		}
 	case ALERT_GOOD:
-		details.WriteString("No more errors for this task on this host.\n")
+		details.WriteString("No more errors for this task on this host. (" + taskResult.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 	}
 
 	message.Details = details.String()
