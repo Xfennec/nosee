@@ -121,7 +121,7 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 		}
 	}
 	details.WriteString("\n")
-	details.WriteString("All values for this run:\n")
+	details.WriteString(fmt.Sprintf("All values for this run (%s):\n", run.Duration))
 	for _, tr := range run.TaskResults {
 		details.WriteString(fmt.Sprintf("- %s (%s):\n", tr.Task.Probe.Name, tr.Duration))
 		for key, val := range tr.Values {

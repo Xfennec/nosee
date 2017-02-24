@@ -50,7 +50,7 @@ func (run *Run) AlertsForChecks() {
 	// Failures
 	for _, taskRes := range run.TaskResults {
 		for _, check := range taskRes.FailedChecks {
-			Info.Printf("task '%s', check '%s' failed\n", taskRes.Task.Probe.Name, check.Desc)
+			Info.Printf("task '%s', check '%s' failed (%s)\n", taskRes.Task.Probe.Name, check.Desc, run.Host.Name)
 
 			hash := MD5Hash(run.Host.Name + taskRes.Task.Probe.Name + strconv.Itoa(check.Index))
 			currentFail := CurrentFailGetAndInc(hash)
@@ -71,7 +71,7 @@ func (run *Run) AlertsForChecks() {
 			// we had a failure for that?
 			if currentFail := CurrentFailGetAndDec(hash); currentFail != nil {
 				if currentFail.OkCount == check.NeededSuccesses {
-					Info.Printf("task '%s', check '%s' is now OK\n", taskRes.Task.Probe.Name, check.Desc)
+					Info.Printf("task '%s', check '%s' is now OK (%s)\n", taskRes.Task.Probe.Name, check.Desc, run.Host.Name)
 					// send the good news (if the bad one was sent) and delete this currentFail
 					if currentFail.FailCount >= check.NeededFailures {
 						message := AlertMessageCreateForCheck(ALERT_GOOD, run, taskRes, check, currentFail)
