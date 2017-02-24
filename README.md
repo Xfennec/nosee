@@ -35,6 +35,11 @@ You will then be able to launch the binary located in you Go "bin" directory.
 
 The project is still too young to provide binaries. Later. (and `go get` is so powerful…)
 
+As a reminder, you can use the `-u` flag to update the project and its dependencies  if
+you don't want to use `git` for that.
+
+	go get -u github.com/Xfennec/nosee
+
 How do you use it?
 ------------------
 
