@@ -150,7 +150,7 @@ command = "mail"
 arguments = [
     "-s",
     "Nosee: $SUBJECT",
-    "julien@mycompagny.com"
+    "julien@domain.tld"
 ]
 ```
 
