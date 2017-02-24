@@ -1,4 +1,4 @@
-name="ping to router"
+name = "ping to router"
 targets = ["linux"]
 #disabled = true
 

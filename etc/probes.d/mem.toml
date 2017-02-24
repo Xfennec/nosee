@@ -1,4 +1,4 @@
-name="memory (RAM and swap)"
+name = "memory (RAM and swap)"
 
 script = "mem.sh"
 disabled = false

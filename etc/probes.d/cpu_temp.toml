@@ -1,6 +1,6 @@
 ## Sample probe
 
-name="CPU temperature"
+name = "CPU temperature"
 targets = ["linux"]
 disabled = false
 

@@ -95,7 +95,7 @@ as passphrases and ssh-agent.
 Create a file in the `probes.d` directory. (ex: `probes.d/port_80.toml`).
 
 ```toml
-name="CPU temperature"
+name = "CPU temperature"
 targets = ["linux"]
 
 script = "cpu_temp.sh"

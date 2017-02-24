@@ -1,4 +1,4 @@
-name="port 80 testing"
+name = "port 80 testing"
 targets = ["linux & web"]
 #disabled = true
 
