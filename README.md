@@ -188,8 +188,8 @@ more verbose.
 
 … will tell you more about command line arguments.
 
-Anything else ? (WIP)
----------------------
+Anything else? (WIP)
+--------------------
 
 Oh yes. I want to explain:
 
@@ -198,6 +198,7 @@ Oh yes. I want to explain:
  - SSH runs (group of probes)
  - "*" targets
  - needed_failures / needed_successes
+ - allows host to override probe's defaults
  - alert scripts
  - alert limits
  - alert env and stdin
