@@ -12,9 +12,9 @@ Nosee uses SSH protocol to execute scripts on monitored systems, checking
 for whatever you want. The result is evaluated and Nosee will ring an alert
 of your choice if anything is wrong.
 
-![Nosee basic schema](https://raw.github.com/Xfennec/nosee/master/doc/images/img_base.png)
-
 In short : SSH, no agent, simple configuration, usual scripting.
+
+![Nosee basic schema](https://raw.github.com/Xfennec/nosee/master/doc/images/img_base.png)
 
 Currently, Nosee requires bash on monitored hosts. It was successfully
 tested with Linux (of course) but using Cygwin sshd on Windows hosts too.
