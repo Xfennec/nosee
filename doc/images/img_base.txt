@@ -1,0 +1,16 @@
+                +--------+
+                | Nosee  |
+                | Daemon |
+                +--+-+-+-+
+                   | | |
+      +------------+ | +------------+
+      |              |              |
+      v              v              v
+     SSH            SSH            SSH
++-----------+  +-----+-----+  +-----------+
+| Monitored |  | Monitored |  | Monitored |
+|    Host   |  |    Host   |  |    Host   |
++-----------+  +-----------+  +-----------+
+
+    (Only SSH server is needed on hosts)
+

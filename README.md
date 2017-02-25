@@ -12,16 +12,14 @@ Nosee uses SSH protocol to execute scripts on monitored systems, checking
 for whatever you want. The result is evaluated and Nosee will ring an alert
 of your choice if anything is wrong.
 
+![Nosee basic schema](https://raw.github.com/Xfennec/nosee/master/doc/images/img_base.png)
+
 In short : SSH, no agent, simple configuration, usual scripting.
 
 Currently, Nosee requires bash on monitored hosts. It was successfully
 tested with Linux (of course) but using Cygwin sshd on Windows hosts too.
 
 The Nosee daemon itself can virtually run with any Go supported platform.
-
-Here's a general figure of how Nosee works:
-
-![Nosee general configuration structure](https://raw.github.com/Xfennec/nosee/master/doc/images/img_general.png)
 
 Show me!
 --------
@@ -57,6 +55,10 @@ provided in `$GOPATH/src/githum.com/Xfennec/nosee/etc` as a more complete
 example or as a base for the following tutorial. (edit `hosts.d/test.toml`
 for connection settings and `alerts.d/mail_general.toml` for email address,
 at least)
+
+Here's a general figure of how Nosee works:
+
+![Nosee general configuration structure](https://raw.github.com/Xfennec/nosee/master/doc/images/img_general.png)
 
 ### Small tutorial
 
