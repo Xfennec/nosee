@@ -29,6 +29,7 @@ type tomlHost struct {
 	Network  tomlNetwork
 	Auth     tomlAuth
 	Classes  []string
+	Default  []tomlDefault
 }
 
 func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
@@ -61,6 +62,11 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 		}
 	}
 	host.Classes = tHost.Classes
+
+	host.Defaults = make(map[string]interface{})
+	if err := checkTomlDefault(host.Defaults, tHost.Default); err != nil {
+		return nil, err
+	}
 
 	if tHost.Network.Host == "" {
 		return nil, errors.New("[network] section, invalid or missing 'host'")
@@ -103,6 +109,8 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 	if methodCount == 0 {
 		return nil, errors.New("[auth] section, at least one auth method is needed (password, key or ssh_agent)")
 	}
+
+	// !!! there's many returns following this line, be careful
 
 	if tHost.Auth.Password != "" {
 		connection.Auths = []ssh.AuthMethod{

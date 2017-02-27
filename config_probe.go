@@ -47,6 +47,44 @@ type tomlProbe struct {
 	Check     []tomlCheck
 }
 
+func checkTomlDefault(pDefaults map[string]interface{}, tDefaults []tomlDefault) error {
+	for _, tDefault := range tDefaults {
+
+		if tDefault.Name == "" {
+			return errors.New("[[default]] with invalid or missing 'name'")
+		}
+
+		if IsAllUpper(tDefault.Name) {
+			return fmt.Errorf("[[default]] name is invalid (all uppercase): %s", tDefault.Name)
+		}
+
+		valid := false
+		switch tDefault.Value.(type) {
+		case string:
+			valid = true
+		case int32:
+			valid = true
+		case int64:
+			valid = true
+		case float32:
+			valid = true
+		case float64:
+			valid = true
+		}
+
+		if valid == false {
+			return fmt.Errorf("[[default]] invalid value type for '%s'", tDefault.Name)
+		}
+
+		if _, exists := pDefaults[tDefault.Name]; exists == true {
+			return fmt.Errorf("Config error: duplicate default name '%s'", tDefault.Name)
+		}
+
+		pDefaults[tDefault.Name] = tDefault.Value
+	}
+	return nil
+}
+
 func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 	var probe Probe
 
@@ -133,40 +171,8 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 	probe.Arguments = tProbe.Arguments
 
 	probe.Defaults = make(map[string]interface{})
-
-	for _, tDefault := range tProbe.Default {
-
-		if tDefault.Name == "" {
-			return nil, errors.New("[[default]] with invalid or missing 'name'")
-		}
-
-		if IsAllUpper(tDefault.Name) {
-			return nil, fmt.Errorf("[[default]] name is invalid (all uppercase): %s", tDefault.Name)
-		}
-
-		valid := false
-		switch tDefault.Value.(type) {
-		case string:
-			valid = true
-		case int32:
-			valid = true
-		case int64:
-			valid = true
-		case float32:
-			valid = true
-		case float64:
-			valid = true
-		}
-
-		if valid == false {
-			return nil, fmt.Errorf("[[default]] invalid value type for '%s'", tDefault.Name)
-		}
-
-		if _, exists := probe.Defaults[tDefault.Name]; exists == true {
-			return nil, fmt.Errorf("Config error: duplicate default name '%s'", tDefault.Name)
-		}
-
-		probe.Defaults[tDefault.Name] = tDefault.Value
+	if err := checkTomlDefault(probe.Defaults, tProbe.Default); err != nil {
+		return nil, err
 	}
 
 	for index, tCheck := range tProbe.Check {

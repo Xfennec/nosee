@@ -10,6 +10,7 @@ type Host struct {
 	Name       string
 	Classes    []string
 	Connection *Connection
+	Defaults   map[string]interface{}
 	Tasks      []*Task
 }
 
