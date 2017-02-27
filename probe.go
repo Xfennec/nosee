@@ -7,11 +7,6 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
-type Default struct {
-	Name  string
-	Value interface{}
-}
-
 type Check struct {
 	Index           int
 	Desc            string
@@ -29,24 +24,19 @@ type Probe struct {
 	Delay       time.Duration
 	Timeout     time.Duration
 	Arguments   string
-	Defaults    []*Default
+	Defaults    map[string]interface{}
 	Checks      []*Check
 }
 
 func (probe *Probe) MissingDefaults() []string {
 	missing := make(map[string]bool)
-	defaults := make(map[string]bool)
-
-	for _, def := range probe.Defaults {
-		defaults[def.Name] = true
-	}
 
 	for _, check := range probe.Checks {
 		for _, name := range check.If.Vars() {
 			if IsAllUpper(name) {
 				continue
 			}
-			if defaults[name] != true {
+			if _, ok := probe.Defaults[name]; ok != true {
 				missing[name] = true
 			}
 		}

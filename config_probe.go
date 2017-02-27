@@ -131,10 +131,10 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 
 	// should warn about dangerous characters? (;& …)
 	probe.Arguments = tProbe.Arguments
-	dNames := make(map[string]bool)
+
+	probe.Defaults = make(map[string]interface{})
 
 	for _, tDefault := range tProbe.Default {
-		var def Default
 
 		if tDefault.Name == "" {
 			return nil, errors.New("[[default]] with invalid or missing 'name'")
@@ -143,7 +143,6 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 		if IsAllUpper(tDefault.Name) {
 			return nil, fmt.Errorf("[[default]] name is invalid (all uppercase): %s", tDefault.Name)
 		}
-		def.Name = tDefault.Name
 
 		valid := false
 		switch tDefault.Value.(type) {
@@ -160,16 +159,14 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 		}
 
 		if valid == false {
-			return nil, fmt.Errorf("[[default]] invalid value type for '%s'", def.Name)
-		}
-		def.Value = tDefault.Value
-
-		if _, exists := dNames[def.Name]; exists == true {
-			return nil, fmt.Errorf("Config error: duplicate default name '%s'", def.Name)
+			return nil, fmt.Errorf("[[default]] invalid value type for '%s'", tDefault.Name)
 		}
 
-		dNames[def.Name] = true
-		probe.Defaults = append(probe.Defaults, &def)
+		if _, exists := probe.Defaults[tDefault.Name]; exists == true {
+			return nil, fmt.Errorf("Config error: duplicate default name '%s'", tDefault.Name)
+		}
+
+		probe.Defaults[tDefault.Name] = tDefault.Value
 	}
 
 	for index, tCheck := range tProbe.Check {

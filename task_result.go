@@ -51,8 +51,8 @@ func (result *TaskResult) DoChecks() {
 		params[key] = val
 	}
 
-	for _, def := range result.Task.Probe.Defaults {
-		params[def.Name] = def.Value
+	for key, val := range result.Task.Probe.Defaults {
+		params[key] = val
 	}
 
 	for _, check := range result.Task.Probe.Checks {
