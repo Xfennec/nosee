@@ -90,7 +90,7 @@ this host (see below).
 
 Authentication by password is extremely bad, of course, as writing down
 a password in a configuration file. Nosee supports other (preferred) options
-as passphrases and ssh-agent.
+such as passphrases and ssh-agent.
 
 ### Step2. Create a *Probe*
 
@@ -170,7 +170,7 @@ one (or more) of the given targets. It works exactly the same as classes/targets
 for Hosts/Probes to let you create your own vocabulary.
 (ex: `"web & production & critical"` is a valid target)
 
-As you may have seen, some variables are available for arguments, like 
+As you may have seen, some variables are available for arguments, like
 the `$SUBJECT` of the alert message.
 
 There's a special class `general` for very important general messages. At
