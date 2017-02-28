@@ -198,7 +198,8 @@ Oh yes. I want to explain:
  - SSH runs (group of probes)
  - "*" targets
  - needed_failures / needed_successes
- - allows host to override probe's defaults
+ - defaults
+ - host overriding of probe's defaults
  - alert scripts
  - alert limits
  - alert env and stdin

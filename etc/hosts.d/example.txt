@@ -20,3 +20,8 @@ key = "/home/xxx/.ssh/id_rsa_sample"
 key_passphrase = "mypassphrase"
 
 ssh_agent = true
+
+# you can override probe defaults for a specific host:
+[[default]]
+name = "warn_ping_latency"
+value = 10

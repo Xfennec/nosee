@@ -16,7 +16,7 @@ value = 1
 
 [[default]]
 name = "warn_ping_latency"
-value = 10
+value = 1
 
 ### Checks
 
