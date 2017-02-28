@@ -113,7 +113,11 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 		if IsAllUpper(token) {
 			details.WriteString("- " + token + ": " + taskRes.Values[token] + "\n")
 		} else {
-			details.WriteString("- " + token + ": " + InterfaceValueToString(taskRes.Task.Probe.Defaults[token]) + "\n")
+			val := InterfaceValueToString(taskRes.Task.Probe.Defaults[token])
+			if _, exists := taskRes.Host.Defaults[token]; exists == true {
+				val = InterfaceValueToString(taskRes.Host.Defaults[token])
+			}
+			details.WriteString("- " + token + ": " + val + "\n")
 		}
 	}
 	details.WriteString("\n")

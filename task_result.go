@@ -9,6 +9,7 @@ import (
 
 type TaskResult struct {
 	Task             *Task
+	Host             *Host
 	Values           map[string]string
 	ExitStatus       int
 	StartTime        time.Time
@@ -52,6 +53,11 @@ func (result *TaskResult) DoChecks() {
 	}
 
 	for key, val := range result.Task.Probe.Defaults {
+		params[key] = val
+	}
+
+	// … and let's override defaults with host's ones
+	for key, val := range result.Host.Defaults {
 		params[key] = val
 	}
 

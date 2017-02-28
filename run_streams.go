@@ -116,6 +116,7 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 		run.TaskResults = append(run.TaskResults, &result)
 		result.StartTime = time.Now()
 		result.Task = task
+		result.Host = run.Host
 		result.ExitStatus = -1
 		result.Values = make(map[string]string)
 
