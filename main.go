@@ -74,6 +74,26 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 	}
 	Info.Printf("host count = %d\n", len(hosts))
 
+	Info.Print("Testing connections…")
+	errors := make(chan error, len(hosts))
+	for _, host := range hosts {
+		go func(host *Host) {
+			if err := host.TestConnection(); err != nil {
+				errors <- fmt.Errorf("Error connecting %s: %s", host.Name, err)
+			} else {
+				errors <- nil
+			}
+		}(host)
+	}
+	for i := 0; i < len(hosts); i++ {
+		select {
+		case err := <-errors:
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	probesdFiles, err := configurationDirList("probes.d", config.configPath)
 	if err != nil {
 		return nil, fmt.Errorf("Error: %s", err)
@@ -211,7 +231,7 @@ func mainDefault(ctx *cli.Context) error {
 func mainCheck(ctx *cli.Context) error {
 	LogInit(ctx.Parent())
 
-	fmt.Printf("Checking all configuration files…\n")
+	fmt.Printf("Checking configuration…\n")
 
 	config, err := GlobalConfigRead(ctx.Parent().String("config-path"), "nosee.toml")
 	if err != nil {

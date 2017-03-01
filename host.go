@@ -79,3 +79,32 @@ func (host *Host) Schedule() {
 		Trace.Printf("(loop %s)\n", host.Name)
 	}
 }
+
+func (host *Host) TestConnection() error {
+
+	//const bootstrap = "bash -s --"
+
+	startTime := time.Now()
+
+	if err := host.Connection.Connect(); err != nil {
+		return err
+	}
+	defer host.Connection.Close()
+
+	dialDuration := time.Now().Sub(startTime)
+
+	if dialDuration > host.Connection.SshConnTimeWarn {
+		return fmt.Errorf("SSH connection time was too long: %s (ssh_connection_time_warn = %s)", dialDuration, host.Connection.SshConnTimeWarn)
+	}
+
+	/*if err := run.prepareTestPipes(); err != nil {
+		return err
+	}*/
+
+	/*if err := host.TestRun(bootstrap); err != nil {
+		return err
+	}*/
+	Info.Printf("Connection to '%s' OK (%s)", host.Name, dialDuration)
+
+	return nil
+}
