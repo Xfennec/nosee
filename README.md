@@ -206,6 +206,7 @@ Oh yes. I want to explain:
  - timeouts
  - rescheduling
  - GOOD and BAD alerts
+ - configuration "summary" command
  - extensive configuration validation
  - alert examples (pushover, SMS, …)
  - probe examples !
@@ -214,6 +215,5 @@ Oh yes. I want to explain:
 What is the future of Nosee? (WIP)
 ----------------------------
 
- - configuration "summary" command
  - graphs (RRD - Round-Robin database)
  - remote Nosee interconnections
