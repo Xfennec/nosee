@@ -193,12 +193,14 @@ func mainDefault(ctx *cli.Context) error {
 
 	config, err := GlobalConfigRead(ctx.String("config-path"), "nosee.toml")
 	if err != nil {
-		return cli.NewExitError(fmt.Errorf("Config error (nosee.toml): %s", err), 1)
+		Error.Printf("Config (nosee.toml): %s", err)
+		return cli.NewExitError("", 1)
 	}
 
 	hosts, err := createHosts(ctx, config)
 	if err != nil {
-		return cli.NewExitError(err, 10)
+		Error.Println(err)
+		return cli.NewExitError("", 10)
 	}
 
 	CurrentFailsCreate()
@@ -213,12 +215,14 @@ func mainCheck(ctx *cli.Context) error {
 
 	config, err := GlobalConfigRead(ctx.Parent().String("config-path"), "nosee.toml")
 	if err != nil {
-		return cli.NewExitError(fmt.Errorf("Config error (nosee.toml): %s", err), 1)
+		Error.Printf("Config (nosee.toml): %s", err)
+		return cli.NewExitError("", 1)
 	}
 
 	_, err = createHosts(ctx, config)
 	if err != nil {
-		return cli.NewExitError(err, 10)
+		Error.Println(err)
+		return cli.NewExitError("", 10)
 	}
 	fmt.Println("OK")
 	return nil
