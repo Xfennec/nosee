@@ -207,9 +207,9 @@ Oh yes. I want to explain:
  - rescheduling
  - GOOD and BAD alerts
  - configuration "summary" command
- - extensive configuration validation
+ - extensive configuration validation (and connection tests)
  - alert examples (pushover, SMS, …)
- - probe examples !
+ - probe examples!
  - script caching
 
 What is the future of Nosee? (WIP)
