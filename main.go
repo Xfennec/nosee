@@ -7,10 +7,12 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/fatih/color"
 	"github.com/urfave/cli"
 )
 
@@ -248,8 +250,55 @@ func mainCheck(ctx *cli.Context) error {
 	return nil
 }
 
-func main() {
+func mainRecap(ctx *cli.Context) error {
+	LogInit(ctx.Parent())
 
+	config, err := GlobalConfigRead(ctx.Parent().String("config-path"), "nosee.toml")
+	if err != nil {
+		Error.Printf("Config (nosee.toml): %s", err)
+		return cli.NewExitError("", 1)
+	}
+
+	hosts, err := createHosts(ctx, config)
+	if err != nil {
+		Error.Println(err)
+		return cli.NewExitError("", 10)
+	}
+
+	if ctx.Bool("no-color") == true {
+		color.NoColor = true
+	}
+
+	red := color.New(color.FgRed).SprintFunc()
+	yellow := color.New(color.FgYellow).SprintFunc()
+	green := color.New(color.FgGreen).SprintFunc()
+
+	for _, host := range hosts {
+		fmt.Printf("Host: %s\n", host.Name)
+		for _, task := range host.Tasks {
+			fmt.Printf("  %s: %s (%dm)\n", green("Host"), task.Probe.Name, int(task.Probe.Delay.Minutes()))
+			for _, check := range task.Probe.Checks {
+				fmt.Printf("    %s: %s (%s)\n", yellow("Check"), check.Desc, strings.Join(check.Classes, ", "))
+				var msg AlertMessage
+				msg.Classes = check.Classes
+				alertCount := 0
+				for _, alert := range globalAlerts {
+					if msg.MatchAlertTargets(alert) {
+						alertCount++
+						fmt.Printf("      %s: %s\n", red("Alert"), alert.Name)
+					}
+				}
+				if alertCount == 0 {
+					fmt.Println(red("      No valid alert for this check!"))
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func main() {
 	source := rand.NewSource(time.Now().UnixNano())
 	myRand = rand.New(source)
 
@@ -287,6 +336,18 @@ func main() {
 			Aliases: []string{"c"},
 			Usage:   "Checks configuration files and connections",
 			Action:  mainCheck,
+		},
+		{
+			Name:    "recap",
+			Aliases: []string{"r"},
+			Usage:   "Recap configuration",
+			Action:  mainRecap,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "no-color",
+					Usage: "disable color output ",
+				},
+			},
 		},
 	}
 
