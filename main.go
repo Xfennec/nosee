@@ -272,11 +272,12 @@ func mainRecap(ctx *cli.Context) error {
 	red := color.New(color.FgRed).SprintFunc()
 	yellow := color.New(color.FgYellow).SprintFunc()
 	green := color.New(color.FgGreen).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
 
 	for _, host := range hosts {
-		fmt.Printf("Host: %s\n", host.Name)
+		fmt.Printf("%s: %s\n", cyan("Host"), host.Name)
 		for _, task := range host.Tasks {
-			fmt.Printf("  %s: %s (%dm)\n", green("Host"), task.Probe.Name, int(task.Probe.Delay.Minutes()))
+			fmt.Printf("  %s: %s (%dm)\n", green("Probe"), task.Probe.Name, int(task.Probe.Delay.Minutes()))
 			for _, check := range task.Probe.Checks {
 				fmt.Printf("    %s: %s (%s)\n", yellow("Check"), check.Desc, strings.Join(check.Classes, ", "))
 				var msg AlertMessage
