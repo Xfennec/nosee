@@ -12,7 +12,7 @@ port = 22
 [auth]
 user = "user"
 
-# (password) OR (key) OR (key + passphrase) OR (ssh_agent)
+# (password) OR (key) OR (key + passphrase) OR (ssh_agent) OR (ssh_agent + key)
 
 password = "mypassword"
 
@@ -20,6 +20,9 @@ key = "/home/xxx/.ssh/id_rsa_sample"
 key_passphrase = "mypassphrase"
 
 ssh_agent = true
+# If you don't want to test every single key in the agent, give the
+# corresponding public key:
+#pubkey = "/home/xxx/.ssh/id_rsa_sample.pub"
 
 # you can override probe defaults for a specific host:
 [[default]]

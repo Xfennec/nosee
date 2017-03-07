@@ -21,6 +21,7 @@ type tomlAuth struct {
 	Key           string
 	KeyPassphrase string `toml:"key_passphrase"`
 	SSHAgent      bool   `toml:"ssh_agent"`
+	Pubkey        string
 }
 
 type tomlHost struct {
@@ -88,26 +89,28 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 	}
 	connection.User = tHost.Auth.User
 
-	methodCount := 0
-
-	if tHost.Auth.Password != "" {
-		methodCount++
+	if tHost.Auth.Key != "" && tHost.Auth.Password != "" {
+		return nil, errors.New("[auth] section, can't use key and password at the same time (see key_passphrase parameter, perhaps?)")
+	}
+	if tHost.Auth.KeyPassphrase != "" && tHost.Auth.Password != "" {
+		return nil, errors.New("[auth] section, can't use key_passphrase and password at the same time")
+	}
+	if tHost.Auth.SSHAgent == true && tHost.Auth.Password != "" {
+		return nil, errors.New("[auth] section, can't use SSH agent and password at the same time")
+	}
+	if tHost.Auth.SSHAgent == true && tHost.Auth.KeyPassphrase != "" {
+		return nil, errors.New("[auth] section, can't use SSH agent and key_passphrase at the same time")
+	}
+	if tHost.Auth.SSHAgent == true && tHost.Auth.Key != "" {
+		return nil, errors.New("[auth] section, can't use SSH agent and key at the same time (see pubkey parameter, perhaps?)")
 	}
 
 	if tHost.Auth.Key != "" {
-		methodCount++
-	}
-
-	if tHost.Auth.SSHAgent == true {
-		methodCount++
-	}
-
-	if methodCount > 1 {
-		return nil, errors.New("[auth] section, only one auth method is allowed at a time (password, key or ssh_agent)")
-	}
-
-	if methodCount == 0 {
-		return nil, errors.New("[auth] section, at least one auth method is needed (password, key or ssh_agent)")
+		if fd, err := os.Open(tHost.Auth.Key); err != nil {
+			return nil, fmt.Errorf("can't access to key '%s': %s", tHost.Auth.Key, err)
+		} else {
+			fd.Close()
+		}
 	}
 
 	// !!! there's many returns following this line, be careful
@@ -120,7 +123,7 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 	}
 
 	if tHost.Auth.SSHAgent == true {
-		agent, err := SSHAgent()
+		agent, err := SSHAgent(tHost.Auth.Pubkey)
 		if err != nil {
 			return nil, err
 		}
@@ -128,14 +131,6 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 			agent,
 		}
 		return &host, nil
-	}
-
-	if tHost.Auth.Key != "" {
-		if fd, err := os.Open(tHost.Auth.Key); err != nil {
-			return nil, fmt.Errorf("can't access to key '%s': %s", tHost.Auth.Key, err)
-		} else {
-			fd.Close()
-		}
 	}
 
 	if tHost.Auth.Key != "" && tHost.Auth.KeyPassphrase == "" {
@@ -152,5 +147,5 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 		return &host, nil
 	}
 
-	return nil, errors.New("[auth] section, weird (and invalid) configuration")
+	return nil, errors.New("[auth] section, at least one auth method is needed (password, key or ssh_agent)")
 }

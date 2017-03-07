@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"net"
 	"os"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -100,10 +103,53 @@ func PublicKeyFilePassPhrase(file, passphrase string) ssh.AuthMethod {
 	return ssh.PublicKeys(key)
 }
 
-func SSHAgent() (ssh.AuthMethod, error) {
+func SSHAgent(pubkeyFile string) (ssh.AuthMethod, error) {
 	sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
 	if err == nil {
-		return ssh.PublicKeysCallback(agent.NewClient(sshAgent).Signers), nil
+		agent := agent.NewClient(sshAgent)
+
+		// we'll try every key, then
+		if pubkeyFile == "" {
+			return ssh.PublicKeysCallback(agent.Signers), nil
+		}
+
+		agentSigners, err := agent.Signers()
+		if err != nil {
+			return nil, fmt.Errorf("requesting SSH agent key/signer list: %s", err)
+		}
+
+		buffer, err := ioutil.ReadFile(pubkeyFile)
+		if err != nil {
+			return nil, fmt.Errorf("reading public key '%s': %s", pubkeyFile, err)
+		}
+
+		fields := strings.Fields(string(buffer))
+
+		if len(fields) < 3 {
+			return nil, fmt.Errorf("invalid field count for public key '%s'", pubkeyFile)
+		}
+
+		buffer2, err := base64.StdEncoding.DecodeString(fields[1])
+		if err != nil {
+			return nil, fmt.Errorf("decoding public key '%s': %s", pubkeyFile, err)
+		}
+
+		key, err := ssh.ParsePublicKey(buffer2)
+		if err != nil {
+			return nil, fmt.Errorf("parsing public key '%s': %s", pubkeyFile, err)
+		}
+
+		for _, potentialSigner := range agentSigners {
+			if bytes.Compare(key.Marshal(), potentialSigner.PublicKey().Marshal()) == 0 {
+				Info.Printf("successfully found %s key in the SSH agent (%s)", pubkeyFile, fields[2])
+				cb := func() ([]ssh.Signer, error) {
+					signers := []ssh.Signer{potentialSigner}
+					return signers, nil
+				}
+				return ssh.PublicKeysCallback(cb), nil
+			}
+		}
+		return nil, fmt.Errorf("can't find '%s' key in the SSH agent", pubkeyFile)
 	}
 	return nil, fmt.Errorf("SSH agent: %v (check SSH_AUTH_SOCK?)", err)
 }
