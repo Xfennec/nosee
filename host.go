@@ -86,10 +86,25 @@ func (host *Host) TestConnection() error {
 
 	startTime := time.Now()
 
-	if err := host.Connection.Connect(); err != nil {
-		return err
+	channel := make(chan error, 1)
+	go func() {
+		if err := host.Connection.Connect(); err != nil {
+			channel <- err
+		}
+		defer host.Connection.Close()
+		channel <- nil
+	}()
+
+	connTimeout := host.Connection.SshConnTimeWarn * 2
+
+	select {
+	case err := <-channel:
+		if err != nil {
+			return err
+		}
+	case <-time.After(connTimeout):
+		return fmt.Errorf("SSH connection timeout (after %s)", connTimeout)
 	}
-	defer host.Connection.Close()
 
 	dialDuration := time.Now().Sub(startTime)
 
