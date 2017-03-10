@@ -303,6 +303,9 @@ func main() {
 	source := rand.NewSource(time.Now().UnixNano())
 	myRand = rand.New(source)
 
+	// generic (aka "not cli command specific") inits
+	CheckFunctionsInit()
+
 	app := cli.NewApp()
 	app.Usage = "Nosee: a nosey, agentless, easy monitoring tool over SSH"
 	app.Version = "0.1"

@@ -90,7 +90,13 @@ func (run *Run) Alerts() {
 	if run.totalErrorCount() == 0 {
 		run.ClearAnyCurrentRunFails()
 		run.DoChecks()
-		run.AlertsForChecks()
+		if run.totalTaskResultErrorCount() > 0 {
+			Info.Printf("found some 'tasks' error(s) (post-checks)\n")
+			run.AlertsForTasks()
+		} else {
+			// ideal path, let's see if there's any check errors ?
+			run.AlertsForChecks()
+		}
 	} else { // run & tasks errors
 		if len(run.Errors) > 0 {
 			Info.Printf("found some 'run' error(s)\n")

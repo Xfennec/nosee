@@ -188,7 +188,7 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 		if tCheck.If == "" {
 			return nil, errors.New("[[check]] with invalid or missing 'if'")
 		}
-		expr, err := govaluate.NewEvaluableExpression(tCheck.If)
+		expr, err := govaluate.NewEvaluableExpressionWithFunctions(tCheck.If, CheckFunctions)
 		if err != nil {
 			return nil, fmt.Errorf("[[check]] invalid 'if' expression: %s (\"%s\")", err, tCheck.If)
 		}

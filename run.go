@@ -67,6 +67,14 @@ func (run *Run) totalErrorCount() int {
 	return total
 }
 
+func (run *Run) totalTaskResultErrorCount() int {
+	total := 0
+	for _, taskResult := range run.TaskResults {
+		total += len(taskResult.Errors)
+	}
+	return total
+}
+
 func (run *Run) ReSchedule() {
 	for _, task := range run.Tasks {
 		task.NextRun = task.PrevRun
