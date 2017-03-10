@@ -47,6 +47,7 @@ func (run *Run) Dump() {
 }
 
 func (run *Run) addError(err error) {
+	Info.Printf("Run error: %s (host '%s')", err, run.Host.Name)
 	run.Errors = append(run.Errors, err)
 }
 

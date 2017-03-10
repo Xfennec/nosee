@@ -21,10 +21,12 @@ type TaskResult struct {
 }
 
 func (result *TaskResult) addError(err error) {
+	Info.Printf("TaskResult error: %s (host '%s')", err, result.Host.Name)
 	result.Errors = append(result.Errors, err)
 }
 
 func (result *TaskResult) addLog(line string) {
+	Info.Printf("TaskResult log: %s (host '%s')", line, result.Host.Name)
 	result.Logs = append(result.Logs, line)
 }
 
