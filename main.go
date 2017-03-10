@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/Knetic/govaluate"
 	"github.com/fatih/color"
 	"github.com/urfave/cli"
 )
@@ -299,6 +300,30 @@ func mainRecap(ctx *cli.Context) error {
 	return nil
 }
 
+func mainExpr(ctx *cli.Context) error {
+	LogInit(ctx.Parent())
+	if ctx.NArg() == 0 {
+		return fmt.Errorf("Error, you must provide a govaluate expression parameter.\nSee https://github.com/Knetic/govaluate for syntax and features.")
+	}
+	exprString := ctx.Args().Get(0)
+
+	expr, err := govaluate.NewEvaluableExpressionWithFunctions(exprString, CheckFunctions)
+	if err != nil {
+		return err
+	}
+
+	// should perhaps check for undefined variables? govaluate seems
+	// to require it…
+
+	result, err := expr.Evaluate(nil)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(InterfaceValueToString(result))
+	return nil
+}
+
 func main() {
 	source := rand.NewSource(time.Now().UnixNano())
 	myRand = rand.New(source)
@@ -338,7 +363,7 @@ func main() {
 		{
 			Name:    "check",
 			Aliases: []string{"c"},
-			Usage:   "Checks configuration files and connections",
+			Usage:   "Check configuration files and connections",
 			Action:  mainCheck,
 		},
 		{
@@ -352,6 +377,12 @@ func main() {
 					Usage: "disable color output ",
 				},
 			},
+		},
+		{
+			Name:    "expr",
+			Aliases: []string{"e"},
+			Usage:   "Test 'govaluate' expression (See Checks 'If')",
+			Action:  mainExpr,
 		},
 	}
 
