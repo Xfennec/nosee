@@ -42,8 +42,10 @@ func CheckFunctionsInit() {
 			case "dom", "day-of-month":
 				return (float64)(now.Day()), nil
 				// Disabled until I sort out this timezone offset issues
-				/*case "now":
-				return (float64)(now.UTC().Unix()), nil*/
+			case "now":
+				// *remove* timezone information, since govaluate use time.Parse() (always UTC)
+				t := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), 0, time.UTC)
+				return (float64)(t.Unix()), nil
 			}
 			return nil, fmt.Errorf("date function: invalid format '%s'", format)
 		},
