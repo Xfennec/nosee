@@ -125,9 +125,9 @@ script (see below) and evaluate the `if` expression. You can have a look
 at [govaluate](https://github.com/Knetic/govaluate) for details about
 expression's syntax.
 
-If this expression becomes true, the probe will ring a `warning` alert. Here
+If this expression becomes true, the probe will ring a `critical` alert. Here
 again, you are free to use any class of your choice to create your own
-error typology. (ex: `["critical", "hardware_guys"]` to ring a specific group
+error typology. (ex: `["warning", "hardware_guys"]` to ring a specific group
 of users in charge of critical failures of the hardware)
 
 ### Step3. Create a *script* (or use a provided one)
