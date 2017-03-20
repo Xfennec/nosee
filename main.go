@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	//~ "io/ioutil"
 	"math/rand"
 	"os"
 	"path"
@@ -302,7 +301,7 @@ func mainRecap(ctx *cli.Context) error {
 
 func mainExpr(ctx *cli.Context) error {
 	LogInit(ctx.Parent())
-	if ctx.NArg() == 0 {
+	if ctx.NArg() == 0 || ctx.Args().Get(0) == "" {
 		return fmt.Errorf("Error, you must provide a govaluate expression parameter.\nSee https://github.com/Knetic/govaluate for syntax and features.")
 	}
 	exprString := ctx.Args().Get(0)
