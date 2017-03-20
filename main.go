@@ -305,15 +305,15 @@ func mainRecap(ctx *cli.Context) error {
 
 func mainExpr(ctx *cli.Context) error {
 	LogInit(ctx.Parent())
-	if ctx.NArg() == 0  {
+	if ctx.NArg() == 0 {
 		err := fmt.Errorf("Error, you must provide a govaluate expression parameter.\nSee https://github.com/Knetic/govaluate for syntax and features.")
-		return  cli.NewExitError(err, 1)
+		return cli.NewExitError(err, 1)
 	}
 	exprString := ctx.Args().Get(0)
 
 	expr, err := govaluate.NewEvaluableExpressionWithFunctions(exprString, CheckFunctions)
 	if err != nil {
-		return  cli.NewExitError(err, 2)
+		return cli.NewExitError(err, 2)
 	}
 
 	// should perhaps check for undefined variables? govaluate seems
@@ -321,7 +321,7 @@ func mainExpr(ctx *cli.Context) error {
 
 	result, err := expr.Evaluate(nil)
 	if err != nil {
-		return  cli.NewExitError(err, 3)
+		return cli.NewExitError(err, 3)
 	}
 
 	fmt.Println(InterfaceValueToString(result))
