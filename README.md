@@ -196,7 +196,7 @@ Oh yes. I want to explain:
  - "threaded" (Goroutines)
  - global `nosee.toml` configuration
  - SSH runs (group of probes)
- - "*" targets
+ - `*` targets
  - needed_failures / needed_successes
  - defaults
  - host overriding of probe's defaults
@@ -211,6 +211,7 @@ Oh yes. I want to explain:
  - alert examples (pushover, SMS, …)
  - probe examples!
  - script caching
+ - check "If" functions (date)
 
 What is the future of Nosee? (WIP)
 ----------------------------

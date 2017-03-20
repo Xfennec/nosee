@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/Knetic/govaluate"
@@ -35,18 +36,24 @@ func CheckFunctionsInit() {
 				return (float64)(now.Hour()), nil
 			case "minute":
 				return (float64)(now.Minute()), nil
-			case "hours":
+			case "time":
 				return (float64)((float64)(now.Hour()) + (float64)(now.Minute())/60.0), nil
 			case "dow", "day-of-week":
 				return (float64)(now.Weekday()), nil
 			case "dom", "day-of-month":
 				return (float64)(now.Day()), nil
-				// Disabled until I sort out this timezone offset issues
 			case "now":
-				// *remove* timezone information, since govaluate use time.Parse() (always UTC)
-				t := time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), 0, time.UTC)
-				return (float64)(t.Unix()), nil
+				return (float64)(now.Unix()), nil
 			}
+
+			if match, _ := regexp.MatchString("^[0-9]{1,2}:[0-9]{2}$", format); match == true {
+				if t, err := alertCheckHour(format); err != nil {
+					return nil, fmt.Errorf("date function: invalid hour '%s': %s", format, err)
+				} else {
+					return (float64)((float64)(t[0]) + (float64)(t[1])/60.0), nil
+				}
+			}
+
 			return nil, fmt.Errorf("date function: invalid format '%s'", format)
 		},
 	}
