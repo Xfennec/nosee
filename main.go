@@ -316,8 +316,10 @@ func mainExpr(ctx *cli.Context) error {
 		return cli.NewExitError(err, 2)
 	}
 
-	// should perhaps check for undefined variables? govaluate seems
-	// to require it…
+	if vars := expr.Vars(); len(vars) > 0 {
+		err := fmt.Errorf("Undefined variables: %s", strings.Join(vars, ", "))
+		return cli.NewExitError(err, 11)
+	}
 
 	result, err := expr.Evaluate(nil)
 	if err != nil {
