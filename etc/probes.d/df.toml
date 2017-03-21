@@ -1,0 +1,21 @@
+name = "disk free"
+targets = ["linux"]
+#disabled = true
+
+script = "df.sh"
+
+delay = "30m"
+timeout = "8s"
+
+### Default values
+
+[[default]]
+name = "df_warn_perc"
+value = 95
+
+### Checks
+
+[[check]]
+desc = "disk almost full"
+if = "DISK_FULLEST_PERC > df_warn_perc"
+classes = ["warning"]

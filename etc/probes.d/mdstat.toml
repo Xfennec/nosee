@@ -1,0 +1,15 @@
+name = "Linux md-raid states"
+targets = ["linux"]
+#disabled = true
+
+script = "mdstat.sh"
+
+delay = "5m"
+timeout = "15s"
+
+### Checks
+
+[[check]]
+desc = "md-raid failure"
+if = "MDRAID_ERR_ARRAYS > 0"
+classes = ["critical"]
