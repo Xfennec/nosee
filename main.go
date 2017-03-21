@@ -227,6 +227,14 @@ func mainDefault(ctx *cli.Context) error {
 
 	CurrentFailsCreate()
 
+	if pidPath := ctx.String("pid-file"); pidPath != "" {
+		pid, err := NewPIDFile(pidPath)
+		if err != nil {
+			return cli.NewExitError(fmt.Errorf("Error with pid file: %s", err), 100)
+		}
+		defer pid.Remove()
+	}
+
 	if err := scheduleHosts(hosts, config); err != nil {
 		return cli.NewExitError(err, 1)
 	}
@@ -360,6 +368,10 @@ func main() {
 		cli.BoolFlag{
 			Name:  "quiet, q",
 			Usage: "no stdout/err output (except launch errors)",
+		},
+		cli.StringFlag{
+			Name:  "pid-file, p",
+			Usage: "create pid `FILE`",
 		},
 	}
 
