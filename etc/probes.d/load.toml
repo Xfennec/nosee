@@ -1,0 +1,16 @@
+name = "system load"
+targets = ["linux"]
+#disabled = true
+
+script = "load.sh"
+
+delay = "1m"
+timeout = "8s"
+
+### Checks
+
+[[check]]
+desc = "heavy system load"
+if = "LOAD > CPU_COUNT"
+classes = ["warning"]
+needed_failures = 2

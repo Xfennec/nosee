@@ -8,3 +8,4 @@ else
 fi
 
 echo "LOAD:" $load
+echo "CPU_COUNT:" $(nproc)
