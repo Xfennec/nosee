@@ -366,6 +366,10 @@ func main() {
 			Usage: "log file to `FILE` (append)",
 		},
 		cli.BoolFlag{
+			Name:  "log-timestamp, t",
+			Usage: "add timestamp to log output",
+		},
+		cli.BoolFlag{
 			Name:  "quiet, q",
 			Usage: "no stdout/err output (except launch errors)",
 		},

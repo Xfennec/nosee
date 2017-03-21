@@ -49,6 +49,7 @@ func LogInit(ctx *cli.Context) {
 	level := ctx.String("log-level")
 	file := ctx.String("log-file")
 	quiet := ctx.Bool("quiet")
+	timestamp := ctx.Bool("log-timestamp")
 
 	var (
 		err error
@@ -85,21 +86,26 @@ func LogInit(ctx *cli.Context) {
 		os.Exit(1)
 	}
 
+	var flags = 0
+	if timestamp {
+		flags = log.Ldate | log.Ltime
+	}
+
 	Trace = log.New(traceHandle,
 		"TRACE: ",
-		log.Ldate|log.Ltime|log.Lshortfile)
+		flags|log.Lshortfile)
 
 	Info = log.New(infoHandle,
 		"INFO: ",
-		log.Ldate|log.Ltime)
+		flags)
 
 	Warning = log.New(warningHandle,
 		"WARNING: ",
-		0)
+		flags)
 
 	Error = log.New(errorHandle,
 		"ERROR: ",
-		0)
+		flags)
 
 	Trace.Println("Log init")
 }
