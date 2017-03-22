@@ -200,6 +200,7 @@ Oh yes. I want to explain:
  - needed_failures / needed_successes
  - defaults
  - host overriding of probe's defaults
+ - use of defaults for probe script arguments
  - alert scripts
  - alert limits
  - alert env and stdin

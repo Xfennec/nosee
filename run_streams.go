@@ -137,9 +137,19 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 		}
 
 		args := task.Probe.Arguments
+		params := make(map[string]interface{})
+		for key, val := range task.Probe.Defaults {
+			params[key] = val
+		}
+		// … and let's override defaults with host's ones
+		for key, val := range run.Host.Defaults {
+			params[key] = val
+		}
+		args = StringExpandVariables(args, params)
 
 		// cat is needed to "focus" stdin only on the child bash
 		str := fmt.Sprintf("cat | __SCRIPT_ID=%d bash -s -- %s ; echo __EXIT=$?\n", num, args)
+		Trace.Printf("child=%s\n", str)
 
 		_, err = out.Write([]byte(str))
 		if err != nil {

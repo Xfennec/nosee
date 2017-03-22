@@ -3,14 +3,21 @@ targets = ["linux"]
 #disabled = true
 
 script = "load.sh"
+arguments = "$load_normal_cmd"
 
 delay = "1m"
 timeout = "8s"
+
+### Default values
+
+[[default]]
+name = "load_normal_cmd"
+value = "/root/backup.sh"
 
 ### Checks
 
 [[check]]
 desc = "heavy system load"
-if = "LOAD > CPU_COUNT"
+if = "LOAD > CPU_COUNT && LOAD_PROG_DETECTED == 0"
 classes = ["warning"]
 needed_failures = 2

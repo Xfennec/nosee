@@ -222,7 +222,7 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 	}
 
 	if miss := probe.MissingDefaults(); len(miss) > 0 {
-		return nil, fmt.Errorf("missing defaults (used in 'if' expressions): %s", strings.Join(miss, ", "))
+		return nil, fmt.Errorf("missing defaults (used in 'if' expressions or 'arguments' parameter): %s", strings.Join(miss, ", "))
 	}
 
 	return &probe, nil

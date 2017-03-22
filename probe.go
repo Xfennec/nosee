@@ -42,6 +42,13 @@ func (probe *Probe) MissingDefaults() []string {
 		}
 	}
 
+	vars := StringFindVariables(probe.Arguments)
+	for _, name := range vars {
+		if _, ok := probe.Defaults[name]; ok != true {
+			missing[name] = true
+		}
+	}
+
 	// map to slice:
 	var missSlice []string
 	for key, _ := range missing {

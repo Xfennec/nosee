@@ -29,6 +29,7 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 
 	// replace $SUBJECT with the real value in the arguments
 	// we should perhaps provide some other infos?
+	// TODO: should use StringExpandVariables() here
 	var args []string
 	reSubject := regexp.MustCompile("\\$SUBJECT")
 	reType := regexp.MustCompile("\\$TYPE")
