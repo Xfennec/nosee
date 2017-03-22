@@ -7,6 +7,7 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
+// Check holds final informations about a check of a probes.d file
 type Check struct {
 	Index           int
 	Desc            string
@@ -16,6 +17,7 @@ type Check struct {
 	NeededSuccesses int
 }
 
+// Probe is the final form of probes.d files
 type Probe struct {
 	Name        string
 	Script      string
@@ -28,6 +30,9 @@ type Probe struct {
 	Checks      []*Check
 }
 
+// MissingDefaults return a slice with names of defaults used in Check 'If'
+// expressions and Probe script arguments. The slice length is 0 if no
+// missing default were found.
 func (probe *Probe) MissingDefaults() []string {
 	missing := make(map[string]bool)
 
@@ -51,7 +56,7 @@ func (probe *Probe) MissingDefaults() []string {
 
 	// map to slice:
 	var missSlice []string
-	for key, _ := range missing {
+	for key := range missing {
 		missSlice = append(missSlice, key)
 	}
 

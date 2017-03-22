@@ -25,18 +25,18 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 			switch parts[0] {
 			case "__EXIT":
 				if len(parts) != 2 {
-					run.addError(fmt.Errorf("Invalid __EXIT: %s\n", text))
+					run.addError(fmt.Errorf("Invalid __EXIT: %s", text))
 					continue
 				}
 				status, err := strconv.Atoi(parts[1])
 				if err != nil {
-					run.addError(fmt.Errorf("Invalid __EXIT value: %s\n", text))
+					run.addError(fmt.Errorf("Invalid __EXIT value: %s", text))
 					continue
 				}
 				Trace.Printf("EXIT detected: %s (status %d)\n", text, status)
 				exitStatus <- status
 			default:
-				run.addError(fmt.Errorf("Unknown keyword: %s\n", text))
+				run.addError(fmt.Errorf("Unknown keyword: %s", text))
 			}
 			continue
 		}
@@ -78,7 +78,7 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		run.addError(fmt.Errorf("Error reading stdout: %s\n", err))
+		run.addError(fmt.Errorf("Error reading stdout: %s", err))
 	}
 }
 
@@ -93,7 +93,7 @@ func (run *Run) readStderr(std io.Reader) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		run.addError(fmt.Errorf("Error reading stderr: %s\n", err))
+		run.addError(fmt.Errorf("Error reading stderr: %s", err))
 		return // !!!
 	}
 }
@@ -106,7 +106,7 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 	// "pkill" dependency or Linux "ps"? (ie: not Cygwin)
 	_, err := out.Write([]byte("export __MAIN_PID=$$\nfunction __kill_subshells() { pkill -TERM -P $__MAIN_PID cat; }\nexport -f __kill_subshells\n"))
 	if err != nil {
-		run.addError(fmt.Errorf("Error writing (setup parent bash): %s\n", err))
+		run.addError(fmt.Errorf("Error writing (setup parent bash): %s", err))
 		return
 	}
 
@@ -123,9 +123,9 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 		var scanner *bufio.Scanner
 
 		if task.Probe.ScriptCache == nil {
-			file, err := os.Open(task.Probe.Script)
-			if err != nil {
-				result.addError(fmt.Errorf("Failed to open script: %s\n", err))
+			file, erro := os.Open(task.Probe.Script)
+			if erro != nil {
+				result.addError(fmt.Errorf("Failed to open script: %s", erro))
 				continue
 			}
 			defer file.Close()
@@ -153,35 +153,35 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 
 		_, err = out.Write([]byte(str))
 		if err != nil {
-			run.addError(fmt.Errorf("Error writing (starting child bash): %s\n", err))
+			run.addError(fmt.Errorf("Error writing (starting child bash): %s", err))
 			return
 		}
 
 		// no newline so we dont change line numbers
 		_, err = out.Write([]byte("trap __kill_subshells EXIT ; "))
 		if err != nil {
-			run.addError(fmt.Errorf("Error writing (init child bash): %s\n", err))
+			run.addError(fmt.Errorf("Error writing (init child bash): %s", err))
 			return
 		}
 
 		for scanner.Scan() {
 			text := scanner.Text()
 			Trace.Printf("stdin=%s\n", text)
-			_, err := out.Write([]byte(text + "\n"))
-			if err != nil {
-				run.addError(fmt.Errorf("Error writing: %s\n", err))
+			_, errw := out.Write([]byte(text + "\n"))
+			if errw != nil {
+				run.addError(fmt.Errorf("Error writing: %s", errw))
 				return
 			}
 		}
 
 		_, err = out.Write([]byte("__kill_subshells\n"))
 		if err != nil {
-			run.addError(fmt.Errorf("Error writing (bash instance): %s\n", err))
+			run.addError(fmt.Errorf("Error writing (bash instance): %s", err))
 			return
 		}
 
 		if err := scanner.Err(); err != nil {
-			run.addError(fmt.Errorf("Error wrtiting: %s\n", err))
+			run.addError(fmt.Errorf("Error wrtiting: %s", err))
 			return
 		}
 

@@ -42,9 +42,9 @@ func configurationDirList(inpath string, dirPath string) ([]string, error) {
 
 func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 
-	hostsdFiles, err := configurationDirList("hosts.d", config.configPath)
-	if err != nil {
-		return nil, fmt.Errorf("Error: %s", err)
+	hostsdFiles, errc := configurationDirList("hosts.d", config.configPath)
+	if errc != nil {
+		return nil, fmt.Errorf("Error: %s", errc)
 	}
 
 	var hosts []*Host
@@ -96,9 +96,9 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 		}
 	}
 
-	probesdFiles, err := configurationDirList("probes.d", config.configPath)
-	if err != nil {
-		return nil, fmt.Errorf("Error: %s", err)
+	probesdFiles, errd := configurationDirList("probes.d", config.configPath)
+	if errd != nil {
+		return nil, fmt.Errorf("Error: %s", errd)
 	}
 
 	var probes []*Probe
@@ -314,7 +314,7 @@ func mainRecap(ctx *cli.Context) error {
 func mainExpr(ctx *cli.Context) error {
 	LogInit(ctx.Parent())
 	if ctx.NArg() == 0 {
-		err := fmt.Errorf("Error, you must provide a govaluate expression parameter.\nSee https://github.com/Knetic/govaluate for syntax and features.")
+		err := fmt.Errorf("Error, you must provide a govaluate expression parameter, see https://github.com/Knetic/govaluate for syntax and features")
 		return cli.NewExitError(err, 1)
 	}
 	exprString := ctx.Args().Get(0)
@@ -325,8 +325,8 @@ func mainExpr(ctx *cli.Context) error {
 	}
 
 	if vars := expr.Vars(); len(vars) > 0 {
-		err := fmt.Errorf("Undefined variables: %s", strings.Join(vars, ", "))
-		return cli.NewExitError(err, 11)
+		errv := fmt.Errorf("Undefined variables: %s", strings.Join(vars, ", "))
+		return cli.NewExitError(errv, 11)
 	}
 
 	result, err := expr.Evaluate(nil)

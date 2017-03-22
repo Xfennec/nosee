@@ -10,6 +10,7 @@ import (
 	"syscall"
 )
 
+// PIDFile stores (few) informations about a PID file
 type PIDFile struct {
 	Path string
 }
@@ -26,6 +27,7 @@ func checkPIDFileExists(path string) error {
 	return nil
 }
 
+// NewPIDFile create a PIDFile if there no other instance already running
 func NewPIDFile(path string) (*PIDFile, error) {
 	if err := checkPIDFileExists(path); err != nil {
 		return nil, err
@@ -40,6 +42,7 @@ func NewPIDFile(path string) (*PIDFile, error) {
 	return &PIDFile{Path: path}, nil
 }
 
+// Remove deletes the PIDFile
 func (file PIDFile) Remove() error {
 	return os.Remove(file.Path)
 }

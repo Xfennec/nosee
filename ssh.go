@@ -16,6 +16,7 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 )
 
+// Connection is the final form of connection informations of hosts.d files
 type Connection struct {
 	User            string
 	Auths           []ssh.AuthMethod
@@ -26,6 +27,7 @@ type Connection struct {
 	Client          *ssh.Client
 }
 
+// Close will clone the connection and the session
 func (connection *Connection) Close() error {
 	var (
 		sessionError error
@@ -48,6 +50,7 @@ func (connection *Connection) Close() error {
 	return sessionError
 }
 
+// Connect will dial SSH server and open a session
 func (connection *Connection) Connect() error {
 	sshConfig := &ssh.ClientConfig{
 		User: connection.User,
@@ -70,6 +73,7 @@ func (connection *Connection) Connect() error {
 	return nil
 }
 
+// PublicKeyFile returns an AuthMethod using a private key file
 func PublicKeyFile(file string) ssh.AuthMethod {
 	buffer, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -83,6 +87,8 @@ func PublicKeyFile(file string) ssh.AuthMethod {
 	return ssh.PublicKeys(key)
 }
 
+// PublicKeyFilePassPhrase returns an AuthMethod using a private key file
+// and a passphrase
 func PublicKeyFilePassPhrase(file, passphrase string) ssh.AuthMethod {
 	buffer, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -103,9 +109,12 @@ func PublicKeyFilePassPhrase(file, passphrase string) ssh.AuthMethod {
 	return ssh.PublicKeys(key)
 }
 
+// SSHAgent returns an AuthMethod using SSH agent connection. The pubkeyFile
+// params restricts the AuthMethod to only one key, so it wont spam the
+// SSH server if the agent holds multiple keys.
 func SSHAgent(pubkeyFile string) (ssh.AuthMethod, error) {
-	sshAgent, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
-	if err == nil {
+	sshAgent, errd := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
+	if errd == nil {
 		agent := agent.NewClient(sshAgent)
 
 		// we'll try every key, then
@@ -151,5 +160,5 @@ func SSHAgent(pubkeyFile string) (ssh.AuthMethod, error) {
 		}
 		return nil, fmt.Errorf("can't find '%s' key in the SSH agent", pubkeyFile)
 	}
-	return nil, fmt.Errorf("SSH agent: %v (check SSH_AUTH_SOCK?)", err)
+	return nil, fmt.Errorf("SSH agent: %v (check SSH_AUTH_SOCK?)", errd)
 }

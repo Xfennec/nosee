@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// Run is a list of Tasks on Host, including task results
 type Run struct {
 	Host         *Host
 	Tasks        []*Task
@@ -15,6 +16,7 @@ type Run struct {
 	Errors       []error
 }
 
+// Dump prints Run informations on the screen for debugging purposes
 func (run *Run) Dump() {
 	fmt.Printf("-\n")
 	fmt.Printf("- host: %s\n", run.Host.Name)
@@ -75,6 +77,7 @@ func (run *Run) totalTaskResultErrorCount() int {
 	return total
 }
 
+// ReSchedule will force all Run tasks to run on next time step
 func (run *Run) ReSchedule() {
 	for _, task := range run.Tasks {
 		task.NextRun = task.PrevRun
@@ -82,6 +85,7 @@ func (run *Run) ReSchedule() {
 	Info.Printf("re-scheduling all tasks for '%s'\n", run.Host.Name)
 }
 
+// ReScheduleFailedTasks will force all Run failed tasks to run on next time step
 func (run *Run) ReScheduleFailedTasks() {
 	for _, task := range run.Tasks {
 		for _, cf := range currentFails {
@@ -93,12 +97,14 @@ func (run *Run) ReScheduleFailedTasks() {
 	}
 }
 
+// DoChecks will evaluate checks on every TaskResult of the Run
 func (run *Run) DoChecks() {
 	for _, taskResult := range run.TaskResults {
 		taskResult.DoChecks()
 	}
 }
 
+// Go will execute the Run
 func (run *Run) Go() {
 	const bootstrap = "bash -s --"
 

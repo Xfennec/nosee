@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Host is the final form of hosts.d files
 type Host struct {
 	Name       string
 	Classes    []string
@@ -14,6 +15,7 @@ type Host struct {
 	Tasks      []*Task
 }
 
+// HasClass returns true if this Host has this class
 func (host *Host) HasClass(class string) bool {
 	if class == "*" {
 		return true
@@ -27,6 +29,7 @@ func (host *Host) HasClass(class string) bool {
 	return false
 }
 
+// MatchProbeTargets returns true if this Host matches probe's classes
 func (host *Host) MatchProbeTargets(probe *Probe) bool {
 	for _, pTargets := range probe.Targets {
 		tokens := strings.Split(pTargets, "&")
@@ -45,6 +48,7 @@ func (host *Host) MatchProbeTargets(probe *Probe) bool {
 	return false
 }
 
+// Schedule will loop forever, creating and executing runs for this host
 func (host *Host) Schedule() {
 	for {
 		start := time.Now()
@@ -80,6 +84,7 @@ func (host *Host) Schedule() {
 	}
 }
 
+// TestConnection will return nil if connection to the host was successful
 func (host *Host) TestConnection() error {
 
 	//const bootstrap = "bash -s --"
