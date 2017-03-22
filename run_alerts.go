@@ -22,7 +22,7 @@ func (run *Run) AlertsForRun() {
 		return
 	}
 
-	message := AlertMessageCreateForRun(AlertBad, run)
+	message := AlertMessageCreateForRun(AlertBad, run, currentFail)
 	message.RingAlerts()
 }
 
@@ -44,7 +44,7 @@ func (run *Run) AlertsForTasks() {
 				return
 			}
 
-			message := AlertMessageCreateForTaskResult(AlertBad, run, taskRes)
+			message := AlertMessageCreateForTaskResult(AlertBad, run, taskRes, currentFail)
 			message.RingAlerts()
 		}
 	}
@@ -122,17 +122,14 @@ func (run *Run) Alerts() {
 // ClearAnyCurrentRunFails deletes any currentFail for the Run (same Host)
 // and then rings GOOD alerts
 func (run *Run) ClearAnyCurrentRunFails() {
-	found := 0
 	for hash, cf := range currentFails {
 		if cf.RelatedHost == run.Host {
-			found++
+			// there was a time when we were only ringing one message
+			// for the whole host, but it's compliant with UniqueID idea
+			message := AlertMessageCreateForRun(AlertGood, run, cf)
+			message.RingAlerts()
 			CurrentFailDelete(hash)
 		}
-	}
-
-	if found > 0 {
-		message := AlertMessageCreateForRun(AlertGood, run)
-		message.RingAlerts()
 	}
 }
 
@@ -141,16 +138,12 @@ func (run *Run) ClearAnyCurrentRunFails() {
 func (run *Run) ClearAnyCurrentTasksFails() {
 	for _, taskRes := range run.TaskResults {
 		if len(taskRes.Errors) == 0 {
-			found := 0
 			for hash, cf := range currentFails {
 				if taskRes.Task == cf.RelatedTTask {
-					found++
+					message := AlertMessageCreateForTaskResult(AlertGood, run, taskRes, cf)
+					message.RingAlerts()
 					CurrentFailDelete(hash)
 				}
-			}
-			if found > 0 {
-				message := AlertMessageCreateForTaskResult(AlertGood, run, taskRes)
-				message.RingAlerts()
 			}
 		}
 	}

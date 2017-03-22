@@ -3,6 +3,8 @@ package main
 import (
 	"sync"
 	"time"
+
+	"github.com/satori/go.uuid"
 )
 
 // CurrentFail type hold informations about a failure currently detected
@@ -11,7 +13,7 @@ type CurrentFail struct {
 	FailStart time.Time
 	FailCount int
 	OkCount   int
-	// probably need some sort of uniq ID for the fail (rand?)
+	UniqueID  string
 
 	// optional "payload"
 	RelatedTask  *Task // for Checks (!!)
@@ -68,6 +70,7 @@ func CurrentFailGetAndInc(hash string) *CurrentFail {
 		cf.FailCount = 1
 		cf.OkCount = 0
 		cf.FailStart = time.Now()
+		cf.UniqueID = uuid.NewV4().String()
 		CurrentFailAdd(hash, &cf)
 		return &cf
 	}

@@ -23,10 +23,11 @@ var AlertMessageTypeStr = [...]string{
 
 // AlertMessage will store the text of the error
 type AlertMessage struct {
-	Type    AlertMessageType
-	Subject string
-	Details string
-	Classes []string
+	Type     AlertMessageType
+	Subject  string
+	Details  string
+	Classes  []string
+	UniqueID string
 }
 
 // GeneralClass is a "general" class for very important general messages
@@ -41,11 +42,12 @@ func (amt AlertMessageType) String() string {
 
 // AlertMessageCreateForRun creates a new AlertMessage with AlertGood or
 // AlertBad type for a Run
-func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
+func AlertMessageCreateForRun(aType AlertMessageType, run *Run, currentFail *CurrentFail) *AlertMessage {
 	var message AlertMessage
 
 	message.Subject = fmt.Sprintf("[%s] %s: run error(s)", aType, run.Host.Name)
 	message.Type = aType
+	message.UniqueID = currentFail.UniqueID
 
 	var details bytes.Buffer
 
@@ -61,6 +63,8 @@ func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
 		details.WriteString("No more run errors for this host. (" + run.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 	}
 
+	details.WriteString("\n")
+	details.WriteString("Unique failure ID: " + message.UniqueID + "\n")
 	message.Details = details.String()
 
 	message.Classes = []string{GeneralClass}
@@ -70,11 +74,12 @@ func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
 
 // AlertMessageCreateForTaskResult creates an AlertGood or AlertBad message for a TaskResult
 // Note that taskResult may be nil for GOOD messages
-func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResult *TaskResult) *AlertMessage {
+func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResult *TaskResult, currentFail *CurrentFail) *AlertMessage {
 	var message AlertMessage
 
 	message.Subject = fmt.Sprintf("[%s] %s: %s: task error(s)", aType, run.Host.Name, taskResult.Task.Probe.Name)
 	message.Type = aType
+	message.UniqueID = currentFail.UniqueID
 
 	var details bytes.Buffer
 
@@ -90,6 +95,8 @@ func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResul
 		details.WriteString("No more errors for this task on this host. (" + taskResult.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 	}
 
+	details.WriteString("\n")
+	details.WriteString("Unique failure ID: " + message.UniqueID + "\n")
 	message.Details = details.String()
 
 	message.Classes = []string{GeneralClass}
@@ -104,6 +111,7 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 	// Host: Check (Task)
 	message.Subject = fmt.Sprintf("[%s] %s: %s (%s)", aType, run.Host.Name, check.Desc, taskRes.Task.Probe.Name)
 	message.Type = aType
+	message.UniqueID = currentFail.UniqueID
 
 	var details bytes.Buffer
 
@@ -139,6 +147,8 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 			details.WriteString("--- " + key + ": " + val + "\n")
 		}
 	}
+	details.WriteString("\n")
+	details.WriteString("Unique failure ID: " + message.UniqueID + "\n")
 	message.Details = details.String()
 
 	message.Classes = check.Classes

@@ -37,9 +37,11 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 	var args []string
 	reSubject := regexp.MustCompile("\\$SUBJECT")
 	reType := regexp.MustCompile("\\$TYPE")
+	reID := regexp.MustCompile("\\$UNIQUEID")
 	for _, arg := range alert.Arguments {
 		arg = reSubject.ReplaceAllString(arg, msg.Subject)
 		arg = reType.ReplaceAllString(arg, msg.Type.String())
+		arg = reID.ReplaceAllString(arg, msg.UniqueID)
 		args = append(args, arg)
 	}
 
@@ -50,6 +52,7 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 		env = append(env, fmt.Sprintf("SUBJECT=%s", msg.Subject))
 		env = append(env, fmt.Sprintf("DETAILS=%s", msg.Details))
 		env = append(env, fmt.Sprintf("TYPE=%s", msg.Type))
+		env = append(env, fmt.Sprintf("UNIQUEID=%s", msg.UniqueID))
 		cmd.Env = env
 
 		// we also inject Details thru stdin:

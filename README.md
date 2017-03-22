@@ -207,6 +207,7 @@ Oh yes. I want to explain:
  - timeouts
  - rescheduling
  - GOOD and BAD alerts
+ - UniqueID for alerts
  - configuration "summary" command
  - extensive configuration validation (and connection tests)
  - alert examples (pushover, SMS, …)
