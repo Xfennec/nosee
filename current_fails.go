@@ -59,7 +59,8 @@ func CurrentFailDec(hash string) {
 }
 
 // CurrentFailGetAndInc returns the CurrentFail with the given hash and
-// increments its FailCount
+// increments its FailCount. The CurrentFail is created if it does not
+// already exists.
 func CurrentFailGetAndInc(hash string) *CurrentFail {
 	cf, ok := currentFails[hash]
 	if !ok {
