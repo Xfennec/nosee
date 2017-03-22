@@ -12,10 +12,12 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
+// Duration hides time.Duration for TOML file reading (see UnmarshalText)
 type Duration struct {
 	time.Duration
 }
 
+// UnmarshalText is needed to satisfy the encoding.TextUnmarshaler interface
 func (d *Duration) UnmarshalText(text []byte) error {
 	var err error
 	d.Duration, err = time.ParseDuration(string(text))

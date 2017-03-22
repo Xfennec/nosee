@@ -54,7 +54,7 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 		var tHost tomlHost
 
 		// defaults
-		tHost.Network.SshConnTimeWarn.Duration = config.SshConnTimeWarn
+		tHost.Network.SSHConnTimeWarn.Duration = config.SSHConnTimeWarn
 
 		if _, err := toml.DecodeFile(file, &tHost); err != nil {
 			return nil, fmt.Errorf("Error decoding %s: %s", file, err)
@@ -162,7 +162,7 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 	generalReceivers := 0
 	for _, alert := range alerts {
 		for _, target := range alert.Targets {
-			if target == "general" || target == "*" {
+			if target == GeneralClass || target == "*" {
 				generalReceivers++
 			}
 		}

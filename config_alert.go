@@ -128,11 +128,11 @@ func tomlAlertToAlert(tAlert *tomlAlert, config *Config) (*Alert, error) {
 		}
 		tAlert.Command = scriptPath
 	} else {
-		if path, err := exec.LookPath(tAlert.Command); err != nil {
-			return nil, fmt.Errorf("'%s' command not found in PATH: %s", tAlert.Command, err)
-		} else {
-			tAlert.Command = path
+		path, errp := exec.LookPath(tAlert.Command)
+		if errp != nil {
+			return nil, fmt.Errorf("'%s' command not found in PATH: %s", tAlert.Command, errp)
 		}
+		tAlert.Command = path
 	}
 
 	alert.Command = tAlert.Command
@@ -155,7 +155,7 @@ func tomlAlertToAlert(tAlert *tomlAlert, config *Config) (*Alert, error) {
 	// explode targets on & and check IsValidTokenName
 	hasGeneralClass := false
 	for _, targets := range tAlert.Targets {
-		if targets == "*" || targets == "general" {
+		if targets == "*" || targets == GeneralClass {
 			hasGeneralClass = true
 			continue
 		}
@@ -171,11 +171,11 @@ func tomlAlertToAlert(tAlert *tomlAlert, config *Config) (*Alert, error) {
 
 	alert.Arguments = tAlert.Arguments
 
-	if hours, err := alertCheckHours(tAlert.Hours); err != nil {
+	hours, err := alertCheckHours(tAlert.Hours)
+	if err != nil {
 		return nil, fmt.Errorf("'hours' parameter: %s", err)
-	} else {
-		alert.Hours = hours
 	}
+	alert.Hours = hours
 
 	if err := alertCheckAndCleanDays(tAlert.Days); err != nil {
 		return nil, fmt.Errorf("'days' parameter: %s", err)

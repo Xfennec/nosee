@@ -95,7 +95,7 @@ func (host *Host) TestConnection() error {
 		channel <- nil
 	}()
 
-	connTimeout := host.Connection.SshConnTimeWarn * 2
+	connTimeout := host.Connection.SSHConnTimeWarn * 2
 
 	select {
 	case err := <-channel:
@@ -108,8 +108,8 @@ func (host *Host) TestConnection() error {
 
 	dialDuration := time.Now().Sub(startTime)
 
-	if dialDuration > host.Connection.SshConnTimeWarn {
-		return fmt.Errorf("SSH connection time was too long: %s (ssh_connection_time_warn = %s)", dialDuration, host.Connection.SshConnTimeWarn)
+	if dialDuration > host.Connection.SSHConnTimeWarn {
+		return fmt.Errorf("SSH connection time was too long: %s (ssh_connection_time_warn = %s)", dialDuration, host.Connection.SSHConnTimeWarn)
 	}
 
 	/*if err := run.prepareTestPipes(); err != nil {

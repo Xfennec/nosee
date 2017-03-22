@@ -9,21 +9,25 @@ import (
 	"strings"
 )
 
+// IsValidTokenName returns true is argument use only allowed chars for a token
 func IsValidTokenName(token string) bool {
 	match, _ := regexp.MatchString("^[A-Za-z0-9_]+$", token)
 	return match
 }
 
+// IsAllUpper returns true if string is all uppercase
 func IsAllUpper(str string) bool {
 	return str == strings.ToUpper(str)
 }
 
+// MD5Hash will hash input text and return MD5 sum
 func MD5Hash(text string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(text))
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
+// InterfaceValueToString converts most interface types to string
 func InterfaceValueToString(iv interface{}) string {
 	switch iv.(type) {
 	case int:

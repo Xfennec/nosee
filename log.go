@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+// Loggers for trace, info, warning and error severity
 var (
 	Trace   *log.Logger
 	Info    *log.Logger
@@ -38,6 +39,7 @@ func writerCreate(std io.Writer, fd *os.File, quiet bool) io.Writer {
 	return std
 }
 
+// LogInit will initialize loggers
 func LogInit(ctx *cli.Context) {
 	var (
 		traceHandle   io.Writer

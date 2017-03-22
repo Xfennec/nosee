@@ -6,24 +6,31 @@ import (
 	"strings"
 )
 
+// AlertMessageType definition
 type AlertMessageType uint8
 
+// AlertMessageType numeric values
 const (
-	ALERT_GOOD AlertMessageType = iota + 1
-	ALERT_BAD
+	AlertGood AlertMessageType = iota + 1
+	AlertBad
 )
 
+// AlertMessageTypeStr stores matching strings
 var AlertMessageTypeStr = [...]string{
 	"GOOD",
 	"BAD",
 }
 
+// AlertMessage will store the text of the error
 type AlertMessage struct {
 	Type    AlertMessageType
 	Subject string
 	Details string
 	Classes []string
 }
+
+// GeneralClass is a "general" class for very important general messages
+const GeneralClass = "general"
 
 func (amt AlertMessageType) String() string {
 	if amt == 0 {
@@ -32,6 +39,8 @@ func (amt AlertMessageType) String() string {
 	return AlertMessageTypeStr[amt-1]
 }
 
+// AlertMessageCreateForRun creates a new AlertMessage with AlertGood or
+// AlertBad type for a Run
 func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
 	var message AlertMessage
 
@@ -41,25 +50,26 @@ func AlertMessageCreateForRun(aType AlertMessageType, run *Run) *AlertMessage {
 	var details bytes.Buffer
 
 	switch aType {
-	case ALERT_BAD:
+	case AlertBad:
 		details.WriteString("A least one error occured during a run for this host. (" + run.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 		details.WriteString("\n")
 		details.WriteString("Error(s):\n")
 		for _, err := range run.Errors {
 			details.WriteString(err.Error() + "\n")
 		}
-	case ALERT_GOOD:
+	case AlertGood:
 		details.WriteString("No more run errors for this host. (" + run.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 	}
 
 	message.Details = details.String()
 
-	message.Classes = []string{"general"}
+	message.Classes = []string{GeneralClass}
 
 	return &message
 }
 
-// taskResult may be nil for GOOD messages
+// AlertMessageCreateForTaskResult creates an AlertGood or AlertBad message for a TaskResult
+// Note that taskResult may be nil for GOOD messages
 func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResult *TaskResult) *AlertMessage {
 	var message AlertMessage
 
@@ -69,24 +79,25 @@ func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResul
 	var details bytes.Buffer
 
 	switch aType {
-	case ALERT_BAD:
+	case AlertBad:
 		details.WriteString("A least one error occured during a task for this host. (" + taskResult.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 		details.WriteString("\n")
 		details.WriteString("Error(s):\n")
 		for _, err := range taskResult.Errors {
 			details.WriteString(err.Error() + "\n")
 		}
-	case ALERT_GOOD:
+	case AlertGood:
 		details.WriteString("No more errors for this task on this host. (" + taskResult.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 	}
 
 	message.Details = details.String()
 
-	message.Classes = []string{"general"}
+	message.Classes = []string{GeneralClass}
 
 	return &message
 }
 
+// AlertMessageCreateForCheck creates a AlertGood or AlertBad message for a Check
 func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskResult, check *Check, currentFail *CurrentFail) *AlertMessage {
 	var message AlertMessage
 
@@ -97,9 +108,9 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 	var details bytes.Buffer
 
 	switch aType {
-	case ALERT_BAD:
+	case AlertBad:
 		details.WriteString("An alert **is** ringing.\n\n")
-	case ALERT_GOOD:
+	case AlertGood:
 		details.WriteString("This alert is **no more** ringing.\n\n")
 	}
 
@@ -135,12 +146,14 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 	return &message
 }
 
+// Dump prints AlertMessage informations on the screen for debugging purposes
 func (msg *AlertMessage) Dump() {
 	fmt.Printf("---\n")
 	fmt.Printf("Subject: %s\n", msg.Subject)
 	fmt.Printf("%s\n---\n", msg.Details)
 }
 
+// RingAlerts will search and ring all alerts for this AlertMessage
 func (msg *AlertMessage) RingAlerts() {
 	ringCount := 0
 	for _, alert := range globalAlerts {
@@ -154,7 +167,7 @@ func (msg *AlertMessage) RingAlerts() {
 
 	if ringCount == 0 {
 		// if class is already "general", we're f*cked :(
-		if len(msg.Classes) == 1 && msg.Classes[0] == "general" {
+		if len(msg.Classes) == 1 && msg.Classes[0] == GeneralClass {
 			Error.Printf("unable to ring an alert : can't match the 'general' class!\n")
 			return
 		}
@@ -165,11 +178,12 @@ func (msg *AlertMessage) RingAlerts() {
 		msg.Subject = msg.Subject + " (Fwd)"
 		prepend := "WARNING: This alert is re-routed to the 'general' class, because no alert matches its orginial classes (" + strings.Join(msg.Classes, ", ") + ")\n\n"
 		msg.Details = prepend + msg.Details
-		msg.Classes = []string{"general"}
+		msg.Classes = []string{GeneralClass}
 		msg.RingAlerts()
 	}
 }
 
+// HasClass returns true if this AlertMessage has this class
 func (msg *AlertMessage) HasClass(class string) bool {
 	if class == "*" {
 		return true
@@ -183,6 +197,7 @@ func (msg *AlertMessage) HasClass(class string) bool {
 	return false
 }
 
+// MatchAlertTargets returns true if this AlertMessage matches alert's classes
 func (msg *AlertMessage) MatchAlertTargets(alert *Alert) bool {
 	for _, pTargets := range alert.Targets {
 		tokens := strings.Split(pTargets, "&")

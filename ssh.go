@@ -21,7 +21,7 @@ type Connection struct {
 	Auths           []ssh.AuthMethod
 	Host            string
 	Port            int
-	SshConnTimeWarn time.Duration
+	SSHConnTimeWarn time.Duration
 	Session         *ssh.Session
 	Client          *ssh.Client
 }

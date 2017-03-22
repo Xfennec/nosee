@@ -117,8 +117,8 @@ func (run *Run) Go() {
 	defer run.Host.Connection.Close()
 
 	run.DialDuration = time.Now().Sub(run.StartTime)
-	if run.DialDuration > run.Host.Connection.SshConnTimeWarn {
-		run.addError(fmt.Errorf("SSH connection time was too long: %s (ssh_connection_time_warn = %s)", run.DialDuration, run.Host.Connection.SshConnTimeWarn))
+	if run.DialDuration > run.Host.Connection.SSHConnTimeWarn {
+		run.addError(fmt.Errorf("SSH connection time was too long: %s (ssh_connection_time_warn = %s)", run.DialDuration, run.Host.Connection.SSHConnTimeWarn))
 		return
 	}
 

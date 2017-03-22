@@ -12,18 +12,20 @@ import (
 
 type tomlConfig struct {
 	StartTimeSpread Duration `toml:"start_time_spread"`
-	SshConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
+	SSHConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
 	CacheScripts    bool     `toml:"cache_scripts"`
 }
 
+// Config is the final form of the nosee.toml config file
 type Config struct {
 	configPath string
 
 	StartTimeSpreadSeconds int
-	SshConnTimeWarn        time.Duration
+	SSHConnTimeWarn        time.Duration
 	CacheScripts           bool
 }
 
+// GlobalConfigRead reads given file and returns a Config
 func GlobalConfigRead(dir, file string) (*Config, error) {
 	var config Config
 	var tConfig tomlConfig
@@ -34,8 +36,8 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	config.StartTimeSpreadSeconds = 15
 	tConfig.StartTimeSpread.Duration = 15 * time.Second
 
-	config.SshConnTimeWarn = 6 * time.Second
-	tConfig.SshConnTimeWarn.Duration = config.SshConnTimeWarn
+	config.SSHConnTimeWarn = 6 * time.Second
+	tConfig.SSHConnTimeWarn.Duration = config.SSHConnTimeWarn
 
 	config.CacheScripts = true
 	tConfig.CacheScripts = config.CacheScripts
@@ -43,7 +45,7 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	config.configPath = dir
 
 	if stat, err := os.Stat(config.configPath); err != nil || !stat.Mode().IsDir() {
-		return nil, fmt.Errorf("configuration directory not found: %s (%s)\n", err, config.configPath)
+		return nil, fmt.Errorf("configuration directory not found: %s (%s)", err, config.configPath)
 	}
 
 	configPath := path.Clean(dir + "/" + file)
@@ -62,10 +64,10 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	}
 	config.StartTimeSpreadSeconds = int(tConfig.StartTimeSpread.Duration.Seconds())
 
-	if tConfig.SshConnTimeWarn.Duration < (1 * time.Second) {
+	if tConfig.SSHConnTimeWarn.Duration < (1 * time.Second) {
 		return nil, errors.New("'ssh_connection_time_warn' can't be less than a second")
 	}
-	config.SshConnTimeWarn = tConfig.SshConnTimeWarn.Duration
+	config.SSHConnTimeWarn = tConfig.SSHConnTimeWarn.Duration
 
 	config.CacheScripts = tConfig.CacheScripts
 

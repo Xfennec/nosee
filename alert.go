@@ -9,11 +9,13 @@ import (
 	"time"
 )
 
+// HourRange hold a Start and an End in the form of int arrays ([0] = hours, [1] = minutes)
 type HourRange struct {
 	Start [2]int
 	End   [2]int
 }
 
+// Alert is the final form of alerts.d files
 type Alert struct {
 	Name      string
 	Disabled  bool
@@ -24,6 +26,8 @@ type Alert struct {
 	Days      []int
 }
 
+// Ring will send an AlertMessage using this Alert, executing the
+// configured command
 func (alert *Alert) Ring(msg *AlertMessage) {
 	Info.Println("ring: " + alert.Name + ", " + alert.Command /* + " " + strings.Join(alert.Arguments, " ") */)
 
@@ -52,7 +56,7 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 		cmd.Stdin = strings.NewReader(msg.Details)
 
 		if cmdOut, err := cmd.CombinedOutput(); err != nil {
-			if len(msg.Classes) == 1 && msg.Classes[0] == "general" {
+			if len(msg.Classes) == 1 && msg.Classes[0] == GeneralClass {
 				Error.Printf("unable to ring an alert to general class! error: %s (%s)\n", err, alert.Command)
 				return
 			}
@@ -62,12 +66,14 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 			msg.Subject = msg.Subject + " (Fwd)"
 			prepend := fmt.Sprintf("WARNING: This alert is re-routed to the 'general' class, because\noriginal alert failed with the following error: %s (%s)\nOutput:%s\n\n", err.Error(), alert.Command, string(cmdOut))
 			msg.Details = prepend + msg.Details
-			msg.Classes = []string{"general"}
+			msg.Classes = []string{GeneralClass}
 			msg.RingAlerts()
 		}
 	}()
 }
 
+// Ringable will return true if this Alert is currently able to ring
+// (no matching day or hour limit)
 func (alert *Alert) Ringable() bool {
 	now := time.Now()
 	nowMins := now.Hour()*60 + now.Minute()

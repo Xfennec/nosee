@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// TaskResult holds informations about Task execution and Check results
 type TaskResult struct {
 	Task             *Task
 	Host             *Host
@@ -30,6 +31,8 @@ func (result *TaskResult) addLog(line string) {
 	result.Logs = append(result.Logs, line)
 }
 
+// DoChecks evaluates every Check in the TaskResult and fills
+// FailedChecks and SuccessfulChecks arrays
 func (result *TaskResult) DoChecks() {
 	// build parameter map (with values and defaults)
 	params := make(map[string]interface{})

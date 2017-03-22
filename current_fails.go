@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+// CurrentFail type hold informations about a failure currently detected
+// and not resolved yet
 type CurrentFail struct {
 	FailStart time.Time
 	FailCount int
@@ -22,22 +24,26 @@ var (
 	currentFailsMutex sync.Mutex
 )
 
+// CurrentFailsCreate initialize the global currentFails variable
 func CurrentFailsCreate() {
 	currentFails = make(map[string]*CurrentFail)
 }
 
+// CurrentFailDelete deleted the CurrentFail with the given hash of the global currentFails
 func CurrentFailDelete(hash string) {
 	currentFailsMutex.Lock()
 	defer currentFailsMutex.Unlock()
 	delete(currentFails, hash)
 }
 
+// CurrentFailAdd adds a CurrentFail to the global currentFails using given hash
 func CurrentFailAdd(hash string, failedCheck *CurrentFail) {
 	currentFailsMutex.Lock()
 	defer currentFailsMutex.Unlock()
 	currentFails[hash] = failedCheck
 }
 
+// CurrentFailInc increments FailCount of the CurrentFail with the given hash
 func CurrentFailInc(hash string) {
 	currentFailsMutex.Lock()
 	defer currentFailsMutex.Unlock()
@@ -45,12 +51,15 @@ func CurrentFailInc(hash string) {
 	currentFails[hash].OkCount = 0
 }
 
+// CurrentFailDec increments OkCount of the CurrentFail with the given hash
 func CurrentFailDec(hash string) {
 	currentFailsMutex.Lock()
 	defer currentFailsMutex.Unlock()
 	currentFails[hash].OkCount++
 }
 
+// CurrentFailGetAndInc returns the CurrentFail with the given hash and
+// increments its FailCount
 func CurrentFailGetAndInc(hash string) *CurrentFail {
 	cf, ok := currentFails[hash]
 	if !ok {
@@ -66,6 +75,8 @@ func CurrentFailGetAndInc(hash string) *CurrentFail {
 	return cf
 }
 
+// CurrentFailGetAndDec returns the CurrentFail with the given hash and
+// increments its OkCount
 func CurrentFailGetAndDec(hash string) *CurrentFail {
 	cf, ok := currentFails[hash]
 	if !ok {

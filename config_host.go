@@ -12,7 +12,7 @@ import (
 type tomlNetwork struct {
 	Host            string
 	Port            int
-	SshConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
+	SSHConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
 }
 
 type tomlAuth struct {
@@ -79,10 +79,10 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 	}
 	connection.Port = tHost.Network.Port
 
-	if tHost.Network.SshConnTimeWarn.Duration < (1 * time.Second) {
+	if tHost.Network.SSHConnTimeWarn.Duration < (1 * time.Second) {
 		return nil, errors.New("'ssh_connection_time_warn' can't be less than a second")
 	}
-	connection.SshConnTimeWarn = tHost.Network.SshConnTimeWarn.Duration
+	connection.SSHConnTimeWarn = tHost.Network.SSHConnTimeWarn.Duration
 
 	if tHost.Auth.User == "" {
 		return nil, errors.New("[auth] section, invalid or missing 'user'")
@@ -106,11 +106,11 @@ func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
 	}
 
 	if tHost.Auth.Key != "" {
-		if fd, err := os.Open(tHost.Auth.Key); err != nil {
+		fd, err := os.Open(tHost.Auth.Key)
+		if err != nil {
 			return nil, fmt.Errorf("can't access to key '%s': %s", tHost.Auth.Key, err)
-		} else {
-			fd.Close()
 		}
+		fd.Close()
 	}
 
 	// !!! there's many returns following this line, be careful

@@ -5,6 +5,8 @@ import (
 	"strconv"
 )
 
+// AlertsForRun creates a currentFail entry for this Run (if not already done)
+// and rings corresponding alerts
 func (run *Run) AlertsForRun() {
 	var bbuf bytes.Buffer
 	bbuf.WriteString(run.Host.Name)
@@ -20,10 +22,12 @@ func (run *Run) AlertsForRun() {
 		return
 	}
 
-	message := AlertMessageCreateForRun(ALERT_BAD, run)
+	message := AlertMessageCreateForRun(AlertBad, run)
 	message.RingAlerts()
 }
 
+// AlertsForTasks creates currentFail entries for each failed TaskResults
+// (if not already done) and rings corresponding alerts
 func (run *Run) AlertsForTasks() {
 	for _, taskRes := range run.TaskResults {
 		if len(taskRes.Errors) > 0 {
@@ -40,12 +44,14 @@ func (run *Run) AlertsForTasks() {
 				return
 			}
 
-			message := AlertMessageCreateForTaskResult(ALERT_BAD, run, taskRes)
+			message := AlertMessageCreateForTaskResult(AlertBad, run, taskRes)
 			message.RingAlerts()
 		}
 	}
 }
 
+// AlertsForChecks creates currentFail entries for every FailedChecks of
+// every TaskResults (if not already done) and rings corresponding alerts
 func (run *Run) AlertsForChecks() {
 	// Failures
 	for _, taskRes := range run.TaskResults {
@@ -59,7 +65,7 @@ func (run *Run) AlertsForChecks() {
 				continue // not yet / already done
 			}
 
-			message := AlertMessageCreateForCheck(ALERT_BAD, run, taskRes, check, currentFail)
+			message := AlertMessageCreateForCheck(AlertBad, run, taskRes, check, currentFail)
 			message.RingAlerts()
 		}
 	}
@@ -74,7 +80,7 @@ func (run *Run) AlertsForChecks() {
 					Info.Printf("task '%s', check '%s' is now OK (%s)\n", taskRes.Task.Probe.Name, check.Desc, run.Host.Name)
 					// send the good news (if the bad one was sent) and delete this currentFail
 					if currentFail.FailCount >= check.NeededFailures {
-						message := AlertMessageCreateForCheck(ALERT_GOOD, run, taskRes, check, currentFail)
+						message := AlertMessageCreateForCheck(AlertGood, run, taskRes, check, currentFail)
 						message.RingAlerts()
 					}
 					CurrentFailDelete(hash)
@@ -84,6 +90,8 @@ func (run *Run) AlertsForChecks() {
 	}
 }
 
+// Alerts checks for Run failures, Task failures and Check
+// failures and call corresponding AlertsFor*() functions
 func (run *Run) Alerts() {
 	run.ClearAnyCurrentTasksFails()
 
@@ -111,6 +119,8 @@ func (run *Run) Alerts() {
 	run.ReScheduleFailedTasks()
 }
 
+// ClearAnyCurrentRunFails deletes any currentFail for the Run (same Host)
+// and then rings GOOD alerts
 func (run *Run) ClearAnyCurrentRunFails() {
 	found := 0
 	for hash, cf := range currentFails {
@@ -121,11 +131,13 @@ func (run *Run) ClearAnyCurrentRunFails() {
 	}
 
 	if found > 0 {
-		message := AlertMessageCreateForRun(ALERT_GOOD, run)
+		message := AlertMessageCreateForRun(AlertGood, run)
 		message.RingAlerts()
 	}
 }
 
+// ClearAnyCurrentTasksFails deletes any currentFail for Run Tasks
+// and then rings GOOD alerts
 func (run *Run) ClearAnyCurrentTasksFails() {
 	for _, taskRes := range run.TaskResults {
 		if len(taskRes.Errors) == 0 {
@@ -137,7 +149,7 @@ func (run *Run) ClearAnyCurrentTasksFails() {
 				}
 			}
 			if found > 0 {
-				message := AlertMessageCreateForTaskResult(ALERT_GOOD, run, taskRes)
+				message := AlertMessageCreateForTaskResult(AlertGood, run, taskRes)
 				message.RingAlerts()
 			}
 		}

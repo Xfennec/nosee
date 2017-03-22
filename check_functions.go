@@ -8,8 +8,11 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
+// CheckFunctions will hold all custom govaluate functions for Check 'If'
+// expressions
 var CheckFunctions map[string]govaluate.ExpressionFunction
 
+// CheckFunctionsInit will initialize CheckFunctions global variable
 func CheckFunctionsInit() {
 	CheckFunctions = map[string]govaluate.ExpressionFunction{
 
@@ -47,11 +50,11 @@ func CheckFunctionsInit() {
 			}
 
 			if match, _ := regexp.MatchString("^[0-9]{1,2}:[0-9]{2}$", format); match == true {
-				if t, err := alertCheckHour(format); err != nil {
+				t, err := alertCheckHour(format)
+				if err != nil {
 					return nil, fmt.Errorf("date function: invalid hour '%s': %s", format, err)
-				} else {
-					return (float64)((float64)(t[0]) + (float64)(t[1])/60.0), nil
 				}
+				return (float64)((float64)(t[0]) + (float64)(t[1])/60.0), nil
 			}
 
 			return nil, fmt.Errorf("date function: invalid format '%s'", format)
