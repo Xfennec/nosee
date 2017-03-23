@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"reflect"
 	"strings"
 	"time"
 
@@ -75,7 +76,7 @@ func checkTomlDefault(pDefaults map[string]interface{}, tDefaults []tomlDefault)
 		}
 
 		if valid == false {
-			return fmt.Errorf("[[default]] invalid value type for '%s'", tDefault.Name)
+			return fmt.Errorf("[[default]] invalid value type '%s' for '%s'", reflect.TypeOf(tDefault.Value), tDefault.Name)
 		}
 
 		if _, exists := pDefaults[tDefault.Name]; exists == true {
