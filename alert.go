@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -31,17 +30,17 @@ type Alert struct {
 func (alert *Alert) Ring(msg *AlertMessage) {
 	Info.Println("ring: " + alert.Name + ", " + alert.Command /* + " " + strings.Join(alert.Arguments, " ") */)
 
-	// replace $SUBJECT with the real value in the arguments
-	// we should perhaps provide some other infos?
-	// TODO: should use StringExpandVariables() here
+	varMap := make(map[string]interface{})
+	varMap["SUBJECT"] = msg.Subject
+	varMap["TYPE"] = msg.Type.String()
+	varMap["UNIQUEID"] = msg.UniqueID
+	// "Level" ? (Run, Task, Checks)
+	// Host name, Probe Name, Check Name, Alert Name ?
+	// Datetimes ?
+
 	var args []string
-	reSubject := regexp.MustCompile("\\$SUBJECT")
-	reType := regexp.MustCompile("\\$TYPE")
-	reID := regexp.MustCompile("\\$UNIQUEID")
 	for _, arg := range alert.Arguments {
-		arg = reSubject.ReplaceAllString(arg, msg.Subject)
-		arg = reType.ReplaceAllString(arg, msg.Type.String())
-		arg = reID.ReplaceAllString(arg, msg.UniqueID)
+		arg := StringExpandVariables(arg, varMap)
 		args = append(args, arg)
 	}
 
@@ -49,10 +48,9 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 		cmd := exec.Command(alert.Command, args...)
 
 		env := os.Environ()
-		env = append(env, fmt.Sprintf("SUBJECT=%s", msg.Subject))
-		env = append(env, fmt.Sprintf("DETAILS=%s", msg.Details))
-		env = append(env, fmt.Sprintf("TYPE=%s", msg.Type))
-		env = append(env, fmt.Sprintf("UNIQUEID=%s", msg.UniqueID))
+		for key, val := range varMap {
+			env = append(env, fmt.Sprintf("%s=%s", key, InterfaceValueToString(val)))
+		}
 		cmd.Env = env
 
 		// we also inject Details thru stdin:

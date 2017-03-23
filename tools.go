@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const stringWordSeparators = "[ \t\n,.;:\\(\\)\\[\\]{}'\"/\\\\!\\?<>@#|*+-=]"
+
 // IsValidTokenName returns true is argument use only allowed chars for a token
 func IsValidTokenName(token string) bool {
 	match, _ := regexp.MatchString("^[A-Za-z0-9_]+$", token)
@@ -51,15 +53,13 @@ func InterfaceValueToString(iv interface{}) string {
 // StringFindVariables returns a deduplicated slice of all "variables" ($test)
 // in the string
 func StringFindVariables(str string) []string {
-	re := regexp.MustCompile("(\\s|^)\\$[a-z0-9_]+(\\s|$)")
-	all := re.FindAllString(str, -1)
+	re := regexp.MustCompile("(" + stringWordSeparators + "|^)\\$([a-zA-Z0-9_]+)(" + stringWordSeparators + "|$)")
+	all := re.FindAllStringSubmatch(str, -1)
 
 	// deduplicate using a map
-	varMap := make(map[string]interface{})
+	varMap := make(map[string]bool)
 	for _, v := range all {
-		v = strings.TrimSpace(v)
-		v = strings.TrimLeft(v, "$")
-		varMap[v] = true
+		varMap[v[2]] = true
 	}
 
 	// map to slice
@@ -76,7 +76,7 @@ func StringExpandVariables(str string, variables map[string]interface{}) string 
 	vars := StringFindVariables(str)
 	for _, v := range vars {
 		if val, exists := variables[v]; exists == true {
-			re := regexp.MustCompile("(\\s|^)\\$" + v + "(\\s|$)")
+			re := regexp.MustCompile("(" + stringWordSeparators + "|^)\\$" + v + "(" + stringWordSeparators + "|$)")
 			str = re.ReplaceAllString(str, "${1}"+InterfaceValueToString(val)+"${2}")
 		}
 	}
