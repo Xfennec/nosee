@@ -42,6 +42,7 @@ func CheckFunctionsInit() {
 			case "time":
 				return (float64)((float64)(now.Hour()) + (float64)(now.Minute())/60.0), nil
 			case "dow", "day-of-week":
+				// Sunday = 0
 				return (float64)(now.Weekday()), nil
 			case "dom", "day-of-month":
 				return (float64)(now.Day()), nil
