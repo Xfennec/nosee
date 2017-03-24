@@ -53,13 +53,13 @@ func InterfaceValueToString(iv interface{}) string {
 // StringFindVariables returns a deduplicated slice of all "variables" ($test)
 // in the string
 func StringFindVariables(str string) []string {
-	re := regexp.MustCompile("(" + stringWordSeparators + "|^)\\$([a-zA-Z0-9_]+)(" + stringWordSeparators + "|$)")
+	re := regexp.MustCompile("\\$([a-zA-Z0-9_]+)(" + stringWordSeparators + "|$)")
 	all := re.FindAllStringSubmatch(str, -1)
 
 	// deduplicate using a map
 	varMap := make(map[string]bool)
 	for _, v := range all {
-		varMap[v[2]] = true
+		varMap[v[1]] = true
 	}
 
 	// map to slice
@@ -76,8 +76,8 @@ func StringExpandVariables(str string, variables map[string]interface{}) string 
 	vars := StringFindVariables(str)
 	for _, v := range vars {
 		if val, exists := variables[v]; exists == true {
-			re := regexp.MustCompile("(" + stringWordSeparators + "|^)\\$" + v + "(" + stringWordSeparators + "|$)")
-			str = re.ReplaceAllString(str, "${1}"+InterfaceValueToString(val)+"${2}")
+			re := regexp.MustCompile("\\$" + v + "(" + stringWordSeparators + "|$)")
+			str = re.ReplaceAllString(str, InterfaceValueToString(val)+"${1}")
 		}
 	}
 	return str
