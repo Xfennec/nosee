@@ -218,6 +218,7 @@ func mainDefault(ctx *cli.Context) error {
 		Error.Printf("Config (nosee.toml): %s", err)
 		return cli.NewExitError("", 1)
 	}
+	GlobalConfig = config
 
 	hosts, err := createHosts(ctx, config)
 	if err != nil {
@@ -252,6 +253,7 @@ func mainCheck(ctx *cli.Context) error {
 		Error.Printf("Config (nosee.toml): %s", err)
 		return cli.NewExitError("", 1)
 	}
+	GlobalConfig = config
 
 	_, err = createHosts(ctx, config)
 	if err != nil {
@@ -270,6 +272,7 @@ func mainRecap(ctx *cli.Context) error {
 		Error.Printf("Config (nosee.toml): %s", err)
 		return cli.NewExitError("", 1)
 	}
+	GlobalConfig = config
 
 	hosts, err := createHosts(ctx, config)
 	if err != nil {

@@ -2,21 +2,24 @@
 
 # Test script to show all input channels
 
+file="/tmp/remove_me"
+
 echo "stdout test"
 (>&2 echo "stderr test")
 
-date > /tmp/remove_me
-echo "$0" >> /tmp/remove_me
-echo "$1" >> /tmp/remove_me
-echo "$2" >> /tmp/remove_me
-echo "$3" >> /tmp/remove_me
-echo "$4" >> /tmp/remove_me
+date > $file
+echo "$0" >> $file
+echo "$1" >> $file
+echo "$2" >> $file
+echo "$3" >> $file
+echo "$4" >> $file
 
-echo "$SUBJECT" >> /tmp/remove_me
-echo "$DETAILS" >> /tmp/remove_me
-echo $USER >> /tmp/remove_me
-echo $TYPE >> /tmp/remove_me
+echo "$SUBJECT" >> $file
+echo "$DETAILS" >> $file
+echo $USER >> $file
+echo $TYPE >> $file
+echo $NOSEE_SRV >> $file
 
 # stdin is $DETAILS
-cat >> //tmp/remove_me
-echo $HOME >> /tmp/remove_me
+cat >> $file
+echo $HOME >> $file

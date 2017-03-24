@@ -34,6 +34,7 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 	varMap["SUBJECT"] = msg.Subject
 	varMap["TYPE"] = msg.Type.String()
 	varMap["UNIQUEID"] = msg.UniqueID
+	varMap["NOSEE_SRV"] = GlobalConfig.Name
 	// "Level" ? (Run, Task, Checks)
 	// Host name, Probe Name, Check Name, Alert Name ?
 	// Datetimes ?

@@ -11,6 +11,7 @@ import (
 )
 
 type tomlConfig struct {
+	Name            string
 	StartTimeSpread Duration `toml:"start_time_spread"`
 	SSHConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
 	CacheScripts    bool     `toml:"cache_scripts"`
@@ -20,10 +21,14 @@ type tomlConfig struct {
 type Config struct {
 	configPath string
 
+	Name                   string
 	StartTimeSpreadSeconds int
 	SSHConnTimeWarn        time.Duration
 	CacheScripts           bool
 }
+
+// GlobalConfig exports the Nosee server configuration
+var GlobalConfig *Config
 
 // GlobalConfigRead reads given file and returns a Config
 func GlobalConfigRead(dir, file string) (*Config, error) {
@@ -33,6 +38,9 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	// defaults:
 	// config.xxx -> default if config file not exists
 	// tConfig.xxx -> default if parameter's not provided in config file
+	config.Name = ""
+	tConfig.Name = ""
+
 	config.StartTimeSpreadSeconds = 15
 	tConfig.StartTimeSpread.Duration = 15 * time.Second
 
@@ -57,6 +65,10 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 
 	if _, err := toml.DecodeFile(configPath, &tConfig); err != nil {
 		return nil, fmt.Errorf("decoding %s: %s", file, err)
+	}
+
+	if tConfig.Name != "" {
+		config.Name = tConfig.Name
 	}
 
 	if tConfig.StartTimeSpread.Duration > (1 * time.Minute) {

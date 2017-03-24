@@ -7,6 +7,6 @@ command = "mail"
 
 arguments = [
     "-s",
-    "Nosee GENERAL: $SUBJECT",
+    "Nosee $NOSEE_SRV GENERAL: $SUBJECT",
     "user@domain.tld"
 ]
