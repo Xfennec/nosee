@@ -59,6 +59,17 @@ func (host *Host) Schedule() {
 
 		for _, task := range host.Tasks {
 			if start.After(task.NextRun) || start.Equal(task.NextRun) {
+				taskable, err := task.Taskable()
+				if err != nil {
+					Trace.Printf("Taskable() failed: %s", err)
+					run.addError(err)
+					continue
+				}
+				if taskable == false {
+					Info.Printf("host '%s', paused task '%s'\n", host.Name, task.Probe.Name)
+					continue
+				}
+
 				task.ReSchedule(start.Add(task.Probe.Delay))
 				Info.Printf("host '%s', running task '%s'\n", host.Name, task.Probe.Name)
 				run.Tasks = append(run.Tasks, task)
@@ -70,6 +81,7 @@ func (host *Host) Schedule() {
 			run.Alerts()
 			Trace.Printf("currentFails count = %d\n", len(currentFails))
 		}
+		Info.Printf("host '%s', run ended", host.Name)
 
 		end := time.Now()
 		dur := end.Sub(start)

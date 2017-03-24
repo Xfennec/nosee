@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -20,4 +21,20 @@ type Task struct {
 func (task *Task) ReSchedule(val time.Time) {
 	task.PrevRun = task.NextRun
 	task.NextRun = val
+}
+
+// Taskable returns true if the task is currently available (see RunIf expression)
+func (task *Task) Taskable() (bool, error) {
+	// no RunIf condition? taskable, then
+	if task.Probe.RunIf == nil {
+		return true, nil
+	}
+	res, err := task.Probe.RunIf.Evaluate(nil)
+	if err != nil {
+		return false, fmt.Errorf("%s (run_if expression '%s' probe)", err, task.Probe.Name)
+	}
+	if _, ok := res.(bool); ok == false {
+		return false, fmt.Errorf("'run_if' must return a boolean value (probe '%s')", task.Probe.Name)
+	}
+	return res.(bool), nil
 }

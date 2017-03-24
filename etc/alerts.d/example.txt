@@ -18,10 +18,13 @@ arguments = [
     "arg2: $SUBJECT ($TYPE)",
 ]
 
+# Warning: this part may change. We should probably switch to a more
+# generic expression here, like probe's run_if condition
 # This alert is only available during...
 hours = ["8:30 - 12:30", "14:00 - 18:00"]
 # sunday is 0 or 7
 days = [1, 2, 3, 4, 5]
 
-# Note: alerts listening for special class "general" can't have 
+
+# Note: alerts listening for special class "general" can't have
 # such hour/day limitations

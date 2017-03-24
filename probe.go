@@ -28,6 +28,7 @@ type Probe struct {
 	Arguments   string
 	Defaults    map[string]interface{}
 	Checks      []*Check
+	RunIf       *govaluate.EvaluableExpression
 }
 
 // MissingDefaults return a slice with names of defaults used in Check 'If'

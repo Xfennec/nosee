@@ -17,6 +17,9 @@ delay = "5m"
 # default: 20s
 timeout = "30s"
 
+# check only between 8:00 and 18:00
+run_if = "date('time') >= 8 && date('time') <= 18"
+
 ### Default values (used by checks)
 # types: int, float, string
 # not "all uppercase" (reserved for probe values)

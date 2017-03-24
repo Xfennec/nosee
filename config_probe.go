@@ -48,6 +48,7 @@ type tomlProbe struct {
 	Arguments string
 	Default   []tomlDefault
 	Check     []tomlCheck
+	RunIf     string `toml:"run_if"`
 }
 
 func checkTomlDefault(pDefaults map[string]interface{}, tDefaults []tomlDefault) error {
@@ -172,6 +173,17 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 
 	// should warn about dangerous characters? (;& …)
 	probe.Arguments = tProbe.Arguments
+
+	if tProbe.RunIf != "" {
+		expr, err := govaluate.NewEvaluableExpressionWithFunctions(tProbe.RunIf, CheckFunctions)
+		if err != nil {
+			return nil, fmt.Errorf("invalid 'run_if' expression: %s (\"%s\")", err, tProbe.RunIf)
+		}
+		if vars := expr.Vars(); len(vars) > 0 {
+			return nil, fmt.Errorf("undefined variable(s) in 'run_if' expression: %s", strings.Join(vars, ", "))
+		}
+		probe.RunIf = expr
+	}
 
 	probe.Defaults = make(map[string]interface{})
 	if err := checkTomlDefault(probe.Defaults, tProbe.Default); err != nil {
