@@ -27,7 +27,7 @@ func (result *TaskResult) addError(err error) {
 }
 
 func (result *TaskResult) addLog(line string) {
-	Info.Printf("TaskResult log: %s (host '%s')", line, result.Host.Name)
+	Trace.Printf("TaskResult log: %s (host '%s')", line, result.Host.Name)
 	result.Logs = append(result.Logs, line)
 }
 

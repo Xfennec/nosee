@@ -91,6 +91,13 @@ func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResul
 		for _, err := range taskResult.Errors {
 			details.WriteString(err.Error() + "\n")
 		}
+		if len(taskResult.Logs) > 0 {
+			details.WriteString("\n")
+			details.WriteString("Logs(s):\n")
+			for _, log := range taskResult.Logs {
+				details.WriteString(log + "\n")
+			}
+		}
 	case AlertGood:
 		details.WriteString("No more errors for this task on this host. (" + taskResult.StartTime.Format("2006-01-02 15:04:05") + ")\n")
 	}
