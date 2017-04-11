@@ -124,7 +124,7 @@ func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
 		}
 	}
 
-	return fmt.Errorf("unable to find matching key in '%s' for '%s'", path, hostname)
+	return fmt.Errorf("can't find matching key in '%s' for '%s' (try 'ssh %s' to add it?)", path, hostname, hostname)
 }
 
 func hostKeyBilndTrustChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
