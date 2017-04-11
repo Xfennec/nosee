@@ -72,8 +72,8 @@ func knownHostHash(hostname string, salt64 string) string {
 
 // Implements ssh.HostKeyCallback which is now required due to CVE-2017-3204
 // We parse $HOME/.ssh/known_hosts and check for a matching key + hostname
-// Supported : Hashed hostnames, revoked keys (or any other marker)
-// Unsupported yet: patterns (*? wildcards), addresses ([]) and port (:)
+// Supported : Hashed hostnames, revoked keys (or any other marker), non-standard ports
+// Unsupported yet: patterns (*? wildcards)
 // This code is temporary, x/crypto/ssh will probably provide something similar. One day.
 func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
 	path := filepath.Join(os.Getenv("HOME"), ".ssh", "known_hosts")
@@ -83,10 +83,14 @@ func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
 	}
 	defer file.Close()
 
-	// remove standard port if given
+	// remove standard port if given, add square brackets for non-standard ones
 	hp := strings.Split(hostname, ":")
-	if len(hp) == 2 && hp[1] == "22" {
-		hostname = hp[0]
+	if len(hp) == 2 {
+		if hp[1] == "22" {
+			hostname = hp[0]
+		} else {
+			hostname = "[" + hp[0] + "]:" + hp[1]
+		}
 	}
 
 	scanner := bufio.NewScanner(file)
