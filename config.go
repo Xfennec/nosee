@@ -14,6 +14,7 @@ type tomlConfig struct {
 	Name            string
 	StartTimeSpread Duration `toml:"start_time_spread"`
 	SSHConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
+	SSHBlindTrust   bool     `toml:"ssh_blindtrust_fingerprints"`
 	CacheScripts    bool     `toml:"cache_scripts"`
 }
 
@@ -24,6 +25,7 @@ type Config struct {
 	Name                   string
 	StartTimeSpreadSeconds int
 	SSHConnTimeWarn        time.Duration
+	SSHBlindTrust          bool
 	CacheScripts           bool
 }
 
@@ -46,6 +48,9 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 
 	config.SSHConnTimeWarn = 6 * time.Second
 	tConfig.SSHConnTimeWarn.Duration = config.SSHConnTimeWarn
+
+	config.SSHBlindTrust = false
+	tConfig.SSHBlindTrust = false
 
 	config.CacheScripts = true
 	tConfig.CacheScripts = config.CacheScripts
@@ -80,6 +85,8 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 		return nil, errors.New("'ssh_connection_time_warn' can't be less than a second")
 	}
 	config.SSHConnTimeWarn = tConfig.SSHConnTimeWarn.Duration
+
+	config.SSHBlindTrust = tConfig.SSHBlindTrust
 
 	config.CacheScripts = tConfig.CacheScripts
 

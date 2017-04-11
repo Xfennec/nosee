@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/x509"
 	"encoding/base64"
@@ -9,6 +10,7 @@ import (
 	"io/ioutil"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -50,11 +52,55 @@ func (connection *Connection) Close() error {
 	return sessionError
 }
 
+// Implements ssh.HostKeyCallback which is now required due to CVE-2017-3204
+// https://github.com/src-d/go-git/pull/329
+// This code is temporary and will probably make its way in x/crypto/ssh itself
+func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
+	path := filepath.Join(os.Getenv("HOME"), ".ssh", "known_hosts")
+	file, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("host key verification with '%s': %s", path, err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var hostKey ssh.PublicKey
+	for scanner.Scan() {
+		fields := strings.Split(scanner.Text(), " ")
+		if len(fields) != 3 {
+			continue
+		}
+		if strings.Contains(fields[0], hostname) {
+			var err error
+			hostKey, _, _, _, err = ssh.ParseAuthorizedKey(scanner.Bytes())
+			if err != nil {
+				return fmt.Errorf("host key verification with '%s': error parsing %q: %v", path, fields[2], err)
+			}
+			break
+		}
+	}
+
+	if hostKey == nil {
+		return fmt.Errorf("host key verification with '%s': no hostkey for %s", path, hostname)
+	}
+	return nil
+}
+
+func hostKeyBilndTrustChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
+	return nil
+}
+
 // Connect will dial SSH server and open a session
 func (connection *Connection) Connect() error {
 	sshConfig := &ssh.ClientConfig{
 		User: connection.User,
 		Auth: connection.Auths,
+	}
+
+	if GlobalConfig.SSHBlindTrust == true {
+		sshConfig.HostKeyCallback = hostKeyBilndTrustChecker
+	} else {
+		sshConfig.HostKeyCallback = hostKeyChecker
 	}
 
 	dial, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", connection.Host, connection.Port), sshConfig)
