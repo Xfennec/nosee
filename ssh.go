@@ -3,10 +3,13 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha1"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"os"
@@ -52,38 +55,69 @@ func (connection *Connection) Close() error {
 	return sessionError
 }
 
+// knownHostHash hash hostname using salt64 like ssh is
+// doing for "hashed" .ssh/known_hosts files
+func knownHostHash(hostname string, salt64 string) string {
+	buffer, err := base64.StdEncoding.DecodeString(salt64)
+	if err != nil {
+		return ""
+	}
+	h := hmac.New(sha1.New, buffer)
+	h.Write([]byte(hostname))
+	res := h.Sum(nil)
+
+	hash := base64.StdEncoding.EncodeToString(res)
+	return hash
+}
+
 // Implements ssh.HostKeyCallback which is now required due to CVE-2017-3204
-// https://github.com/src-d/go-git/pull/329
-// This code is temporary and will probably make its way in x/crypto/ssh itself
+// We parse $HOME/.ssh/known_hosts and check for a matching key + hostname
+// Supported : Hashed hostnames, revoked keys (or any other marker)
+// Unsupported yet: patterns (*? wildcards), addresses ([]) and port (:)
+// This code is temporary, x/crypto/ssh will probably provide something similar. One day.
 func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
 	path := filepath.Join(os.Getenv("HOME"), ".ssh", "known_hosts")
 	file, err := os.Open(path)
 	if err != nil {
-		return fmt.Errorf("host key verification with '%s': %s", path, err)
+		return fmt.Errorf("opening '%s': %s", path, err)
 	}
 	defer file.Close()
-
 	scanner := bufio.NewScanner(file)
-	var hostKey ssh.PublicKey
 	for scanner.Scan() {
-		fields := strings.Split(scanner.Text(), " ")
-		if len(fields) != 3 {
+		marker, hosts, hostKey, _, _, err := ssh.ParseKnownHosts(scanner.Bytes())
+		if err == io.EOF {
 			continue
 		}
-		if strings.Contains(fields[0], hostname) {
-			var err error
-			hostKey, _, _, _, err = ssh.ParseAuthorizedKey(scanner.Bytes())
-			if err != nil {
-				return fmt.Errorf("host key verification with '%s': error parsing %q: %v", path, fields[2], err)
+		if err != nil {
+			return fmt.Errorf("parsing '%s': %s", path, err)
+		}
+		if marker != "" {
+			continue // @cert-authority or @revoked
+		}
+		if bytes.Compare(key.Marshal(), hostKey.Marshal()) == 0 {
+			for _, host := range hosts {
+				if len(host) > 1 && host[0:1] == "|" {
+					parts := strings.Split(host, "|")
+					if parts[1] != "1" {
+						Trace.Printf("'%s': only type 1 is supported for hashed hosts", path)
+						continue
+					}
+					if knownHostHash(hostname, parts[2]) == parts[3] || knownHostHash(hostname+":22", parts[2]) == parts[3] {
+						Trace.Printf("successfully found a matching key in '%s' for (hashed) '%s'", path, hostname)
+						return nil
+					}
+				} else {
+					if host == hostname || (host+":22") == hostname {
+						Trace.Printf("successfully found a matching key in '%s' for '%s'", path, hostname)
+						return nil
+					}
+				}
 			}
-			break
+			Info.Printf("searching '%s' in '%s': found a matching key, but not with exact hostname(s): %s (patterns are not supported yet)", hostname, path, strings.Join(hosts, ", "))
 		}
 	}
 
-	if hostKey == nil {
-		return fmt.Errorf("host key verification with '%s': no hostkey for %s", path, hostname)
-	}
-	return nil
+	return fmt.Errorf("unable to find matching key in '%s' for '%s'", path, hostname)
 }
 
 func hostKeyBilndTrustChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
@@ -196,7 +230,7 @@ func SSHAgent(pubkeyFile string) (ssh.AuthMethod, error) {
 
 		for _, potentialSigner := range agentSigners {
 			if bytes.Compare(key.Marshal(), potentialSigner.PublicKey().Marshal()) == 0 {
-				Info.Printf("successfully found %s key in the SSH agent (%s)", pubkeyFile, fields[2])
+				Trace.Printf("successfully found %s key in the SSH agent (%s)", pubkeyFile, fields[2])
 				cb := func() ([]ssh.Signer, error) {
 					signers := []ssh.Signer{potentialSigner}
 					return signers, nil
