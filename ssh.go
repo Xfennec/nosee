@@ -82,6 +82,13 @@ func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
 		return fmt.Errorf("opening '%s': %s", path, err)
 	}
 	defer file.Close()
+
+	// remove standard port if given
+	hp := strings.Split(hostname, ":")
+	if len(hp) == 2 && hp[1] == "22" {
+		hostname = hp[0]
+	}
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		marker, hosts, hostKey, _, _, err := ssh.ParseKnownHosts(scanner.Bytes())
@@ -102,12 +109,12 @@ func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
 						Trace.Printf("'%s': only type 1 is supported for hashed hosts", path)
 						continue
 					}
-					if knownHostHash(hostname, parts[2]) == parts[3] || knownHostHash(hostname+":22", parts[2]) == parts[3] {
+					if knownHostHash(hostname, parts[2]) == parts[3] {
 						Trace.Printf("successfully found a matching key in '%s' for (hashed) '%s'", path, hostname)
 						return nil
 					}
 				} else {
-					if host == hostname || (host+":22") == hostname {
+					if host == hostname {
 						Trace.Printf("successfully found a matching key in '%s' for '%s'", path, hostname)
 						return nil
 					}
