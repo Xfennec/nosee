@@ -1,0 +1,16 @@
+name = "Apache status (systemd)"
+targets = ["linux & systemd & apache"]
+#disabled = true
+
+script = "systemctl_status.sh"
+arguments = "httpd.service HTTPD"
+
+delay = "1m"
+timeout = "5s"
+
+### Checks
+
+[[check]]
+desc = "Apache status"
+if = "SYSD_STATUS_HTTPD != 'active'"
+classes = ["critical"]

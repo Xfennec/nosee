@@ -1,0 +1,16 @@
+name = "example.com certificate validity"
+targets = ["example_com"]
+#disabled = true
+
+script = "cert_check.sh"
+arguments = "/etc/pki/tls/certs/example.com.crt EXAMPLE 15"
+
+delay = "60m"
+timeout = "5s"
+
+### Checks
+
+[[check]]
+desc = "certificate will expire soon"
+if = "CERT_WILL_EXPIRE_EXAMPLE != 0"
+classes = ["warning"]
