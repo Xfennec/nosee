@@ -1,0 +1,39 @@
+name = "daily backup"
+targets = ["linux & backupd"]
+#disabled = true
+
+script = "backup.sh"
+arguments = "$start_file $ok_file"
+
+delay = "30m"
+timeout = "8s"
+
+### Default values
+
+[[default]]
+name = "start_file"
+value = "/tmp/backup.start"
+
+[[default]]
+name = "ok_file"
+value = "/tmp/backup.ok"
+
+[[default]]
+name = "backup_margin_hours"
+value = 3
+
+[[default]]
+name = "backup_duration_warn"
+value = 5
+
+### Checks
+
+[[check]]
+desc = "backup too old"
+if = "BACKUP_LAST_OK_HOURS > (24+backup_margin_hours)"
+classes = ["critical"]
+
+[[check]]
+desc = "backup too long"
+if = "BACKUP_LAST_DURATION_HOURS > backup_duration_warn"
+classes = ["warning"]
