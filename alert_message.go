@@ -28,6 +28,7 @@ type AlertMessage struct {
 	Details  string
 	Classes  []string
 	UniqueID string
+	Hostname string
 }
 
 // GeneralClass is a "general" class for very important general messages
@@ -48,6 +49,7 @@ func AlertMessageCreateForRun(aType AlertMessageType, run *Run, currentFail *Cur
 	message.Subject = fmt.Sprintf("[%s] %s: run error(s)", aType, run.Host.Name)
 	message.Type = aType
 	message.UniqueID = currentFail.UniqueID
+	message.Hostname = run.Host.Name
 
 	var details bytes.Buffer
 
@@ -80,6 +82,7 @@ func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResul
 	message.Subject = fmt.Sprintf("[%s] %s: %s: task error(s)", aType, run.Host.Name, taskResult.Task.Probe.Name)
 	message.Type = aType
 	message.UniqueID = currentFail.UniqueID
+	message.Hostname = run.Host.Name
 
 	var details bytes.Buffer
 
@@ -119,6 +122,7 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 	message.Subject = fmt.Sprintf("[%s] %s: %s (%s)", aType, run.Host.Name, check.Desc, taskRes.Task.Probe.Name)
 	message.Type = aType
 	message.UniqueID = currentFail.UniqueID
+	message.Hostname = run.Host.Name
 
 	var details bytes.Buffer
 
