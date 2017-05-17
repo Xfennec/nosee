@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 )
 
 // AlertMessageType definition
@@ -29,6 +30,7 @@ type AlertMessage struct {
 	Classes  []string
 	UniqueID string
 	Hostname string
+	DateTime time.Time
 }
 
 // GeneralClass is a "general" class for very important general messages
@@ -50,6 +52,7 @@ func AlertMessageCreateForRun(aType AlertMessageType, run *Run, currentFail *Cur
 	message.Type = aType
 	message.UniqueID = currentFail.UniqueID
 	message.Hostname = run.Host.Name
+	message.DateTime = run.StartTime
 
 	var details bytes.Buffer
 
@@ -75,7 +78,6 @@ func AlertMessageCreateForRun(aType AlertMessageType, run *Run, currentFail *Cur
 }
 
 // AlertMessageCreateForTaskResult creates an AlertGood or AlertBad message for a TaskResult
-// Note that taskResult may be nil for GOOD messages
 func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResult *TaskResult, currentFail *CurrentFail) *AlertMessage {
 	var message AlertMessage
 
@@ -83,6 +85,7 @@ func AlertMessageCreateForTaskResult(aType AlertMessageType, run *Run, taskResul
 	message.Type = aType
 	message.UniqueID = currentFail.UniqueID
 	message.Hostname = run.Host.Name
+	message.DateTime = taskResult.StartTime
 
 	var details bytes.Buffer
 
@@ -129,8 +132,10 @@ func AlertMessageCreateForCheck(aType AlertMessageType, run *Run, taskRes *TaskR
 	switch aType {
 	case AlertBad:
 		details.WriteString("An alert **is** ringing.\n\n")
+		message.DateTime = currentFail.FailStart
 	case AlertGood:
 		details.WriteString("This alert is **no more** ringing.\n\n")
+		message.DateTime = taskRes.StartTime
 	}
 
 	details.WriteString("Failure time: " + currentFail.FailStart.Format("2006-01-02 15:04:05") + "\n")

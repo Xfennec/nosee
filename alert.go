@@ -37,9 +37,9 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 	varMap["HOST_NAME"] = msg.Hostname
 	varMap["CLASSES"] = strings.Join(msg.Classes, ",")
 	varMap["NOSEE_SRV"] = GlobalConfig.Name
+	varMap["DATETIME"] = msg.DateTime.Format(time.RFC3339)
 	// "Level" ? (Run, Task, Checks)
 	// Probe Name, Check Name, Alert Name ?
-	// Datetimes ?
 
 	var args []string
 	for _, arg := range alert.Arguments {
