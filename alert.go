@@ -68,7 +68,7 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 			Warning.Printf("There was an error running '%s': %s", alert.Command, err)
 
 			msg.Subject = msg.Subject + " (Fwd)"
-			prepend := fmt.Sprintf("WARNING: This alert is re-routed to the 'general' class, because\noriginal alert failed with the following error: %s (%s)\nOutput:%s\n\n", err.Error(), alert.Command, string(cmdOut))
+			prepend := fmt.Sprintf("WARNING: This alert is re-routed to the 'general' class, because\noriginal alert failed with the following error: %s (%s)\nOutput: %s\n\n", err.Error(), alert.Command, string(cmdOut))
 			msg.Details = prepend + msg.Details
 			msg.Classes = []string{GeneralClass}
 			msg.RingAlerts()
