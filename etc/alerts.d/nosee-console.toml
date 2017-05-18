@@ -1,0 +1,8 @@
+name = "Nosee console"
+#disabled = true
+
+targets = ["*"]
+
+command = "nosee-console.sh"
+
+arguments = ["http://localhost:8080/alerts"]
