@@ -33,7 +33,7 @@ func (run *Run) readStdout(std io.Reader, exitStatus chan int) {
 					run.addError(fmt.Errorf("Invalid __EXIT value: %s", text))
 					continue
 				}
-				Trace.Printf("EXIT detected: %s (status %d)\n", text, status)
+				Trace.Printf("EXIT detected: %s (status %d, %s)\n", text, status, run.Host.Name)
 				exitStatus <- status
 			default:
 				run.addError(fmt.Errorf("Unknown keyword: %s", text))
@@ -149,7 +149,7 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 
 		// cat is needed to "focus" stdin only on the child bash
 		str := fmt.Sprintf("cat | __SCRIPT_ID=%d bash -s -- %s ; echo __EXIT=$?\n", num, args)
-		Trace.Printf("child=%s\n", str)
+		Trace.Printf("child=%s (%s)", str, run.Host.Name)
 
 		_, err = out.Write([]byte(str))
 		if err != nil {
@@ -166,7 +166,7 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 
 		for scanner.Scan() {
 			text := scanner.Text()
-			Trace.Printf("stdin=%s\n", text)
+			Trace.Printf("stdin=%s (%s)\n", text, run.Host.Name)
 			_, errw := out.Write([]byte(text + "\n"))
 			if errw != nil {
 				run.addError(fmt.Errorf("Error writing: %s", errw))
@@ -174,14 +174,15 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 			}
 		}
 
+		Trace.Printf("killing subshell (%s)\n", run.Host.Name)
 		_, err = out.Write([]byte("__kill_subshells\n"))
 		if err != nil {
-			run.addError(fmt.Errorf("Error writing (bash instance): %s", err))
+			run.addError(fmt.Errorf("Error writing (while killing subshell): %s", err))
 			return
 		}
 
 		if err := scanner.Err(); err != nil {
-			run.addError(fmt.Errorf("Error wrtiting: %s", err))
+			run.addError(fmt.Errorf("Error scanner: %s", err))
 			return
 		}
 
