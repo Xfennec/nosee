@@ -13,8 +13,8 @@ timeout = "30s"
 # types: int, float, string
 # not "all uppercase" (reserved for probe values)
 [[default]]
-name = "error_buffcache_ratio"
-value = 0.90
+name = "min_available_ratio"
+value = 0.20
 
 [[default]]
 name = "warn_swap_ratio"
@@ -23,8 +23,8 @@ value = 0.30
 ### Checks
 
 [[check]]
-desc = "critical memory buffer+cache usage ratio"
-if = "MEM_BUFFCACHE_RATIO > error_buffcache_ratio"
+desc = "critical available memory ratio"
+if = "MEM_AVAILABLE_RATIO < min_available_ratio"
 classes = ["critical"]
 
 [[check]]

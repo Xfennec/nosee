@@ -6,6 +6,7 @@
 # but my backup is running, so it's ok")
 
 # CentOS 6/7 have a minimalist PATH on non-login SSH connections
+# and 'pidof' is often hosted in /sbin
 PATH=$PATH:/sbin
 
 if [ -f /proc/loadavg ]; then
