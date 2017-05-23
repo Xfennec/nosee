@@ -15,8 +15,3 @@
 # unless you set this to true, accepting blindly any fingerprint.
 # This is a potential security issue. (MitM attack)
 #ssh_blindtrust_fingerprints = false
-
-# Cache probe scripts into memory so you won't break current monitoring while
-# modifying the scripts.
-# default: true
-#cache_scripts = true

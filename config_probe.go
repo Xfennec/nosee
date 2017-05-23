@@ -117,12 +117,9 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
 	}
 	probe.Script = scriptPath
 
-	str, err := ioutil.ReadFile(scriptPath)
+	_, err = ioutil.ReadFile(scriptPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading script file '%s': %s", scriptPath, err)
-	}
-	if config.CacheScripts {
-		probe.ScriptCache = strings.NewReader(string(str))
 	}
 
 	if tProbe.Targets == nil {

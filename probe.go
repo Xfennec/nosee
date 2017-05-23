@@ -1,7 +1,6 @@
 package main
 
 import (
-	"strings"
 	"time"
 
 	"github.com/Knetic/govaluate"
@@ -19,16 +18,15 @@ type Check struct {
 
 // Probe is the final form of probes.d files
 type Probe struct {
-	Name        string
-	Script      string
-	ScriptCache *strings.Reader
-	Targets     []string
-	Delay       time.Duration
-	Timeout     time.Duration
-	Arguments   string
-	Defaults    map[string]interface{}
-	Checks      []*Check
-	RunIf       *govaluate.EvaluableExpression
+	Name      string
+	Script    string
+	Targets   []string
+	Delay     time.Duration
+	Timeout   time.Duration
+	Arguments string
+	Defaults  map[string]interface{}
+	Checks    []*Check
+	RunIf     *govaluate.EvaluableExpression
 }
 
 // MissingDefaults return a slice with names of defaults used in Check 'If'

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -137,13 +138,10 @@ func tomlAlertToAlert(tAlert *tomlAlert, config *Config) (*Alert, error) {
 
 	alert.Command = tAlert.Command
 
-	/*str, err := ioutil.ReadFile(scriptPath)
+	_, err = ioutil.ReadFile(alert.Command)
 	if err != nil {
-		return nil, fmt.Errorf("error reading script file '%s': %s", scriptPath, err)
+		return nil, fmt.Errorf("error reading script file '%s': %s", alert.Command, err)
 	}
-	if config.CacheScripts {
-		alert.ScriptCache = strings.NewReader(string(str))
-	}*/
 
 	if tAlert.Targets == nil {
 		return nil, errors.New("no valid 'targets' parameter found")

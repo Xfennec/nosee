@@ -122,19 +122,14 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 
 		var scanner *bufio.Scanner
 
-		if task.Probe.ScriptCache == nil {
-			file, erro := os.Open(task.Probe.Script)
-			if erro != nil {
-				result.addError(fmt.Errorf("Failed to open script: %s", erro))
-				continue
-			}
-			defer file.Close()
-
-			scanner = bufio.NewScanner(file)
-		} else {
-			task.Probe.ScriptCache.Seek(0, io.SeekStart)
-			scanner = bufio.NewScanner(task.Probe.ScriptCache)
+		file, erro := os.Open(task.Probe.Script)
+		if erro != nil {
+			result.addError(fmt.Errorf("Failed to open script: %s", erro))
+			continue
 		}
+		defer file.Close()
+
+		scanner = bufio.NewScanner(file)
 
 		args := task.Probe.Arguments
 		params := make(map[string]interface{})
