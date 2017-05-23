@@ -5,6 +5,9 @@
 # of the prog/script is found ("my load is high
 # but my backup is running, so it's ok")
 
+# CentOS 6/7 have a minimalist PATH on non-login SSH connections
+PATH=$PATH:/sbin
+
 if [ -f /proc/loadavg ]; then
     load=$(awk '{print $1}' /proc/loadavg)
 else
