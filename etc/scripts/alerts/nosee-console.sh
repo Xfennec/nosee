@@ -5,9 +5,12 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+DETAILS=$(cat)
+
 curl -s -f -w "HTTP Code %{http_code}\n" \
     --form-string "type=$TYPE" \
     --form-string "subject=$SUBJECT" \
+    --form-string "details=$DETAILS" \
     --form-string "classes=$CLASSES" \
     --form-string "hostname=$HOST_NAME" \
     --form-string "nosee_srv=$NOSEE_SRV" \
