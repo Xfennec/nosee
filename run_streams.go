@@ -149,7 +149,7 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 
 		// cat is needed to "focus" stdin only on the child bash
 		str := fmt.Sprintf("cat | __SCRIPT_ID=%d bash -s -- %s ; echo __EXIT=$?\n", num, args)
-		Trace.Printf("child=%s (%s)", str, run.Host.Name)
+		Trace.Printf("child(%s)=%s", run.Host.Name, str)
 
 		_, err = out.Write([]byte(str))
 		if err != nil {
