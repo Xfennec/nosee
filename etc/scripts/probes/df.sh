@@ -1,6 +1,6 @@
 #!/bin/bash
 
-lines=$(df -kP | grep '^/dev/')
+lines=$(df -kP | grep '^/dev/' | grep -v '[[:space:]]/mnt/')
 fullest=$(echo "$lines" | awk '{print $5}' | cut -d% -f1 | sort -n | tail -n1)
 
 echo "DISK_FULLEST_PERC:" $fullest
