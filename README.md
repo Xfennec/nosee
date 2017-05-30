@@ -30,6 +30,9 @@ for realtime mobile device notification.
 
 ![Nosee mobile and mail failure notifications](https://raw.github.com/Xfennec/nosee/master/doc/images/img_illu.jpeg)
 
+You can also have a look at the [Nosee-console](https://github.com/Xfennec/nosee-console)
+project, it provides a cool Web monitoring interface.
+
 How do you build it?
 --------------------
 
