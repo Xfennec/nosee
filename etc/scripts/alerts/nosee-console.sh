@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-    (>&2 echo "ERROR: give nosee console URL")
+    (>&2 echo "ERROR: give nosee console URL (ex: http://localhost:8080/alerts)")
     exit 1
 fi
 
