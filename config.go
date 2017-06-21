@@ -46,7 +46,7 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	config.StartTimeSpreadSeconds = 15
 	tConfig.StartTimeSpread.Duration = 15 * time.Second
 
-	config.SSHConnTimeWarn = 6 * time.Second
+	config.SSHConnTimeWarn = 10 * time.Second
 	tConfig.SSHConnTimeWarn.Duration = config.SSHConnTimeWarn
 
 	config.SSHBlindTrust = false

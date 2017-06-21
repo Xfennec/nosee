@@ -8,7 +8,7 @@
 #start_time_spread = "15s"
 
 # Maximum connection time for a SSH connection. (will trigger a "general" class alert)
-# default: 6s
+# default: 10s
 #ssh_connection_time_warn = "6s"
 
 # Currently, nosee will look at $HOME/.ssh/known_hosts for host fingerprints,
