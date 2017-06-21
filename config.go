@@ -15,6 +15,7 @@ type tomlConfig struct {
 	StartTimeSpread Duration `toml:"start_time_spread"`
 	SSHConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
 	SSHBlindTrust   bool     `toml:"ssh_blindtrust_fingerprints"`
+	SavePath        string   `toml:"save_path"`
 }
 
 // Config is the final form of the nosee.toml config file
@@ -25,6 +26,7 @@ type Config struct {
 	StartTimeSpreadSeconds int
 	SSHConnTimeWarn        time.Duration
 	SSHBlindTrust          bool
+	SavePath               string
 }
 
 // GlobalConfig exports the Nosee server configuration
@@ -49,6 +51,9 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 
 	config.SSHBlindTrust = false
 	tConfig.SSHBlindTrust = false
+
+	config.SavePath = "./"
+	tConfig.SavePath = config.SavePath
 
 	config.configPath = dir
 
@@ -82,6 +87,9 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	config.SSHConnTimeWarn = tConfig.SSHConnTimeWarn.Duration
 
 	config.SSHBlindTrust = tConfig.SSHBlindTrust
+
+	// should check if writable
+	config.SavePath = tConfig.SavePath
 
 	return &config, nil
 }

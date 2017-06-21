@@ -218,6 +218,7 @@ Oh yes. I want to explain:
  - probe examples!
  - script caching
  - check "If" functions (date)
+ - nosee-alerts.json current alerts
 
 What is the future of Nosee? (WIP)
 ----------------------------

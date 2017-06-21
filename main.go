@@ -227,6 +227,7 @@ func mainDefault(ctx *cli.Context) error {
 	}
 
 	CurrentFailsCreate()
+	CurrentFailsLoad()
 
 	if pidPath := ctx.String("pid-file"); pidPath != "" {
 		pid, err := NewPIDFile(pidPath)

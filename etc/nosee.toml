@@ -15,3 +15,8 @@
 # unless you set this to true, accepting blindly any fingerprint.
 # This is a potential security issue. (MitM attack)
 #ssh_blindtrust_fingerprints = false
+
+# Path to save current fails so Nosee can be restarted without losing status
+# (see nosee-fails.json file)
+# default: "./"
+#save_path = "/home/user/.nosee/"
