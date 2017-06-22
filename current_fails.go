@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"path"
 	"sync"
 	"time"
 
@@ -43,7 +44,7 @@ func CurrentFailsSave() {
 		currentFailsMutex.Lock()
 		defer currentFailsMutex.Unlock()
 
-		path := GlobalConfig.SavePath + "/" + statusFile
+		path := path.Clean(GlobalConfig.SavePath + "/" + statusFile)
 		f, err := os.Create(path)
 		if err != nil {
 			Error.Printf("can't save fails in '%s': %s (see save_path param?)", path, err)
@@ -66,7 +67,7 @@ func CurrentFailsLoad() {
 	currentFailsMutex.Lock()
 	defer currentFailsMutex.Unlock()
 
-	path := GlobalConfig.SavePath + "/" + statusFile
+	path := path.Clean(GlobalConfig.SavePath + "/" + statusFile)
 	f, err := os.Open(path)
 	if err != nil {
 		Warning.Printf("can't read previous status: %s, no fails loaded", err)
