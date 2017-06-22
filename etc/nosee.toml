@@ -1,6 +1,7 @@
 # global configuration for Nosee
 
 # Nosee server name (useful if you have multiple Nosee servers)
+# default: ""
 #name="Test"
 
 # This option helps to ease the global load induced by all SSH connections.
@@ -20,3 +21,7 @@
 # (see nosee-fails.json file)
 # default: "./"
 #save_path = "/home/user/.nosee/"
+
+# Nosee will regularly execute all "scripts/heartbeats" as a keepalive
+# default: 30s
+#heartbeat_delay = "5s"

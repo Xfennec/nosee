@@ -16,6 +16,7 @@ type tomlConfig struct {
 	SSHConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
 	SSHBlindTrust   bool     `toml:"ssh_blindtrust_fingerprints"`
 	SavePath        string   `toml:"save_path"`
+	HeartbeatDelay  Duration `toml:"heartbeat_delay"`
 }
 
 // Config is the final form of the nosee.toml config file
@@ -27,6 +28,7 @@ type Config struct {
 	SSHConnTimeWarn        time.Duration
 	SSHBlindTrust          bool
 	SavePath               string
+	HeartbeatDelay         time.Duration
 }
 
 // GlobalConfig exports the Nosee server configuration
@@ -54,6 +56,9 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 
 	config.SavePath = "./"
 	tConfig.SavePath = config.SavePath
+
+	config.HeartbeatDelay = 30 * time.Second
+	tConfig.HeartbeatDelay.Duration = config.HeartbeatDelay
 
 	config.configPath = dir
 
@@ -90,6 +95,11 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 
 	// should check if writable
 	config.SavePath = tConfig.SavePath
+
+	if tConfig.HeartbeatDelay.Duration < (5 * time.Second) {
+		return nil, errors.New("'heartbeat_delay' can't be less than 5 seconds")
+	}
+	config.HeartbeatDelay = tConfig.HeartbeatDelay.Duration
 
 	return &config, nil
 }

@@ -16,8 +16,12 @@ import (
 	"github.com/urfave/cli"
 )
 
+// NoseeVersion in X.Y string format
+const NoseeVersion = "0.1"
+
 var myRand *rand.Rand
 var globalAlerts []*Alert
+var appStartTime time.Time
 
 func configurationDirList(inpath string, dirPath string) ([]string, error) {
 	configPath := path.Clean(dirPath + "/" + inpath)
@@ -220,6 +224,12 @@ func mainDefault(ctx *cli.Context) error {
 	}
 	GlobalConfig = config
 
+	heartbeats, err := hearthbeatsList(config)
+	if err != nil {
+		Error.Println(err)
+		return cli.NewExitError("", 2)
+	}
+
 	hosts, err := createHosts(ctx, config)
 	if err != nil {
 		Error.Println(err)
@@ -236,6 +246,8 @@ func mainDefault(ctx *cli.Context) error {
 		}
 		defer pid.Remove()
 	}
+
+	hearthbeatsSchedule(heartbeats, config.HeartbeatDelay)
 
 	if err := scheduleHosts(hosts, config); err != nil {
 		return cli.NewExitError(err, 1)
@@ -256,6 +268,12 @@ func mainCheck(ctx *cli.Context) error {
 	}
 	GlobalConfig = config
 
+	_, err = hearthbeatsList(config)
+	if err != nil {
+		Error.Println(err)
+		return cli.NewExitError("", 2)
+	}
+
 	_, err = createHosts(ctx, config)
 	if err != nil {
 		Error.Println(err)
@@ -274,6 +292,12 @@ func mainRecap(ctx *cli.Context) error {
 		return cli.NewExitError("", 1)
 	}
 	GlobalConfig = config
+
+	_, err = hearthbeatsList(config)
+	if err != nil {
+		Error.Println(err)
+		return cli.NewExitError("", 2)
+	}
 
 	hosts, err := createHosts(ctx, config)
 	if err != nil {
@@ -343,15 +367,15 @@ func mainExpr(ctx *cli.Context) error {
 }
 
 func main() {
+	// generic (aka "not cli command specific") inits
 	source := rand.NewSource(time.Now().UnixNano())
 	myRand = rand.New(source)
-
-	// generic (aka "not cli command specific") inits
 	CheckFunctionsInit()
+	appStartTime = time.Now()
 
 	app := cli.NewApp()
 	app.Usage = "Nosee: a nosey, agentless, easy monitoring tool over SSH"
-	app.Version = "0.1"
+	app.Version = NoseeVersion
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
