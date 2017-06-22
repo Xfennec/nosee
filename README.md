@@ -97,7 +97,7 @@ such as passphrases and ssh-agent.
 
 ### Step2. Create a *Probe*
 
-Create a file in the `probes.d` directory. (ex: `probes.d/port_80.toml`).
+Create a file in the `probes.d` directory. (ex: `probes.d/cpu_temp.toml`).
 
 ```toml
 name = "CPU temperature"
@@ -181,6 +181,7 @@ least one alert must listen permanently at this class.
 
 ### Step5. Run Nosee!
 
+	cd $GOPATH/bin
 	./nosee -l info -c ../src/github.com/Xfennec/nosee/etc/
 
 You are now ready to burn your Web server CPU to get your alert mail. The `-c`
@@ -220,6 +221,7 @@ Oh yes. I want to explain:
  - check "If" functions (date)
  - nosee-alerts.json current alerts
  - heartbeat scripts
+ - systemd / supervisord sample files
 
 What is the future of Nosee? (WIP)
 ----------------------------
