@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-func hearthbeatsList(config *Config) ([]string, error) {
-	hbDirPath := path.Clean(config.configPath + "/scripts/hearthbeats/")
+func heartbeatsList(config *Config) ([]string, error) {
+	hbDirPath := path.Clean(config.configPath + "/scripts/heartbeats/")
 	stat, err := os.Stat(hbDirPath)
 
 	if err != nil {
-		return nil, fmt.Errorf("invalid 'hearthbeats' directory '%s': %s", hbDirPath, err)
+		return nil, fmt.Errorf("invalid 'heartbeats' directory '%s': %s", hbDirPath, err)
 	}
 
 	if !stat.Mode().IsDir() {
@@ -48,7 +48,7 @@ func hearthbeatsList(config *Config) ([]string, error) {
 	return scripts, nil
 }
 
-func hearthbeatExecute(script string) {
+func heartbeatExecute(script string) {
 	varMap := make(map[string]interface{})
 	varMap["NOSEE_SRV"] = GlobalConfig.Name
 	varMap["VERSION"] = NoseeVersion
@@ -65,22 +65,22 @@ func hearthbeatExecute(script string) {
 	cmd.Env = env
 
 	if cmdOut, err := cmd.CombinedOutput(); err != nil {
-		Warning.Printf("error running hearthbeat '%s': %s: %s", script, err, bytes.TrimSpace(cmdOut))
+		Warning.Printf("error running heartbeat '%s': %s: %s", script, err, bytes.TrimSpace(cmdOut))
 	}
-	Trace.Printf("hearthbeat '%s' OK", script)
+	Trace.Printf("heartbeat '%s' OK", script)
 }
 
-func hearthbeatsExecute(scripts []string) {
+func heartbeatsExecute(scripts []string) {
 	for _, script := range scripts {
-		hearthbeatExecute(script)
+		heartbeatExecute(script)
 	}
 }
 
-func hearthbeatsSchedule(scripts []string, delay time.Duration) {
+func heartbeatsSchedule(scripts []string, delay time.Duration) {
 	go func() {
 		for {
-			hearthbeatsExecute(scripts)
-			Info.Printf("hearthbeat, %d scripts", len(scripts))
+			heartbeatsExecute(scripts)
+			Info.Printf("heartbeat, %d scripts", len(scripts))
 			// should check total exec duration and compare to delay, here!
 			time.Sleep(delay)
 		}

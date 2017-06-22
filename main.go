@@ -224,7 +224,7 @@ func mainDefault(ctx *cli.Context) error {
 	}
 	GlobalConfig = config
 
-	heartbeats, err := hearthbeatsList(config)
+	heartbeats, err := heartbeatsList(config)
 	if err != nil {
 		Error.Println(err)
 		return cli.NewExitError("", 2)
@@ -247,7 +247,7 @@ func mainDefault(ctx *cli.Context) error {
 		defer pid.Remove()
 	}
 
-	hearthbeatsSchedule(heartbeats, config.HeartbeatDelay)
+	heartbeatsSchedule(heartbeats, config.HeartbeatDelay)
 
 	if err := scheduleHosts(hosts, config); err != nil {
 		return cli.NewExitError(err, 1)
@@ -268,7 +268,7 @@ func mainCheck(ctx *cli.Context) error {
 	}
 	GlobalConfig = config
 
-	_, err = hearthbeatsList(config)
+	_, err = heartbeatsList(config)
 	if err != nil {
 		Error.Println(err)
 		return cli.NewExitError("", 2)
@@ -293,7 +293,7 @@ func mainRecap(ctx *cli.Context) error {
 	}
 	GlobalConfig = config
 
-	_, err = hearthbeatsList(config)
+	_, err = heartbeatsList(config)
 	if err != nil {
 		Error.Println(err)
 		return cli.NewExitError("", 2)

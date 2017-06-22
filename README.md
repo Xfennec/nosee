@@ -219,7 +219,7 @@ Oh yes. I want to explain:
  - script caching
  - check "If" functions (date)
  - nosee-alerts.json current alerts
- - hearthbeat scripts
+ - heartbeat scripts
 
 What is the future of Nosee? (WIP)
 ----------------------------
