@@ -66,8 +66,9 @@ func heartbeatExecute(script string) {
 
 	if cmdOut, err := cmd.CombinedOutput(); err != nil {
 		Warning.Printf("error running heartbeat '%s': %s: %s", script, err, bytes.TrimSpace(cmdOut))
+	} else {
+		Trace.Printf("heartbeat '%s' OK: %s", script, bytes.TrimSpace(cmdOut))
 	}
-	Trace.Printf("heartbeat '%s' OK", script)
 }
 
 func heartbeatsExecute(scripts []string) {
