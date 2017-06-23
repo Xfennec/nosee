@@ -107,7 +107,7 @@ func alertCheckAndCleanDays(days []int) error {
 func tomlAlertToAlert(tAlert *tomlAlert, config *Config) (*Alert, error) {
 	var alert Alert
 
-	if tAlert.Disabled == true {
+	if tAlert.Disabled == true && config.loadDisabled == false {
 		return nil, nil
 	}
 

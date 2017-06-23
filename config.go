@@ -21,7 +21,9 @@ type tomlConfig struct {
 
 // Config is the final form of the nosee.toml config file
 type Config struct {
-	configPath string
+	configPath   string
+	loadDisabled bool
+	doConnTest   bool
 
 	Name                   string
 	StartTimeSpreadSeconds int
@@ -61,6 +63,8 @@ func GlobalConfigRead(dir, file string) (*Config, error) {
 	tConfig.HeartbeatDelay.Duration = config.HeartbeatDelay
 
 	config.configPath = dir
+	config.loadDisabled = false
+	config.doConnTest = true
 
 	if stat, err := os.Stat(config.configPath); err != nil || !stat.Mode().IsDir() {
 		return nil, fmt.Errorf("configuration directory not found: %s (%s)", err, config.configPath)

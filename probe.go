@@ -19,6 +19,7 @@ type Check struct {
 // Probe is the final form of probes.d files
 type Probe struct {
 	Name      string
+	Filename  string
 	Script    string
 	Targets   []string
 	Delay     time.Duration

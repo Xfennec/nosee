@@ -9,6 +9,7 @@ import (
 // Host is the final form of hosts.d files
 type Host struct {
 	Name       string
+	Filename   string
 	Classes    []string
 	Connection *Connection
 	Defaults   map[string]interface{}

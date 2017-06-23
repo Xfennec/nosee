@@ -89,12 +89,14 @@ func checkTomlDefault(pDefaults map[string]interface{}, tDefaults []tomlDefault)
 	return nil
 }
 
-func tomlProbeToProbe(tProbe *tomlProbe, config *Config) (*Probe, error) {
+func tomlProbeToProbe(tProbe *tomlProbe, config *Config, filename string) (*Probe, error) {
 	var probe Probe
 
-	if tProbe.Disabled == true {
+	if tProbe.Disabled == true && config.loadDisabled == false {
 		return nil, nil
 	}
+
+	probe.Filename = filename
 
 	if tProbe.Name == "" {
 		return nil, errors.New("invalid or missing 'name'")

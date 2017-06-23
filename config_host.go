@@ -33,15 +33,16 @@ type tomlHost struct {
 	Default  []tomlDefault
 }
 
-func tomlHostToHost(tHost *tomlHost, config *Config) (*Host, error) {
+func tomlHostToHost(tHost *tomlHost, config *Config, filename string) (*Host, error) {
 	var (
 		connection Connection
 		host       Host
 	)
 
 	host.Connection = &connection
+	host.Filename = filename
 
-	if tHost.Disabled == true {
+	if tHost.Disabled == true && config.loadDisabled == false {
 		return nil, nil
 	}
 

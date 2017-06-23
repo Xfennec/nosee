@@ -213,7 +213,7 @@ Oh yes. I want to explain:
  - rescheduling
  - GOOD and BAD alerts
  - UniqueID for alerts
- - configuration "summary" command
+ - configuration "recap/summary" command
  - extensive configuration validation (and connection tests)
  - alert examples (pushover, SMS, …)
  - probe examples!
@@ -222,6 +222,7 @@ Oh yes. I want to explain:
  - nosee-alerts.json current alerts
  - heartbeat scripts
  - systemd / supervisord sample files
+ - test subcommand
 
 What is the future of Nosee? (WIP)
 ----------------------------

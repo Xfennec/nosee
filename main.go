@@ -44,62 +44,7 @@ func configurationDirList(inpath string, dirPath string) ([]string, error) {
 	return list, nil
 }
 
-func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
-
-	hostsdFiles, errc := configurationDirList("hosts.d", config.configPath)
-	if errc != nil {
-		return nil, fmt.Errorf("Error: %s", errc)
-	}
-
-	var hosts []*Host
-	hNames := make(map[string]string)
-
-	for _, file := range hostsdFiles {
-		var tHost tomlHost
-
-		// defaults
-		tHost.Network.SSHConnTimeWarn.Duration = config.SSHConnTimeWarn
-
-		if _, err := toml.DecodeFile(file, &tHost); err != nil {
-			return nil, fmt.Errorf("Error decoding %s: %s", file, err)
-		}
-
-		host, err := tomlHostToHost(&tHost, config)
-		if err != nil {
-			return nil, fmt.Errorf("Error using %s: %s", file, err)
-		}
-
-		if host != nil {
-			if f, exists := hNames[host.Name]; exists == true {
-				return nil, fmt.Errorf("Config error: duplicate name '%s' (%s, %s)", host.Name, f, file)
-			}
-
-			hosts = append(hosts, host)
-			hNames[host.Name] = file
-		}
-	}
-	Info.Printf("host count = %d\n", len(hosts))
-
-	Info.Print("Testing connections…")
-	errors := make(chan error, len(hosts))
-	for _, host := range hosts {
-		go func(host *Host) {
-			if err := host.TestConnection(); err != nil {
-				errors <- fmt.Errorf("Error connecting %s: %s", host.Name, err)
-			} else {
-				errors <- nil
-			}
-		}(host)
-	}
-	for i := 0; i < len(hosts); i++ {
-		select {
-		case err := <-errors:
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
+func createProbes(ctx *cli.Context, config *Config) ([]*Probe, error) {
 	probesdFiles, errd := configurationDirList("probes.d", config.configPath)
 	if errd != nil {
 		return nil, fmt.Errorf("Error: %s", errd)
@@ -115,7 +60,8 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			return nil, fmt.Errorf("Error decoding %s: %s", file, err)
 		}
 
-		probe, err := tomlProbeToProbe(&tProbe, config)
+		_, filename := path.Split(file)
+		probe, err := tomlProbeToProbe(&tProbe, config, filename)
 		if err != nil {
 			return nil, fmt.Errorf("Error using %s: %s", file, err)
 		}
@@ -130,7 +76,10 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 		}
 	}
 	Info.Printf("probe count = %d\n", len(probes))
+	return probes, nil
+}
 
+func createAlerts(ctx *cli.Context, config *Config) ([]*Alert, error) {
 	alertdFiles, err := configurationDirList("alerts.d", config.configPath)
 	if err != nil {
 		return nil, fmt.Errorf("Error: %s", err)
@@ -159,7 +108,7 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 			aNames[alert.Name] = file
 		}
 	}
-	globalAlerts = alerts
+	//  = alerts
 	Info.Printf("alert count = %d\n", len(alerts))
 
 	// check if we have at least one "general" alert receiver
@@ -173,6 +122,76 @@ func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
 	}
 	if generalReceivers == 0 {
 		return nil, fmt.Errorf("Config error: at least one alert must match the 'general' class")
+	}
+	return alerts, nil
+}
+
+func createHosts(ctx *cli.Context, config *Config) ([]*Host, error) {
+	hostsdFiles, errc := configurationDirList("hosts.d", config.configPath)
+	if errc != nil {
+		return nil, fmt.Errorf("Error: %s", errc)
+	}
+
+	var hosts []*Host
+	hNames := make(map[string]string)
+
+	for _, file := range hostsdFiles {
+		var tHost tomlHost
+
+		// defaults
+		tHost.Network.SSHConnTimeWarn.Duration = config.SSHConnTimeWarn
+
+		if _, err := toml.DecodeFile(file, &tHost); err != nil {
+			return nil, fmt.Errorf("Error decoding %s: %s", file, err)
+		}
+
+		_, filename := path.Split(file)
+		host, err := tomlHostToHost(&tHost, config, filename)
+		if err != nil {
+			return nil, fmt.Errorf("Error using %s: %s", file, err)
+		}
+
+		if host != nil {
+			if f, exists := hNames[host.Name]; exists == true {
+				return nil, fmt.Errorf("Config error: duplicate name '%s' (%s, %s)", host.Name, f, file)
+			}
+
+			hosts = append(hosts, host)
+			hNames[host.Name] = file
+		}
+	}
+	Info.Printf("host count = %d\n", len(hosts))
+
+	if config.doConnTest == true {
+		Info.Print("Testing connections…")
+		errors := make(chan error, len(hosts))
+		for _, host := range hosts {
+			go func(host *Host) {
+				if err := host.TestConnection(); err != nil {
+					errors <- fmt.Errorf("Error connecting %s: %s", host.Name, err)
+				} else {
+					errors <- nil
+				}
+			}(host)
+		}
+		for i := 0; i < len(hosts); i++ {
+			select {
+			case err := <-errors:
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+
+	probes, err := createProbes(ctx, config)
+	if err != nil {
+		return nil, err
+	}
+
+	globalAlerts, err = createAlerts(ctx, config)
+	if err != nil {
+		return nil, err
 	}
 
 	// update hosts with tasks
@@ -293,6 +312,7 @@ func mainRecap(ctx *cli.Context) error {
 	}
 	GlobalConfig = config
 
+	// TODO: should probably display heartbeats in the recap, then?
 	_, err = heartbeatsList(config)
 	if err != nil {
 		Error.Println(err)
@@ -366,6 +386,96 @@ func mainExpr(ctx *cli.Context) error {
 	return nil
 }
 
+func mainTest(ctx *cli.Context) error {
+	LogInit(ctx.Parent())
+
+	config, err := GlobalConfigRead(ctx.Parent().String("config-path"), "nosee.toml")
+	if err != nil {
+		Error.Printf("Config (nosee.toml): %s", err)
+		return cli.NewExitError("", 1)
+	}
+	config.loadDisabled = true // WARNING!
+	config.doConnTest = false  // WARNING!
+	GlobalConfig = config
+
+	hosts, err := createHosts(ctx, config)
+	if err != nil {
+		Error.Println(err)
+		return cli.NewExitError("", 10)
+	}
+
+	// createHosts already load probes, but we need the full list
+	// and not only probes targeting our host
+	probes, err := createProbes(ctx, config)
+	if err != nil {
+		Error.Println(err)
+		return cli.NewExitError("", 10)
+	}
+
+	requestedHost := ctx.Args().Get(0)
+	requestedProbe := ctx.Args().Get(1)
+
+	if requestedHost == "" {
+		Error.Println("you must give a host Name or filename")
+		return cli.NewExitError("", 1)
+	}
+
+	if requestedProbe == "" {
+		Error.Println("you must give a probe Name or filename")
+		return cli.NewExitError("", 1)
+	}
+
+	// Locate requested host and probe…
+	var foundHost *Host
+	for _, host := range hosts {
+		if host.Name == requestedHost || host.Filename == requestedHost {
+			foundHost = host
+			break
+		}
+	}
+	if foundHost == nil {
+		Error.Printf("can't find '%s' host", requestedHost)
+		return cli.NewExitError("", 1)
+	}
+
+	var foundProbe *Probe
+	for _, probe := range probes {
+		if probe.Name == requestedProbe || probe.Filename == requestedProbe {
+			foundProbe = probe
+			break
+		}
+	}
+	if foundProbe == nil {
+		Error.Printf("can't find '%s' probe", requestedProbe)
+		return cli.NewExitError("", 1)
+	}
+
+	// print Host -> Probe info
+	// print defaults?
+	// warning if tasks does not target this host?
+	// allow to load disabled task/host + warning if so?
+	// (do not test connection on all [disabled] hosts, if so)
+
+	var run Run
+	run.StartTime = time.Now()
+	run.Host = foundHost
+
+	var task Task
+	task.Probe = foundProbe
+	task.PrevRun = time.Now()
+	task.NextRun = time.Now()
+
+	run.Tasks = append(run.Tasks, &task)
+	run.Go()
+
+	// print Result
+	run.Dump()
+
+	// print checks results?
+
+	return nil
+}
+
 func main() {
 	// generic (aka "not cli command specific") inits
 	source := rand.NewSource(time.Now().UnixNano())
@@ -411,16 +521,18 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:    "check",
-			Aliases: []string{"c"},
-			Usage:   "Check configuration files and connections",
-			Action:  mainCheck,
+			Name:      "check",
+			Aliases:   []string{"c"},
+			Usage:     "Check configuration files and connections",
+			ArgsUsage: " ",
+			Action:    mainCheck,
 		},
 		{
-			Name:    "recap",
-			Aliases: []string{"r"},
-			Usage:   "Recap configuration",
-			Action:  mainRecap,
+			Name:      "recap",
+			Aliases:   []string{"r"},
+			Usage:     "Recap configuration",
+			ArgsUsage: " ",
+			Action:    mainRecap,
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "no-color",
@@ -429,10 +541,19 @@ func main() {
 			},
 		},
 		{
-			Name:    "expr",
-			Aliases: []string{"e"},
-			Usage:   "Test 'govaluate' expression (See Checks 'If')",
-			Action:  mainExpr,
+			Name:      "expr",
+			Aliases:   []string{"e"},
+			Usage:     "Test 'govaluate' expression (See Checks 'If')",
+			ArgsUsage: "expression",
+			Action:    mainExpr,
+		},
+		{
+			Name:        "test",
+			Aliases:     []string{"t"},
+			Usage:       "Test any Probe on a any Host",
+			ArgsUsage:   "host probe",
+			Description: "use Name or filename.toml (without path) for host and probe (disabled or not, targeted or not)",
+			Action:      mainTest,
 		},
 	}
 
