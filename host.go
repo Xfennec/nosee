@@ -10,6 +10,7 @@ import (
 type Host struct {
 	Name       string
 	Filename   string
+	Disabled   bool
 	Classes    []string
 	Connection *Connection
 	Defaults   map[string]interface{}

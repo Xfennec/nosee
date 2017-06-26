@@ -416,12 +416,12 @@ func mainTest(ctx *cli.Context) error {
 	requestedProbe := ctx.Args().Get(1)
 
 	if requestedHost == "" {
-		Error.Println("you must give a host Name or filename")
+		Error.Println("you must give a host Name or hosts.d/ filename")
 		return cli.NewExitError("", 1)
 	}
 
 	if requestedProbe == "" {
-		Error.Println("you must give a probe Name or filename")
+		Error.Println("you must give a probe Name or probes.d/ filename")
 		return cli.NewExitError("", 1)
 	}
 
@@ -450,11 +450,39 @@ func mainTest(ctx *cli.Context) error {
 		return cli.NewExitError("", 1)
 	}
 
-	// print Host -> Probe info
-	// print defaults?
-	// warning if tasks does not target this host?
-	// allow to load disabled task/host + warning if so?
-	// (do not test connection on all [disabled] hosts, if so)
+	if ctx.Bool("no-color") == true {
+		color.NoColor = true
+	}
+
+	red := color.New(color.FgRed).SprintFunc()
+	// yellow := color.New(color.FgYellow).SprintFunc()
+	green := color.New(color.FgGreen).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+	magenta := color.New(color.FgMagenta).SprintFunc()
+	magentaS := color.New(color.FgMagenta).Add(color.CrossedOut).SprintFunc()
+
+	fmt.Printf("Testing host '%s' with probe '%s' (%s, %s)\n", cyan(foundHost.Name), green(foundProbe.Name), foundHost.Filename, foundProbe.Filename)
+	if foundHost.Disabled == true {
+		fmt.Printf("Note: the host '%s' is currently %s\n", red(foundHost.Name), red("disabled"))
+	}
+	if foundProbe.Disabled == true {
+		fmt.Printf("Note: the probe '%s' is currently %s\n", red(foundProbe.Name), red("disabled"))
+	}
+	if foundHost.MatchProbeTargets(foundProbe) == false {
+		fmt.Printf("Note: the probe '%s' does %s match host '%s' (see classes and targets)\n", red(foundProbe.Name), red("not"), red(foundHost.Name))
+	}
+
+	// print defaults
+	for key, val := range foundProbe.Defaults {
+		if _, ok := foundHost.Defaults[key]; ok == true {
+			fmt.Printf("default: %s = %s -> %s (host override)\n",
+				magenta(key),
+				magentaS(InterfaceValueToString(val)),
+				magenta(foundHost.Defaults[key]))
+		} else {
+			fmt.Printf("default: %s = %s\n", magenta(key), magenta(InterfaceValueToString(val)))
+		}
+	}
 
 	var run Run
 	run.StartTime = time.Now()
@@ -468,10 +496,45 @@ func mainTest(ctx *cli.Context) error {
 	run.Tasks = append(run.Tasks, &task)
 	run.Go()
 
-	// print Result
-	run.Dump()
+	if len(run.Errors) > 0 {
+		for _, err := range run.Errors {
+			fmt.Printf("run error: %s\n", red(err))
+		}
+		return nil
+	}
 
-	// print checks results?
+	result := run.TaskResults[0]
+
+	for key, val := range result.Values {
+		fmt.Printf("value: %s = %s\n", magenta(key), magenta(val))
+	}
+
+	for _, err := range result.Logs {
+		fmt.Printf("log: %s\n", cyan(err))
+	}
+
+	if result.ExitStatus == 0 {
+		fmt.Printf("script exit status: %s (success)\n", green(result.ExitStatus))
+	} else {
+		fmt.Printf("script exit status: %s (error)\n", red(result.ExitStatus))
+	}
+	fmt.Printf("script duration: %s (+ ssh dial duration: %s)\n", result.Duration, run.DialDuration)
+
+	for _, err := range result.Errors {
+		fmt.Printf("error: %s\n", red(err))
+	}
+
+	if run.totalErrorCount() > 0 {
+		return nil
+	}
+	result.DoChecks()
+
+	for _, check := range result.SuccessfulChecks {
+		fmt.Printf("check %s: %s (no alert)\n", green("GOOD"), green(check.Desc))
+	}
+	for _, check := range result.FailedChecks {
+		fmt.Printf("check %s: %s (alert)\n", red("BAD"), red(check.Desc))
+	}
 
 	return nil
 }
@@ -554,6 +617,12 @@ func main() {
 			ArgsUsage:   "host probe",
 			Description: "use Name or filename.toml (without path) for host and probe (disabled or not, targeted or not)",
 			Action:      mainTest,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "no-color",
+					Usage: "disable color output ",
+				},
+			},
 		},
 	}
 

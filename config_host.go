@@ -45,6 +45,7 @@ func tomlHostToHost(tHost *tomlHost, config *Config, filename string) (*Host, er
 	if tHost.Disabled == true && config.loadDisabled == false {
 		return nil, nil
 	}
+	host.Disabled = (tHost.Disabled == true)
 
 	if tHost.Name == "" {
 		return nil, errors.New("invalid or missing 'name'")

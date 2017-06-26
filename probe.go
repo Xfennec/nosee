@@ -20,6 +20,7 @@ type Check struct {
 type Probe struct {
 	Name      string
 	Filename  string
+	Disabled  bool
 	Script    string
 	Targets   []string
 	Delay     time.Duration

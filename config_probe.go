@@ -95,6 +95,7 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config, filename string) (*Prob
 	if tProbe.Disabled == true && config.loadDisabled == false {
 		return nil, nil
 	}
+	probe.Disabled = (tProbe.Disabled == true)
 
 	probe.Filename = filename
 
