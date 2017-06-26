@@ -52,7 +52,7 @@ mem_available_ratio=$(echo $mem_total_mb $mem_available_mb\
 echo "MEM_TOTAL_MB:" $mem_total_mb
 echo "MEM_AVAILABLE_MB:" $mem_available_mb
 echo "MEM_AVAILABLE_RATIO:" $mem_available_ratio
-echo "MEM_HARDUSED:" $mem_hardused_mb
+echo "MEM_HARDUSED_MB:" $mem_hardused_mb
 echo "MEM_HARDUSED_RATIO:" $mem_hardused_ratio
 echo "MEM_BUFFCACHE_MB:" $mem_buffcache_mb
 echo "MEM_BUFFCACHE_RATIO:" $mem_buffcache_ratio
