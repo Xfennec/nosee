@@ -10,9 +10,13 @@ import (
 func (run *Run) AlertsForRun() {
 	var bbuf bytes.Buffer
 	bbuf.WriteString(run.Host.Name)
-	for _, err := range run.Errors {
+	// We now limit to one Fail per host, otherwise we may flood
+	// the user with Errors (ex: "alert, ssh connection 11s", then the same
+	// with 11.5s, etc). If there's an issue with a host, you have to fix it
+	// to get the others (if any left), it makes sense.
+	/*for _, err := range run.Errors {
 		bbuf.WriteString(err.Error())
-	}
+	}*/
 	hash := MD5Hash(bbuf.String())
 
 	currentFail := CurrentFailGetAndInc(hash)
