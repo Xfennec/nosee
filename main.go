@@ -461,7 +461,8 @@ func mainTest(ctx *cli.Context) error {
 	magenta := color.New(color.FgMagenta).SprintFunc()
 	magentaS := color.New(color.FgMagenta).Add(color.CrossedOut).SprintFunc()
 
-	fmt.Printf("Testing host '%s' with probe '%s' (%s, %s)\n", cyan(foundHost.Name), green(foundProbe.Name), foundHost.Filename, foundProbe.Filename)
+	_, scriptName := path.Split(foundProbe.Script)
+	fmt.Printf("Testing: host '%s' with probe '%s' (%s, %s) using script '%s'\n", cyan(foundHost.Name), green(foundProbe.Name), foundHost.Filename, foundProbe.Filename, magenta(scriptName))
 	if foundHost.Disabled == true {
 		fmt.Printf("Note: the host '%s' is currently %s\n", red(foundHost.Name), red("disabled"))
 	}
