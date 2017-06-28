@@ -278,7 +278,7 @@ func mainDefault(ctx *cli.Context) error {
 func mainCheck(ctx *cli.Context) error {
 	LogInit(ctx.Parent())
 
-	fmt.Printf("Checking configuration…\n")
+	fmt.Printf("Checking configuration and connections…\n")
 
 	config, err := GlobalConfigRead(ctx.Parent().String("config-path"), "nosee.toml")
 	if err != nil {
