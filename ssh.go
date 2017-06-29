@@ -27,6 +27,7 @@ type Connection struct {
 	Auths           []ssh.AuthMethod
 	Host            string
 	Port            int
+	Ciphers         []string
 	SSHConnTimeWarn time.Duration
 	Session         *ssh.Session
 	Client          *ssh.Client
@@ -146,6 +147,12 @@ func (connection *Connection) Connect() error {
 		sshConfig.HostKeyCallback = hostKeyBilndTrustChecker
 	} else {
 		sshConfig.HostKeyCallback = hostKeyChecker
+	}
+
+	if len(connection.Ciphers) > 0 {
+		sshConfig.Config = ssh.Config{
+			Ciphers: connection.Ciphers,
+		}
 	}
 
 	dial, err := ssh.Dial("tcp", fmt.Sprintf("%s:%d", connection.Host, connection.Port), sshConfig)

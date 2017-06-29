@@ -12,6 +12,7 @@ import (
 type tomlNetwork struct {
 	Host            string
 	Port            int
+	Ciphers         []string
 	SSHConnTimeWarn Duration `toml:"ssh_connection_time_warn"`
 }
 
@@ -90,6 +91,7 @@ func tomlHostToHost(tHost *tomlHost, config *Config, filename string) (*Host, er
 		return nil, errors.New("[auth] section, invalid or missing 'user'")
 	}
 	connection.User = tHost.Auth.User
+	connection.Ciphers = tHost.Network.Ciphers
 
 	if tHost.Auth.Key != "" && tHost.Auth.Password != "" {
 		return nil, errors.New("[auth] section, can't use key and password at the same time (see key_passphrase parameter, perhaps?)")
