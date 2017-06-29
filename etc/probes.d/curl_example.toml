@@ -1,0 +1,15 @@
+name = "example.com Website"
+targets = ["linux & example"]
+
+script = "curl.sh"
+arguments = "http://example.com/ EXAMPLE 'used for illustrative examples'"
+
+delay = "5m"
+timeout = "20s"
+
+### Checks
+
+[[check]]
+desc = "can't find expected content"
+if = "CURL_OK_EXAMPLE != 1"
+classes = ["critical"]
