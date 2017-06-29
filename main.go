@@ -521,14 +521,19 @@ func mainTest(ctx *cli.Context) error {
 	}
 	fmt.Printf("script duration: %s (+ ssh dial duration: %s)\n", result.Duration, run.DialDuration)
 
+	if run.totalErrorCount() > 0 {
+		for _, err := range result.Errors {
+			fmt.Printf("error: %s\n", red(err))
+		}
+		return nil
+	}
+
+	result.DoChecks()
+
+	// DoChecks may add its own errors
 	for _, err := range result.Errors {
 		fmt.Printf("error: %s\n", red(err))
 	}
-
-	if run.totalErrorCount() > 0 {
-		return nil
-	}
-	result.DoChecks()
 
 	for _, check := range result.SuccessfulChecks {
 		fmt.Printf("check %s: %s: false (no alert)\n", green("GOOD"), green(check.Desc))
