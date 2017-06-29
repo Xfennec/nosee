@@ -1,5 +1,5 @@
-name = "port 80 testing"
-targets = ["linux & web"]
+name = "HTTP port"
+targets = ["linux & http"]
 #disabled = true
 
 script = "port.sh"
