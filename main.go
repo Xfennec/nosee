@@ -531,10 +531,10 @@ func mainTest(ctx *cli.Context) error {
 	result.DoChecks()
 
 	for _, check := range result.SuccessfulChecks {
-		fmt.Printf("check %s: %s (no alert)\n", green("GOOD"), green(check.Desc))
+		fmt.Printf("check %s: %s: false (no alert)\n", green("GOOD"), green(check.Desc))
 	}
 	for _, check := range result.FailedChecks {
-		fmt.Printf("check %s: %s (alert)\n", red("BAD"), red(check.Desc))
+		fmt.Printf("check %s: %s: true (alert)\n", red("BAD"), red(check.Desc))
 	}
 
 	return nil
