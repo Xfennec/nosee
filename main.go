@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"math/rand"
 	"os"
@@ -429,12 +430,20 @@ func mainTest(ctx *cli.Context) error {
 	requestedProbe := ctx.Args().Get(1)
 
 	if requestedHost == "" {
-		Error.Println("you must give a host Name or hosts.d/ filename")
+		var list bytes.Buffer
+		for _, host := range hosts {
+			list.WriteString(fmt.Sprintf("- %s (%s)\n", host.Filename, host.Name))
+		}
+		Error.Printf("you must give a host Name or hosts.d/ filename:\n%s", list.String())
 		return cli.NewExitError("", 1)
 	}
 
 	if requestedProbe == "" {
-		Error.Println("you must give a probe Name or probes.d/ filename")
+		var list bytes.Buffer
+		for _, probe := range probes {
+			list.WriteString(fmt.Sprintf("- %s (%s)\n", probe.Filename, probe.Name))
+		}
+		Error.Printf("you must give a probe Name or probes.d/ filename:\n%s", list.String())
 		return cli.NewExitError("", 1)
 	}
 
