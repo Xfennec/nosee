@@ -13,4 +13,4 @@ if [ $res -eq 0 ]; then
     open=1
 fi
 
-echo "PORT${1}_OPEN:" $open
+echo "OPEN:" $open

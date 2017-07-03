@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [ -z "$2" ]; then
-    (>&2 echo "ERROR: give certificate path, short name and 'days to expire date'")
-    (>&2 echo "ERROR: Usage: $0 /etc/pki/tls/certs/myweb.crt MYWEB 15")
+    (>&2 echo "ERROR: give certificate path and 'days to expire'")
+    (>&2 echo "ERROR: Usage: $0 /etc/pki/tls/certs/myweb.crt 15")
     exit 1
 fi
 
@@ -15,4 +15,4 @@ timestamp=$(echo $(($days_to_expire*24*60*60)))
 openssl x509 -checkend $timestamp -noout -in "$1"
 res=$?
 
-echo "CERT_WILL_EXPIRE_${short_name}:" $res
+echo "WILL_EXPIRE:" $res

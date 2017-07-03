@@ -22,12 +22,12 @@ value = 1
 
 [[check]]
 desc = "critical ping loss"
-if = "PING_LOSS_PERC >= err_ping_loss"
+if = "LOSS_PERC >= err_ping_loss"
 classes = ["critical"]
 needed_failures = 2
 
 [[check]]
 desc = "ping latency"
-if = "PING_AVG_MS > warn_ping_latency"
+if = "AVG_MS > warn_ping_latency"
 classes = ["warning"]
 needed_failures = 2

@@ -11,5 +11,5 @@ timeout = "15s"
 
 [[check]]
 desc = "md-raid failure"
-if = "MDRAID_ERR_ARRAYS > 0"
+if = "ERR_ARRAYS > 0"
 classes = ["critical"]

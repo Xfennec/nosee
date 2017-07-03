@@ -32,5 +32,5 @@ last_duration=$(echo $start_tmsp $ok_tmsp | awk '{
 	print 0
 }')
 
-echo "BACKUP_LAST_OK_HOURS:" $last_ok_hours
-echo "BACKUP_LAST_DURATION_HOURS:" $last_duration
+echo "LAST_OK_HOURS:" $last_ok_hours
+echo "LAST_DURATION_HOURS:" $last_duration

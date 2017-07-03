@@ -14,4 +14,4 @@ fi
 
 val=$(cat "$file")
 temp=$(awk "BEGIN {print $val/1000}")
-echo "CPU${1}_TEMP:" $temp
+echo "TEMP:" $temp

@@ -25,11 +25,11 @@ value = 85
 
 [[check]]
 desc = "high CPU0 temperature"
-if = "CPU0_TEMP > warn_cpu_temp"
+if = "TEMP > warn_cpu_temp"
 classes = ["warning"]
 needed_failures = 2
 
 [[check]]
 desc = "critical CPU0 temperature"
-if = "CPU0_TEMP > error_cpu_temp"
+if = "TEMP > error_cpu_temp"
 classes = ["critical"]

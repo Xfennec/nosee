@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # load.sh [prog1] [prog2] [script3] [...]
-# will return "LOAD_PROG_DETECTED: 1" if any
+# will return "PROG_DETECTED: 1" if any
 # of the prog/script is found ("my load is high
 # but my backup is running, so it's ok")
 
@@ -29,4 +29,4 @@ fi
 
 echo "LOAD:" $load
 echo "CPU_COUNT:" $(nproc)
-echo "LOAD_PROG_DETECTED:" $detected
+echo "PROG_DETECTED:" $detected

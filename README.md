@@ -111,7 +111,7 @@ delay = "1m"
 
 [[check]]
 desc = "critical CPU temperature"
-if = "CPU_TEMP > 85"
+if = "TEMP > 85"
 classes = ["critical"]
 ```
 
@@ -123,7 +123,7 @@ The `delay` explains that this probe must be run every minute. This is
 the lowest delay available.
 
 Then we have a check. You can have multiple checks in a probe. This check
-will look at the `CPU_TEMP` value returned by the `cpu_temp.sh`
+will look at the `TEMP` value returned by the `cpu_temp.sh`
 script (see below) and evaluate the `if` expression. You can have a look
 at [govaluate](https://github.com/Knetic/govaluate) for details about
 expression's syntax.
@@ -142,7 +142,7 @@ Scripts are hosted in the `scripts/probes/` directory.
 
 val=$(cat /sys/class/thermal/thermal_zone0/temp)
 temp=$(awk "BEGIN {print $val/1000}")
-echo "CPU_TEMP:" $temp
+echo "TEMP:" $temp
 ```
 
 This script will run on monitored hosts (so… stay light). Here, we read

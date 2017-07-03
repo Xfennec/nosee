@@ -18,6 +18,6 @@ value = "/root/backup.sh"
 
 [[check]]
 desc = "heavy system load"
-if = "LOAD > CPU_COUNT && LOAD_PROG_DETECTED == 0"
+if = "LOAD > CPU_COUNT && PROG_DETECTED == 0"
 classes = ["warning"]
 needed_failures = 2

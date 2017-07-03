@@ -11,5 +11,5 @@ delay = "1m"
 
 [[check]]
 desc = "port 80 is not open"
-if = "PORT80_OPEN != 1"
+if = "OPEN != 1"
 classes = ["critical"]

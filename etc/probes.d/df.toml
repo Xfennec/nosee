@@ -17,5 +17,5 @@ value = 95
 
 [[check]]
 desc = "disk almost full"
-if = "DISK_FULLEST_PERC > df_warn_perc"
+if = "FULLEST_PERC > df_warn_perc"
 classes = ["warning"]

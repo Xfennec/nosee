@@ -30,10 +30,10 @@ value = 5
 
 [[check]]
 desc = "backup too old"
-if = "BACKUP_LAST_OK_HOURS > (24+backup_margin_hours)"
+if = "LAST_OK_HOURS > (24+backup_margin_hours)"
 classes = ["critical"]
 
 [[check]]
 desc = "backup too long"
-if = "BACKUP_LAST_DURATION_HOURS > backup_duration_warn"
+if = "LAST_DURATION_HOURS > backup_duration_warn"
 classes = ["warning"]

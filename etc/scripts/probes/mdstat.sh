@@ -9,4 +9,4 @@ fi
 
 fcount=$(grep -c "\[.*_.*\]" $mdstat)
 
-echo "MDRAID_ERR_ARRAYS:" $fcount
+echo "ERR_ARRAYS:" $fcount

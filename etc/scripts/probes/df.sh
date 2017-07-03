@@ -3,7 +3,7 @@
 lines=$(df -kP | grep '^/dev/' | grep -v '[[:space:]]/mnt/')
 fullest=$(echo "$lines" | awk '{print $5}' | cut -d% -f1 | sort -n | tail -n1)
 
-echo "DISK_FULLEST_PERC:" $fullest
+echo "FULLEST_PERC:" $fullest
 
 all=$(echo "$lines" | awk '{print $5,$6}')
 while read -r line; do

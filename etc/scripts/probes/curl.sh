@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [ -z "$3" ]; then
-    (>&2 echo "ERROR: give URL, short name and an expected string")
-    (>&2 echo "Usage example: $0 'http://www.perdu.com/' PERDU 'Pas de panique'")
+    (>&2 echo "ERROR: give URL and an expected string")
+    (>&2 echo "Usage example: $0 'http://www.perdu.com/' 'Pas de panique'")
     exit 1
 fi
 
@@ -20,4 +20,4 @@ if [ $? -eq 0 ]; then
     fi
 fi
 
-echo "CURL_OK_$short:" $status
+echo "FOUND_EXPECTED:" $status
