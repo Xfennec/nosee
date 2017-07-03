@@ -1,14 +1,13 @@
 #!/bin/bash
 
-if [ -z "$3" ]; then
+if [ -z "$2" ]; then
     (>&2 echo "ERROR: give URL and an expected string")
     (>&2 echo "Usage example: $0 'http://www.perdu.com/' 'Pas de panique'")
     exit 1
 fi
 
 url=$1
-short=$2
-expected=$3
+expected=$2
 
 status=0
 

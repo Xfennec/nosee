@@ -7,8 +7,7 @@ if [ -z "$2" ]; then
 fi
 
 cert_path=$1
-short_name=$2
-days_to_expire=$3
+days_to_expire=$2
 
 timestamp=$(echo $(($days_to_expire*24*60*60)))
 
