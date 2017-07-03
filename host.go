@@ -82,6 +82,7 @@ func (host *Host) Schedule() {
 			run.Go()
 			run.Alerts()
 			Trace.Printf("currentFails count = %d\n", len(currentFails))
+			loggersExec(&run)
 		}
 		Info.Printf("host '%s', run ended", host.Name)
 

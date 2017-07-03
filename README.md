@@ -223,6 +223,7 @@ Oh yes. I want to explain:
  - heartbeat scripts
  - systemd / supervisord sample files
  - test subcommand
+ - loggers / InfluxDB
 
 What is the future of Nosee? (WIP)
 ----------------------------

@@ -21,6 +21,7 @@ const NoseeVersion = "0.1"
 
 var myRand *rand.Rand
 var globalAlerts []*Alert
+var globalLogers []string
 var appStartTime time.Time
 
 func configurationDirList(inpath string, dirPath string) ([]string, error) {
@@ -249,6 +250,12 @@ func mainDefault(ctx *cli.Context) error {
 		return cli.NewExitError("", 2)
 	}
 
+	globalLogers, err = loggersList(config)
+	if err != nil {
+		Error.Println(err)
+		return cli.NewExitError("", 2)
+	}
+
 	hosts, err := createHosts(ctx, config)
 	if err != nil {
 		Error.Println(err)
@@ -293,6 +300,12 @@ func mainCheck(ctx *cli.Context) error {
 		return cli.NewExitError("", 2)
 	}
 
+	_, err = loggersList(config)
+	if err != nil {
+		Error.Println(err)
+		return cli.NewExitError("", 2)
+	}
+
 	_, err = createHosts(ctx, config)
 	if err != nil {
 		Error.Println(err)
@@ -312,7 +325,7 @@ func mainRecap(ctx *cli.Context) error {
 	}
 	GlobalConfig = config
 
-	// TODO: should probably display heartbeats in the recap, then?
+	// TODO: should probably display heartbeats/loggers in the recap, then?
 	_, err = heartbeatsList(config)
 	if err != nil {
 		Error.Println(err)
@@ -455,7 +468,7 @@ func mainTest(ctx *cli.Context) error {
 	}
 
 	red := color.New(color.FgRed).SprintFunc()
-	// yellow := color.New(color.FgYellow).SprintFunc()
+	yellow := color.New(color.FgYellow).SprintFunc()
 	green := color.New(color.FgGreen).SprintFunc()
 	cyan := color.New(color.FgCyan).SprintFunc()
 	magenta := color.New(color.FgMagenta).SprintFunc()
@@ -507,7 +520,7 @@ func mainTest(ctx *cli.Context) error {
 	result := run.TaskResults[0]
 
 	for key, val := range result.Values {
-		fmt.Printf("value: %s = %s\n", magenta(key), magenta(val))
+		fmt.Printf("value: %s = %s\n", yellow(key), yellow(val))
 	}
 
 	for _, err := range result.Logs {
