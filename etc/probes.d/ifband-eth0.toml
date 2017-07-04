@@ -1,0 +1,9 @@
+name = "eth0 bandwidth"
+targets = ["linux & eth0"]
+#disabled = true
+
+script = "ifband.sh"
+arguments = "eth0"
+
+delay = "1m"
+timeout = "5s"
