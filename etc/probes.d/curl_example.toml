@@ -1,7 +1,7 @@
 name = "example.com Website"
 targets = ["linux & example"]
 
-script = "curl.sh"
+script = "curl_expect.sh"
 arguments = "http://example.com/ 'used for illustrative examples'"
 
 delay = "5m"
