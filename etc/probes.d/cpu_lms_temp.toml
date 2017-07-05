@@ -1,0 +1,20 @@
+name = "CPU lm_sensors temperature"
+targets = ["linux & lm_sensors"]
+
+script = "cpu_lms_temp.sh"
+
+delay = "1m"
+timeout = "5s"
+
+### Checks
+
+[[check]]
+desc = "high CPU temperature"
+if = "TEMP > HIGH"
+classes = ["warning"]
+needed_failures = 2
+
+[[check]]
+desc = "critical CPU temperature"
+if = "TEMP > CRIT"
+classes = ["critical"]
