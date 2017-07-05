@@ -54,7 +54,7 @@ How do you use it?
 ------------------
 
 You may have a look at the "template" configuration directory
-provided in `$GOPATH/src/githum.com/Xfennec/nosee/etc` as a more complete
+provided in `$GOPATH/src/github.com/Xfennec/nosee/etc` as a more complete
 example or as a base for the following tutorial. (edit `hosts.d/test.toml`
 for connection settings and `alerts.d/mail_general.toml` for email address,
 at least)
