@@ -1,0 +1,7 @@
+name = "Apache mod_status"
+targets = ["linux & mod_status"]
+
+script = "apache_modstatus.sh"
+
+delay = "1m"
+timeout = "5s"
