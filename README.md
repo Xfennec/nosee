@@ -220,7 +220,7 @@ Oh yes. I want to explain:
  - check "If" functions (date)
  - nosee-alerts.json current alerts
  - heartbeat scripts
- - systemd / supervisord sample files
+ - systemd / supervisord sample files (see deploy/ directory)
  - test subcommand
  - loggers / InfluxDB
 
