@@ -217,7 +217,6 @@ Oh yes. I want to explain:
  - extensive configuration validation (and connection tests)
  - alert examples (pushover, SMS, …)
  - probe examples!
- - script caching
  - check "If" functions (date)
  - nosee-alerts.json current alerts
  - heartbeat scripts
@@ -225,8 +224,10 @@ Oh yes. I want to explain:
  - test subcommand
  - loggers / InfluxDB
 
+![Nosee + InfluxDB + Grafana](https://raw.github.com/Xfennec/nosee/master/doc/images/nosee-influxdb-grafana.png)
+(example: Nosee → InfluxDB → Grafana)
+
 What is the future of Nosee? (WIP)
 ----------------------------
 
- - graphs (RRD - Round-Robin database)
  - remote Nosee interconnections
