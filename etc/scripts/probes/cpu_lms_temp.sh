@@ -14,11 +14,15 @@ BEGIN {
     crit = 999
 }
 /^Core/ {
-    match($0, /\+([0-9.]+)°C.*\+([0-9.]+)°C,.*\+([0-9.]+)°C/, g)
-    total += g[1]
-    high = (g[2] < high ? g[2] : high)
-    crit = (g[3] < crit ? g[3] : crit)
-    cores++
+    if (match($0, /\+([0-9.]+)°C.*\+([0-9.]+)°C,.*\+([0-9.]+)°C/, g) > 0) {
+	total += g[1]
+	high = (g[2] < high ? g[2] : high)
+	crit = (g[3] < crit ? g[3] : crit)
+	cores++
+    } else if (match($0, /\+([0-9.]+)°C/, g) > 0) {
+	total += g[1]
+	cores++
+    }
 }
 END {
     printf("TEMP: %f\n", total / cores)
