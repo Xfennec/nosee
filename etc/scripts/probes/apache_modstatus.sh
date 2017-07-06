@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Server must have mod_status loaded and configured with something like:
+#<Location /server-status>
+#    SetHandler server-status
+#    Order deny,allow
+#    Deny from all
+#    Allow from 127.0.0.1 ::1
+#</Location>
+
+# ExtendedStatus must be set to On (default since Apache 2.3.6)
+
 stat_file="$HOME/.apache-modstatus"
 NOW=$(date +%s)
 
@@ -42,4 +52,3 @@ echo "LAST_KBYTES=$KBYTES" >> $stat_file
 
 echo RPS: $RPS
 echo KBPS: $KBPS
-
