@@ -7,4 +7,4 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-curl --silent -f "$1"
+curl --max-time 15 --silent -f "$1"

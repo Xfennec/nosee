@@ -11,7 +11,7 @@ expected=$2
 
 status=0
 
-page=$(curl --silent -f "$url")
+page=$(curl --max-time 15 --silent -f "$url")
 if [ $? -eq 0 ]; then
     n=$(echo "$page" | grep "$expected" | wc -l)
     if [ $n -gt 0 ]; then
