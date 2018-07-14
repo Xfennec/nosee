@@ -230,8 +230,8 @@ func (msg *AlertMessage) MatchAlertTargets(alert *Alert) bool {
 		matched := 0
 		mustMatch := len(tokens)
 		for _, token := range tokens {
-			token := strings.TrimSpace(token)
-			if msg.HasClass(token) {
+			ttoken := strings.TrimSpace(token)
+			if msg.HasClass(ttoken) {
 				matched++
 			}
 		}

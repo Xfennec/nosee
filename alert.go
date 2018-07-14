@@ -43,8 +43,8 @@ func (alert *Alert) Ring(msg *AlertMessage) {
 
 	var args []string
 	for _, arg := range alert.Arguments {
-		arg := StringExpandVariables(arg, varMap)
-		args = append(args, arg)
+		expArg := StringExpandVariables(arg, varMap)
+		args = append(args, expArg)
 	}
 
 	go func() {

@@ -38,8 +38,8 @@ func (host *Host) MatchProbeTargets(probe *Probe) bool {
 		matched := 0
 		mustMatch := len(tokens)
 		for _, token := range tokens {
-			token := strings.TrimSpace(token)
-			if host.HasClass(token) {
+			ttoken := strings.TrimSpace(token)
+			if host.HasClass(ttoken) {
 				matched++
 			}
 		}

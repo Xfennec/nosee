@@ -139,9 +139,9 @@ func tomlProbeToProbe(tProbe *tomlProbe, config *Config, filename string) (*Prob
 		}
 		tokens := strings.Split(targets, "&")
 		for _, token := range tokens {
-			token := strings.TrimSpace(token)
-			if !IsValidTokenName(token) {
-				return nil, fmt.Errorf("invalid 'target' class name '%s'", token)
+			ttoken := strings.TrimSpace(token)
+			if !IsValidTokenName(ttoken) {
+				return nil, fmt.Errorf("invalid 'target' class name '%s'", ttoken)
 			}
 		}
 	}
