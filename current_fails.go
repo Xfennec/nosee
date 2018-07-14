@@ -123,10 +123,11 @@ func CurrentFailGetAndInc(hash string) *CurrentFail {
 	cf, ok := currentFails[hash]
 	if !ok {
 		var cf CurrentFail
+		uuid, _ := uuid.NewV4()
 		cf.FailCount = 1
 		cf.OkCount = 0
 		cf.FailStart = time.Now()
-		cf.UniqueID = uuid.NewV4().String()
+		cf.UniqueID = uuid.String()
 		CurrentFailAdd(hash, &cf)
 		return &cf
 	}
