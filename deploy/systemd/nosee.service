@@ -1,0 +1,13 @@
+[Unit]
+Description=A nosey, agentless, easy monitoring tool over SSH
+After=network-online.target
+
+[Service]
+User={USER}
+ExecStart=/home/{USER}/go/bin/nosee --log-level info --log-timestamp
+Type=simple
+Restart=on-failure
+Environment=SSH_AUTH_SOCK=/home/{USER}/.ssh-agent-sock
+
+[Install]
+WantedBy=multi-user.target
