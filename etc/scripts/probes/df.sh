@@ -9,7 +9,7 @@ all=$(echo "$lines" | awk '{print $5,$6}')
 while read -r line; do
     dfree=$(echo "$line" | awk '{print $1}' | cut -d% -f1)
     name=$(echo "$line" | awk '{print $2}')
-    name=$(echo "$name" | sed 's#/#_#g' | sed 's/^_//')
+    name=$(echo "$name" | sed 's#/#_#g' |sed 's/-/_/' | sed 's/^_//')
     if [ -z "$name" ]; then
 	name="ROOT"
     fi
