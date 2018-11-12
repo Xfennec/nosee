@@ -4,7 +4,7 @@ After=network-online.target
 
 [Service]
 User={USER}
-ExecStart=/home/{USER}/go/bin/nosee --log-level info --log-timestamp
+ExecStart=/home/{USER}/go/bin/nosee -c /home/{USER}/nosee/etc/ --log-level info --log-timestamp
 Type=simple
 Restart=on-failure
 Environment=SSH_AUTH_SOCK=/home/{USER}/.ssh-agent-sock
