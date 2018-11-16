@@ -31,3 +31,8 @@ ssh_agent = true
 [[default]]
 name = "warn_ping_latency"
 value = 10
+
+# or defaults for a probe:
+[[default]]
+name = "ifband_interface"
+value = "enp1s0f0"

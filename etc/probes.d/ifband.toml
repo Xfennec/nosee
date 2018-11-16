@@ -1,0 +1,15 @@
+name = "bandwidth"
+targets = ["linux & ifband"]
+#disabled = true
+
+script = "ifband.sh"
+arguments = "$ifband_interface"
+
+delay = "1m"
+timeout = "5s"
+
+### Default values
+
+[[default]]
+name = "ifband_interface"
+value = "eth0"
