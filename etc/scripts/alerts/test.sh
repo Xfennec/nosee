@@ -15,7 +15,6 @@ echo "$3" >> $file
 echo "$4" >> $file
 
 echo "$SUBJECT" >> $file
-echo "$DETAILS" >> $file
 echo $USER >> $file
 echo $TYPE >> $file
 echo $NOSEE_SRV >> $file
