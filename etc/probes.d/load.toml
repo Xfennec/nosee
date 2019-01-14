@@ -14,10 +14,14 @@ timeout = "8s"
 name = "load_normal_cmd"
 value = "/root/backup.sh"
 
+[[default]]
+name = "load_margin"
+value = 0
+
 ### Checks
 
 [[check]]
 desc = "heavy system load"
-if = "LOAD > CPU_COUNT && PROG_DETECTED == 0"
+if = "LOAD > (CPU_COUNT+load_margin) && PROG_DETECTED == 0"
 classes = ["warning"]
 needed_failures = 2
