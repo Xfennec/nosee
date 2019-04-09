@@ -28,7 +28,11 @@ if [ -z "$ma_supported" ]; then
     swap_total_mb=$(echo $swap | cut -d\  -f2)
     swap_free_mb=$(echo $swap | cut -d\  -f4)
     swap_used_mb=$(echo $swap | cut -d\  -f3)
-    swap_used_ratio=$(echo "$swap" | awk '{printf("%.2f\n", $3/$2);}')
+    if [ $swap_total_mb -eq 0 ]; then
+        swap_used_ratio=0
+    else
+        swap_used_ratio=$(echo "$swap" | awk '{printf("%.2f\n", $3/$2);}')
+    fi
 else
     mem_total_mb=$(meminfo_fmt MemTotal)
     mem_available_mb=$(meminfo_fmt MemAvailable)
@@ -40,7 +44,11 @@ else
     swap_total_mb=$(meminfo_fmt SwapTotal)
     swap_free_mb=$(meminfo_fmt SwapFree)
     swap_used_mb=$(( $swap_total_mb - $swap_free_mb ))
-    swap_used_ratio=$(echo "$swap_used_mb" "$swap_free_mb" | awk '{printf("%.2f\n", $1/$2);}')
+    if [ $swap_total_mb -eq 0 ]; then
+        swap_used_ratio=0
+    else
+        swap_used_ratio=$(echo "$swap_used_mb" "$swap_free_mb" | awk '{printf("%.2f\n", $1/$2);}')
+    fi
 fi
 
 mem_buffcache_mb=$(($mem_cached_mb + $mem_buffers_mb))
