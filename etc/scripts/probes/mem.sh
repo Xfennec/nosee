@@ -47,7 +47,7 @@ else
     if [ $swap_total_mb -eq 0 ]; then
         swap_used_ratio=0
     else
-        swap_used_ratio=$(echo "$swap_used_mb" "$swap_free_mb" | awk '{printf("%.2f\n", $1/$2);}')
+        swap_used_ratio=$(echo "$swap_used_mb" "$swap_total_mb" | awk '{printf("%.2f\n", $1/$2);}')
     fi
 fi
 
