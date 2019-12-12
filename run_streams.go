@@ -189,7 +189,7 @@ func (run *Run) stdinInject(out io.WriteCloser, exitStatus chan int) {
 
 		result.Duration = time.Now().Sub(result.StartTime)
 		if result.Duration > result.Task.Probe.Timeout {
-			result.addError(fmt.Errorf("task duration was too long (%s, timeout is %s)", result.Duration, result.Task.Probe.Timeout))
+			result.addError(fmt.Errorf("task duration was too long (timeout is %s)", result.Task.Probe.Timeout))
 		}
 	}
 }
