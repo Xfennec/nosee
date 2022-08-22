@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli"
 )
 
 // Loggers for trace, info, warning and error severity

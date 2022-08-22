@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 // CurrentFail type hold informations about a failure currently detected
@@ -123,7 +123,7 @@ func CurrentFailGetAndInc(hash string) *CurrentFail {
 	cf, ok := currentFails[hash]
 	if !ok {
 		var cf CurrentFail
-		uuid, _ := uuid.NewV4()
+		uuid := uuid.NewV4()
 		cf.FailCount = 1
 		cf.OkCount = 0
 		cf.FailStart = time.Now()
