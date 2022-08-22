@@ -19,6 +19,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 // Connection is the final form of connection informations of hosts.d files
@@ -72,11 +73,28 @@ func knownHostHash(hostname string, salt64 string) string {
 }
 
 // Implements ssh.HostKeyCallback which is now required due to CVE-2017-3204
+// see https://github.com/golang/go/issues/29286 for the ecdsa-sha2-nistp256 part
+// ("If ClientConfig.HostKeyAlgorithms is not set, a reasonable default is set for acceptable host key type")
+func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
+	path := filepath.Join(os.Getenv("HOME"), ".ssh", "known_hosts")
+	hostKeyCallback, err := knownhosts.New(path)
+	if err != nil {
+		return err
+	}
+
+	err = hostKeyCallback(hostname, remote, key)
+	if err != nil {
+		return fmt.Errorf("%s, use ssh client to manually connect to %s (you may have to specify algo: ssh -o HostKeyAlgorithms=ecdsa-sha2-nistp256 …)", err, hostname)
+	}
+	return nil
+}
+
+// Old ssh.HostKeyCallback implementation
 // We parse $HOME/.ssh/known_hosts and check for a matching key + hostname
 // Supported : Hashed hostnames, revoked keys (or any other marker), non-standard ports
 // Unsupported yet: patterns (*? wildcards)
 // This code is temporary, x/crypto/ssh will probably provide something similar. One day.
-func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
+func _hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
 	path := filepath.Join(os.Getenv("HOME"), ".ssh", "known_hosts")
 	file, err := os.Open(path)
 	if err != nil {
@@ -106,7 +124,8 @@ func hostKeyChecker(hostname string, remote net.Addr, key ssh.PublicKey) error {
 		if marker != "" {
 			continue // @cert-authority or @revoked
 		}
-		if bytes.Compare(key.Marshal(), hostKey.Marshal()) == 0 {
+		fmt.Printf("%s VS %s", key.Marshal(), hostKey.Marshal())
+		if bytes.Equal(key.Marshal(), hostKey.Marshal()) {
 			for _, host := range hosts {
 				if len(host) > 1 && host[0:1] == "|" {
 					parts := strings.Split(host, "|")
